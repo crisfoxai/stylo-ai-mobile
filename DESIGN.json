@@ -1,0 +1,693 @@
+{
+  "meta": {
+    "version": "1.0",
+    "date": "2026-03-30",
+    "author": "Valentina — Senior UX/UI Designer",
+    "status": "Design System + Screen Specs for MVP"
+  },
+  "brand": {
+    "name": "Stylo AI",
+    "tagline": "Tu estilo, potenciado por IA",
+    "personality": ["minimalista", "editorial", "confiable", "aspiracional", "accesible"],
+    "colors": {
+      "primary": "#1A1A1A",
+      "primaryLight": "#2D2D2D",
+      "secondary": "#C67A5C",
+      "secondaryLight": "#D4967E",
+      "secondarySubtle": "#FAF0EB",
+      "background": "#FAFAFA",
+      "surface": "#FFFFFF",
+      "surfaceElevated": "#FFFFFF",
+      "textPrimary": "#1A1A1A",
+      "textSecondary": "#6B6B6B",
+      "textTertiary": "#9E9E9E",
+      "textOnPrimary": "#FFFFFF",
+      "textOnSecondary": "#FFFFFF",
+      "border": "#E8E8E8",
+      "borderLight": "#F0F0F0",
+      "divider": "#F2F2F2",
+      "success": "#4CAF50",
+      "warning": "#FFB74D",
+      "error": "#EF5350",
+      "info": "#42A5F5",
+      "overlay": "rgba(0, 0, 0, 0.5)",
+      "shimmer": "#F5F5F5"
+    },
+    "typography": {
+      "heading": "Plus Jakarta Sans",
+      "body": "Inter",
+      "mono": "JetBrains Mono",
+      "scale": {
+        "displayLarge": { "family": "Plus Jakarta Sans", "weight": 700, "size": 32, "lineHeight": 40, "letterSpacing": -0.5 },
+        "displayMedium": { "family": "Plus Jakarta Sans", "weight": 700, "size": 28, "lineHeight": 36, "letterSpacing": -0.3 },
+        "headlineLarge": { "family": "Plus Jakarta Sans", "weight": 600, "size": 24, "lineHeight": 32, "letterSpacing": -0.2 },
+        "headlineMedium": { "family": "Plus Jakarta Sans", "weight": 600, "size": 20, "lineHeight": 28, "letterSpacing": 0 },
+        "headlineSmall": { "family": "Plus Jakarta Sans", "weight": 600, "size": 18, "lineHeight": 24, "letterSpacing": 0 },
+        "titleLarge": { "family": "Inter", "weight": 600, "size": 16, "lineHeight": 22, "letterSpacing": 0 },
+        "titleMedium": { "family": "Inter", "weight": 500, "size": 14, "lineHeight": 20, "letterSpacing": 0.1 },
+        "bodyLarge": { "family": "Inter", "weight": 400, "size": 16, "lineHeight": 24, "letterSpacing": 0 },
+        "bodyMedium": { "family": "Inter", "weight": 400, "size": 14, "lineHeight": 20, "letterSpacing": 0.15 },
+        "bodySmall": { "family": "Inter", "weight": 400, "size": 12, "lineHeight": 16, "letterSpacing": 0.2 },
+        "labelLarge": { "family": "Inter", "weight": 500, "size": 14, "lineHeight": 20, "letterSpacing": 0.1 },
+        "labelMedium": { "family": "Inter", "weight": 500, "size": 12, "lineHeight": 16, "letterSpacing": 0.3 },
+        "labelSmall": { "family": "Inter", "weight": 500, "size": 10, "lineHeight": 14, "letterSpacing": 0.4 }
+      }
+    },
+    "spacing": {
+      "unit": 4,
+      "xs": 4,
+      "sm": 8,
+      "md": 16,
+      "lg": 24,
+      "xl": 32,
+      "xxl": 48,
+      "xxxl": 64
+    },
+    "borderRadius": {
+      "none": 0,
+      "sm": 8,
+      "md": 12,
+      "lg": 16,
+      "xl": 24,
+      "full": 9999
+    },
+    "elevation": {
+      "none": "none",
+      "sm": "0 1px 3px rgba(0,0,0,0.08)",
+      "md": "0 4px 12px rgba(0,0,0,0.08)",
+      "lg": "0 8px 24px rgba(0,0,0,0.12)",
+      "xl": "0 16px 48px rgba(0,0,0,0.16)"
+    },
+    "iconography": {
+      "style": "outline",
+      "strokeWidth": 1.5,
+      "cornerStyle": "rounded",
+      "library": "Phosphor Icons (light weight)",
+      "sizes": { "sm": 16, "md": 20, "lg": 24, "xl": 32 }
+    },
+    "motion": {
+      "durationFast": 150,
+      "durationNormal": 250,
+      "durationSlow": 400,
+      "easeDefault": "cubic-bezier(0.4, 0.0, 0.2, 1)",
+      "easeIn": "cubic-bezier(0.4, 0.0, 1, 1)",
+      "easeOut": "cubic-bezier(0.0, 0.0, 0.2, 1)",
+      "spring": "cubic-bezier(0.34, 1.56, 0.64, 1)"
+    }
+  },
+  "screens": [
+    {
+      "name": "Splash",
+      "purpose": "Primera impresión de marca. Carga de la app mientras se verifica sesión existente.",
+      "layout": "Centrado vertical. Logo Stylo AI animado (fade in + scale up sutil). Fondo #FAFAFA. Sin navegación.",
+      "components": [
+        "BrandLogo (animado, centered)",
+        "LoadingIndicator (sutil, debajo del logo, aparece si tarda >1s)"
+      ],
+      "cta": null,
+      "notes": "Duración máxima 2s. Si hay sesión activa, transición directa a Home. Si no, slide a Onboarding. Animación del logo: fade in 400ms + scale de 0.8 a 1.0 con spring easing."
+    },
+    {
+      "name": "Onboarding",
+      "purpose": "Explicar la propuesta de valor en 3 pasos y motivar el registro. Target: entender Stylo AI en <10 seg.",
+      "layout": "PageView horizontal con 3 slides. Ilustración/animación arriba (60% pantalla), texto abajo. Dots indicator. Botón fijo en bottom.",
+      "components": [
+        "OnboardingSlide (ilustración + título + subtítulo)",
+        "PageIndicatorDots (3 dots, activo = #C67A5C, inactivo = #E8E8E8)",
+        "ButtonPrimary ('Empezar' en slide 3)",
+        "TextButton ('Saltar' en slides 1-2, esquina superior derecha)"
+      ],
+      "slides": [
+        {
+          "title": "Escaneá tu guardarropa",
+          "subtitle": "Tomá una foto y la IA organiza todo por vos. Tipo, color, estilo — automático.",
+          "illustration": "Smartphone con cámara enfocando una prenda, partículas de IA procesando"
+        },
+        {
+          "title": "Outfits pensados para vos",
+          "subtitle": "Decinos cómo te sentís, a dónde vas, y el clima. Stylo arma el look perfecto.",
+          "illustration": "Cards de outfits apiladas con iconos de mood/clima/evento"
+        },
+        {
+          "title": "Tu estilo evoluciona con vos",
+          "subtitle": "Cada elección mejora las recomendaciones. Stylo aprende tu estilo único.",
+          "illustration": "Perfil de estilo con gráfico radial de preferencias, outfit destacado"
+        }
+      ],
+      "cta": "Empezar",
+      "notes": "Swipe entre slides con animación fluida. Botón 'Saltar' en slides 1 y 2. En slide 3 cambia a 'Empezar' con estilo primario. El usuario puede volver atrás con swipe."
+    },
+    {
+      "name": "AuthScreen",
+      "purpose": "Registro e inicio de sesión rápido. Objetivo: completar en <30 segundos.",
+      "layout": "Logo arriba centrado. Ilustración minimalista. Botones de auth social stacked. Separador 'o'. Campo de email. Link login/signup toggle abajo.",
+      "components": [
+        "BrandLogo (compacto)",
+        "SocialAuthButton ('Continuar con Google', ícono Google, fondo blanco, borde)",
+        "SocialAuthButton ('Continuar con Apple', ícono Apple, fondo negro)",
+        "DividerWithText ('o')",
+        "TextInput (email)",
+        "TextInput (contraseña, con toggle visibilidad)",
+        "ButtonPrimary ('Crear cuenta' o 'Iniciar sesión')",
+        "TextLink ('¿Ya tenés cuenta? Iniciá sesión' / '¿No tenés cuenta? Registrate')",
+        "LegalText ('Al continuar, aceptás los Términos y Política de Privacidad')"
+      ],
+      "cta": "Crear cuenta / Iniciar sesión",
+      "notes": "Social auth es el camino prioritario (más grande, arriba). Email es secundario. Transición suave entre modo registro y login sin cambiar de pantalla. Validación inline de email. Password strength indicator sutil. Keyboard-aware: el layout sube cuando aparece el teclado."
+    },
+    {
+      "name": "StyleQuiz",
+      "purpose": "Capturar preferencias iniciales del usuario para personalizar recomendaciones desde el día 1. Quiz de 5-7 preguntas.",
+      "layout": "Progress bar arriba. Pregunta centrada. Opciones como chips/cards seleccionables (multi-select). Botón 'Siguiente' fijo abajo. Botón 'Saltar quiz' como TextButton.",
+      "components": [
+        "ProgressBar (linear, color secondary, muestra paso X de Y)",
+        "QuizQuestion (texto de la pregunta, headlineMedium)",
+        "SelectableChip (para opciones de texto: estilos, colores)",
+        "SelectableCard (para opciones visuales: con imagen + label)",
+        "ButtonPrimary ('Siguiente')",
+        "TextButton ('Saltar' — siempre visible)"
+      ],
+      "questions": [
+        { "step": 1, "question": "¿Cómo describirías tu estilo?", "type": "multiSelect", "options": ["Casual", "Clásico", "Streetwear", "Minimalista", "Boho", "Elegante", "Deportivo", "Creativo"] },
+        { "step": 2, "question": "¿Qué colores dominan tu guardarropa?", "type": "colorPicker", "options": ["Negro", "Blanco", "Azul", "Gris", "Beige", "Verde", "Bordeaux", "Pastel"] },
+        { "step": 3, "question": "¿Para qué ocasiones te vestís más seguido?", "type": "multiSelect", "options": ["Trabajo/oficina", "Casual diario", "Salidas nocturnas", "Deporte/gym", "Eventos formales", "Home office"] },
+        { "step": 4, "question": "¿Qué tan aventurero/a sos con la moda?", "type": "singleSelect", "options": ["Me quedo con lo seguro", "Pruebo cosas nuevas a veces", "Me encanta experimentar", "Soy trendsetter"] },
+        { "step": 5, "question": "¿Cuál es tu prioridad al vestirte?", "type": "ranking", "options": ["Comodidad", "Estilo", "Practicidad", "Que combine bien", "Expresar mi personalidad"] }
+      ],
+      "cta": "Siguiente / Descubrir mi estilo (último paso)",
+      "notes": "Se puede saltar en cualquier momento. Si se salta, se usa perfil genérico que se ajusta con el uso. Animación de transición entre preguntas: slide horizontal. El último paso muestra 'Descubrir mi estilo' que lleva a una pantalla de resultado con resumen del perfil antes de ir al Home."
+    },
+    {
+      "name": "StyleQuizResult",
+      "purpose": "Mostrar al usuario el resultado del quiz como refuerzo positivo y generar engagement.",
+      "layout": "Card central con resultado. Gráfico radial de estilo. Tags de preferencias. Botón para continuar.",
+      "components": [
+        "StyleRadarChart (visualización de dimensiones de estilo)",
+        "StyleBadge (ej: 'Minimalista Urbano')",
+        "TagList (colores y ocasiones preferidas)",
+        "ButtonPrimary ('Ir a mi guardarropa')",
+        "TextButton ('Editar preferencias')"
+      ],
+      "cta": "Ir a mi guardarropa",
+      "notes": "Pantalla de transición con micro-animación de celebración sutil. El badge de estilo usa el accent color. Se puede acceder a esta vista luego desde Settings."
+    },
+    {
+      "name": "HomeDashboard",
+      "purpose": "Centro de la experiencia. Mostrar outfit del día, acceso rápido a escaneo, resumen del guardarropa y recomendaciones.",
+      "layout": "ScrollView vertical. Header con saludo + avatar. Sección hero con outfit del día. Quick actions row. Sección de guardarropa reciente. Sección de recomendaciones. Bottom navigation bar.",
+      "sections": [
+        {
+          "name": "Header",
+          "components": ["Greeting ('Buenos días, {nombre}' según hora)", "Avatar (circle, 40px, con iniciales o foto)", "NotificationBell (con badge si hay notificaciones)"]
+        },
+        {
+          "name": "OutfitOfTheDay",
+          "components": ["OutfitCard (hero, grande, con imagen flat-lay del outfit)", "WeatherBadge (temperatura + ícono clima, esquina superior)", "MoodTag (estado de ánimo sugerido)", "ButtonSecondary ('Ver alternativas')", "IconButton (heart para favorito)"]
+        },
+        {
+          "name": "QuickActions",
+          "components": ["QuickActionButton (ícono + label, horizontal scroll)", "Actions: 'Escanear prenda', 'Nuevo outfit', 'Mi guardarropa', 'Favoritos'"]
+        },
+        {
+          "name": "RecentWardrobe",
+          "components": ["SectionHeader ('Tu guardarropa' + 'Ver todo')", "HorizontalGarmentList (thumbnails circulares de últimas prendas agregadas, scroll horizontal)"]
+        },
+        {
+          "name": "RecommendedOutfits",
+          "components": ["SectionHeader ('Para esta semana' + 'Ver más')", "OutfitCardSmall (horizontal scroll, cards con 3-4 prendas miniatura + nombre del outfit)"]
+        },
+        {
+          "name": "StyleInsight",
+          "components": ["InsightCard (tip de estilo o estadística, ej: 'Tenés 5 prendas azules que nunca combinaste', fondo secondarySubtle)"]
+        }
+      ],
+      "cta": "Outfit del día como hero card interactiva",
+      "notes": "El saludo cambia según hora (Buenos días/tardes/noches). El outfit del día se genera automáticamente considerando clima real. Pull-to-refresh actualiza recomendaciones. Si el guardarropa está vacío, el hero se reemplaza por un CTA de escaneo con ilustración motivacional. Bottom nav: Home (activo), Guardarropa, Escanear (FAB central), Outfits, Perfil."
+    },
+    {
+      "name": "CameraScanner",
+      "purpose": "Capturar foto de una prenda para agregarla al guardarropa. Flujo simple y rápido.",
+      "layout": "Fullscreen camera viewfinder. Guía visual de encuadre. Controles abajo: captura, galería, flash. Header translúcido con botón cerrar.",
+      "components": [
+        "CameraViewfinder (fullscreen, con overlay de guía)",
+        "FrameGuide (rectángulo dashed sutil indicando zona óptima de captura)",
+        "CaptureButton (circular, grande, 72px, borde blanco, centro #C67A5C)",
+        "GalleryButton (thumbnail de última foto, esquina inferior izquierda)",
+        "FlashToggle (ícono flash, esquina inferior derecha)",
+        "CloseButton (X, esquina superior izquierda, sobre overlay translúcido)",
+        "HintText ('Centrá la prenda sobre fondo liso', aparece solo la primera vez)"
+      ],
+      "cta": "CaptureButton (botón central de captura)",
+      "notes": "La guía de encuadre desaparece después de las primeras 3 capturas exitosas. Feedback háptico al capturar. Transición instantánea a preview. Si es la primera vez, mostrar tooltip educativo sobre fondo liso. Soportar tanto cámara como selección de galería."
+    },
+    {
+      "name": "GarmentPreview",
+      "purpose": "Mostrar resultado del escaneo: prenda con fondo removido + clasificación IA. Permitir corrección.",
+      "layout": "Imagen de prenda procesada arriba (fondo removido, checkerboard sutil). Tags de clasificación IA abajo. Botones de acción.",
+      "components": [
+        "ProcessedImage (prenda sin fondo, sobre fondo suave o checkerboard sutil)",
+        "ProcessingOverlay (shimmer + 'Analizando prenda...' durante procesamiento)",
+        "ClassificationTags (tipo, color, estilo, material, temporada — como chips editables)",
+        "EditableChip (tap para editar/corregir un atributo, ícono de edit pequeño)",
+        "ButtonPrimary ('Agregar al guardarropa')",
+        "ButtonSecondary ('Volver a intentar')",
+        "TextButton ('Descartar')"
+      ],
+      "cta": "Agregar al guardarropa",
+      "notes": "El procesamiento (background removal + clasificación) ocurre en paralelo. Mostrar shimmer mientras procesa. Si la IA falla en algo, los chips muestran borde punteado indicando baja confianza. Al tocar un chip se abre un selector para corregir. Animación de éxito (checkmark) al agregar. Confirmación tipo snackbar: 'Prenda agregada ✓ — Ver en guardarropa'."
+    },
+    {
+      "name": "WardrobeGrid",
+      "purpose": "Ver todas las prendas del guardarropa digital. Filtrar, buscar, organizar.",
+      "layout": "SearchBar sticky arriba. FilterChips row (scroll horizontal). Grid de prendas (2 o 3 columnas). FAB de escaneo. Empty state si no hay prendas.",
+      "components": [
+        "SearchBar (ícono lupa, placeholder 'Buscá una prenda...', búsqueda natural)",
+        "FilterChipRow (horizontal scroll: Todas, Tops, Bottoms, Zapatos, Accesorios, Abrigos + filtros de color y temporada)",
+        "GarmentGridItem (imagen cuadrada, rounded corners, label de categoría sutil abajo)",
+        "GarmentCount ('47 prendas' debajo de los filtros)",
+        "FABScan (floating action button para escanear, esquina inferior derecha)",
+        "EmptyState (ilustración + '¡Empezá a escanear!' + ButtonPrimary)"
+      ],
+      "cta": "FAB de escaneo + SearchBar para explorar",
+      "notes": "Grid responsiva: 2 columnas en pantallas chicas, 3 en pantallas grandes. Long press en prenda abre menú contextual (editar, eliminar, ver outfits). Swipe down para buscar. Filtros son combinables (categoría + color + temporada). Animación de grid reflow al filtrar. Lazy loading de imágenes con placeholder shimmer."
+    },
+    {
+      "name": "GarmentDetail",
+      "purpose": "Ver detalle de una prenda individual. Editar atributos, ver en qué outfits se usa, eliminar.",
+      "layout": "Imagen grande arriba (hero). Atributos en lista debajo. Sección 'Aparece en estos outfits'. Acciones al fondo.",
+      "components": [
+        "HeroImage (prenda sin fondo, fondo gradiente suave)",
+        "AttributeList (tipo, color, material, temporada, estilo — cada uno editable)",
+        "OutfitPreviewRow ('Usada en 3 outfits' + thumbnails horizontales)",
+        "StatsRow ('Agregada hace 2 semanas', 'Usada 5 veces')",
+        "ButtonDestructive ('Eliminar prenda')",
+        "ConfirmationDialog (para eliminar: 'Se moverá a papelera por 30 días')"
+      ],
+      "cta": "Editar atributos inline / Ver outfits relacionados",
+      "notes": "Hero image con parallax sutil al scrollear. Atributos editables inline con tap. Eliminación es soft delete con papelera de 30 días. Mostrar frecuencia de uso para motivar el uso de prendas olvidadas."
+    },
+    {
+      "name": "OutfitGenerator",
+      "purpose": "Pantalla principal de generación de outfits. Seleccionar mood, evento, considerar clima. Ver resultado.",
+      "layout": "Header con clima actual. Selectores de mood y evento. Botón generar. Resultado con outfit generado debajo.",
+      "sections": [
+        {
+          "name": "ContextSelector",
+          "components": [
+            "WeatherCard (clima actual: temp, ícono, ubicación — compacto)",
+            "MoodSelector (chips horizontales: Casual, Formal, Atrevido, Relajado, Energético — single select)",
+            "EventSelector (chips: Trabajo, Cita, Brunch, Gym, Fiesta, Día libre + campo libre 'Otro...')"
+          ]
+        },
+        {
+          "name": "GeneratedOutfit",
+          "components": [
+            "OutfitFlatLay (composición visual de prendas, estilo editorial flat lay)",
+            "GarmentList (lista de cada prenda con thumbnail + nombre + tap para ver alternativa)",
+            "ActionRow (Like/Dislike/Guardar/Compartir)",
+            "ButtonSecondary ('Otra opción')",
+            "AlternativeCarousel (al rechazar, muestra 2 alternativas más en carousel)"
+          ]
+        }
+      ],
+      "cta": "Generar outfit / Otra opción",
+      "notes": "El clima se detecta automáticamente por GPS (con fallback manual). Mood y evento son opcionales pero mejoran la recomendación. Animación de generación: las prendas 'caen' al flat lay una por una (staggered 150ms). Like/dislike alimentan el algoritmo. Se pueden generar hasta 3 alternativas por consulta en free, ilimitadas en premium."
+    },
+    {
+      "name": "OutfitDetail",
+      "purpose": "Ver un outfit completo. Editar prendas individuales, guardar en favoritos, compartir, agendar.",
+      "layout": "Flat lay grande arriba. Lista de prendas abajo con opción de swap. Acciones: favorito, compartir, usar hoy.",
+      "components": [
+        "OutfitFlatLay (composición visual grande, interactiva)",
+        "GarmentSwapItem (prenda + botón 'Cambiar' que abre alternativas coherentes)",
+        "FavoriteButton (corazón, esquina superior derecha, animado al activar)",
+        "ShareButton (compartir como imagen — link o stories)",
+        "ButtonPrimary ('Usar hoy' — registra en historial)",
+        "ButtonSecondary ('Agendar para otra fecha')",
+        "DatePicker (para agendar, modal bottom sheet)",
+        "OutfitName (editable, ej: 'Look oficina lunes')"
+      ],
+      "cta": "Usar hoy / Guardar en favoritos",
+      "notes": "Al tocar una prenda en el flat lay, se resalta y muestra alternativas de esa categoría del guardarropa. El swap sugiere opciones coherentes con el resto del outfit. Compartir genera imagen estilizada con marca de agua Stylo AI sutil. 'Usar hoy' registra en historial para estadísticas."
+    },
+    {
+      "name": "Favorites",
+      "purpose": "Colección de outfits guardados. Acceso rápido a looks favoritos.",
+      "layout": "Grid de outfit cards (2 columnas). Filtro por fecha/evento. Empty state motivacional.",
+      "components": [
+        "OutfitCardGrid (2 columnas, cada card con flat lay miniatura + nombre + fecha)",
+        "FilterRow (Todos, Esta semana, Trabajo, Casual, Eventos)",
+        "EmptyState (ilustración + 'Guardá outfits que te gusten tocando ♡')",
+        "SwipeToDelete (swipe izquierda para quitar de favoritos)"
+      ],
+      "cta": "Tap en outfit para ver detalle / Ir a generar si está vacío",
+      "notes": "Los favoritos se sincronizan entre dispositivos. Orden por fecha de guardado (más reciente primero). Se pueden reordenar con long press + drag. Badge de clima si el outfit es apto para el clima actual."
+    },
+    {
+      "name": "OutfitHistory",
+      "purpose": "Historial de outfits usados. Estadísticas de uso y patrones.",
+      "layout": "Timeline vertical con calendario compacto arriba. Cada entrada: fecha + outfit flat lay miniatura + contexto.",
+      "components": [
+        "CalendarStrip (semana actual, scroll horizontal para navegar)",
+        "HistoryEntry (fecha, outfit thumbnail, mood/evento tag)",
+        "StatsCard (prendas más usadas, colores frecuentes, looks repetidos)",
+        "EmptyDay ('Sin registro' con CTA 'Registrar look de hoy')"
+      ],
+      "cta": "Registrar look de hoy",
+      "notes": "Fase 1 es vista simple. Fase 2 agrega foto del outfit puesto. Las estadísticas motivan a usar prendas olvidadas. Nice-to-have en MVP."
+    },
+    {
+      "name": "VirtualTryOn",
+      "purpose": "Preview visual de cómo se ven las prendas combinadas. MVP: flat lay inteligente.",
+      "layout": "Canvas central con composición flat lay. Barra de prendas abajo para drag & drop. Botones de acción.",
+      "components": [
+        "FlatLayCanvas (fondo neutro, prendas dispuestas estéticamente)",
+        "GarmentTray (scroll horizontal de prendas del guardarropa abajo)",
+        "ZoomPinch (zoom in/out en la composición)",
+        "ShareButton",
+        "SaveButton ('Guardar como outfit')"
+      ],
+      "cta": "Guardar como outfit / Compartir",
+      "notes": "En MVP es un collage inteligente, no un try-on sobre cuerpo. Comunicar como 'Preview de outfit' para manejar expectativas. Las prendas se disponen automáticamente en posición lógica (top arriba, bottom abajo, zapatos al pie, accesorios al costado). Feature premium."
+    },
+    {
+      "name": "Settings",
+      "purpose": "Configuración de cuenta, perfil de estilo, suscripción, preferencias.",
+      "layout": "Lista agrupada con secciones. Avatar + nombre arriba. Secciones: Cuenta, Estilo, Suscripción, App, Legal.",
+      "sections": [
+        {
+          "name": "ProfileHeader",
+          "components": ["Avatar (editable)", "UserName", "Email", "StyleBadge"]
+        },
+        {
+          "name": "Cuenta",
+          "items": ["Editar perfil", "Cambiar contraseña", "Notificaciones"]
+        },
+        {
+          "name": "Mi Estilo",
+          "items": ["Editar preferencias de estilo", "Rehacer quiz de estilo", "Colores favoritos", "Tallas"]
+        },
+        {
+          "name": "Suscripción",
+          "components": ["SubscriptionCard (plan actual, días restantes de trial, CTA upgrade)"],
+          "items": ["Ver planes", "Gestionar suscripción", "Restaurar compras"]
+        },
+        {
+          "name": "App",
+          "items": ["Unidad de medida", "Ubicación", "Idioma", "Tema (claro/oscuro/sistema)"]
+        },
+        {
+          "name": "Legal",
+          "items": ["Términos de servicio", "Política de privacidad", "Eliminar cuenta"]
+        }
+      ],
+      "cta": "SubscriptionCard con CTA de upgrade",
+      "notes": "El card de suscripción es visualmente destacado con borde secondary. Si está en trial, muestra countdown. Sin dark patterns para cancelar. Eliminar cuenta requiere doble confirmación y es irreversible."
+    },
+    {
+      "name": "Paywall",
+      "purpose": "Convertir usuarios free a premium. Aparece en momentos de valor (al intentar usar feature premium).",
+      "layout": "Bottom sheet modal (70% pantalla). Feature list con checkmarks. Comparativa free vs premium. CTA prominente.",
+      "components": [
+        "FeatureComparisonList (free vs premium con checks/crosses)",
+        "PricingCard ('$7.99/mes' destacado, con cálculo diario '$0.26/día')",
+        "TrialBadge ('7 días gratis' si aplica)",
+        "ButtonPrimary ('Empezar trial gratis' o 'Suscribirme')",
+        "TextButton ('Ahora no')",
+        "TrustSignals ('Cancelá cuando quieras', 'Sin compromiso')"
+      ],
+      "cta": "Empezar trial gratis",
+      "notes": "No es agresivo. Aparece contextualmente: cuando intentan usar try-on (premium), cuando alcanzan límite de escaneos, etc. Siempre tiene opción clara de cerrar/rechazar. Copy empático, no presionante. Mostrar qué feature específica desbloquearían."
+    },
+    {
+      "name": "LandingPage",
+      "purpose": "Presentar Stylo AI a visitantes web. Convertir a descarga o waitlist.",
+      "layout": "One-page scroll. Hero con CTA. Secciones: Features, Cómo funciona, Pricing, FAQ, Footer.",
+      "sections": [
+        {
+          "name": "Hero",
+          "components": ["Headline ('Tu guardarropa, potenciado por IA')", "Subtitle", "CTAButton ('Descargar gratis')", "AppPreviewMockup (iPhone con app)", "TrustBadge ('4.8★ en App Store')"]
+        },
+        {
+          "name": "Features",
+          "components": ["FeatureCard x4 (ícono + título + descripción: Escaneo IA, Outfits inteligentes, Virtual try-on, Aprende de vos)"]
+        },
+        {
+          "name": "HowItWorks",
+          "components": ["Step x3 (número + ilustración + texto: 1. Escaneá, 2. Pedí outfit, 3. Salí con estilo)"]
+        },
+        {
+          "name": "Pricing",
+          "components": ["PricingTable (Free vs Premium, highlight Premium)", "FAQAccordion"]
+        },
+        {
+          "name": "Waitlist",
+          "components": ["EmailInput", "SubmitButton ('Unirme a la waitlist')", "SocialProof ('2,000+ personas ya se unieron')"]
+        },
+        {
+          "name": "Footer",
+          "components": ["Logo", "NavLinks (Términos, Privacidad, Contacto)", "SocialLinks (IG, TikTok, Twitter)"]
+        }
+      ],
+      "cta": "Descargar gratis / Unirme a la waitlist",
+      "notes": "Responsive: mobile-first. Hero con animación sutil de parallax en el mockup. Pricing con toggle mensual/anual. FAQ expandible. Waitlist con confirmación visual + email automático. SEO optimizado."
+    }
+  ],
+  "components": [
+    {
+      "name": "ButtonPrimary",
+      "variants": ["default", "loading", "disabled"],
+      "props": { "label": "string", "onPress": "function", "loading": "boolean", "disabled": "boolean", "fullWidth": "boolean" },
+      "style": { "background": "#1A1A1A", "text": "#FFFFFF", "borderRadius": 12, "height": 52, "font": "labelLarge", "paddingHorizontal": 24 },
+      "usage": "Acción principal de cada pantalla. Máximo 1 por vista."
+    },
+    {
+      "name": "ButtonSecondary",
+      "variants": ["default", "loading", "disabled"],
+      "style": { "background": "transparent", "text": "#1A1A1A", "border": "1px solid #E8E8E8", "borderRadius": 12, "height": 52 },
+      "usage": "Acciones secundarias, alternativas."
+    },
+    {
+      "name": "ButtonDestructive",
+      "variants": ["default", "loading"],
+      "style": { "background": "transparent", "text": "#EF5350", "border": "1px solid #EF5350", "borderRadius": 12, "height": 52 },
+      "usage": "Eliminar, cancelar suscripción. Siempre con confirmación."
+    },
+    {
+      "name": "TextButton",
+      "variants": ["default", "subtle"],
+      "style": { "background": "transparent", "text": "#6B6B6B", "textDecoration": "none", "font": "labelLarge" },
+      "usage": "Links, acciones terciarias, 'Saltar', 'Ahora no'."
+    },
+    {
+      "name": "IconButton",
+      "variants": ["default", "filled", "tonal"],
+      "style": { "size": 44, "iconSize": 20, "borderRadius": 9999, "touchTarget": 48 },
+      "usage": "Favorito, compartir, cerrar, back. Touch target mínimo 48px."
+    },
+    {
+      "name": "TextInput",
+      "variants": ["default", "focused", "error", "disabled", "withIcon"],
+      "style": { "height": 52, "borderRadius": 12, "border": "1px solid #E8E8E8", "focusBorder": "#1A1A1A", "errorBorder": "#EF5350", "background": "#FFFFFF", "padding": 16 },
+      "usage": "Campos de formulario. Label flotante al focus. Helper text debajo para errores."
+    },
+    {
+      "name": "SearchBar",
+      "variants": ["collapsed", "expanded", "withResults"],
+      "style": { "height": 48, "borderRadius": 24, "background": "#F2F2F2", "iconColor": "#9E9E9E" },
+      "usage": "Búsqueda en guardarropa. Placeholder descriptivo. Resultados inline."
+    },
+    {
+      "name": "SelectableChip",
+      "variants": ["unselected", "selected"],
+      "style": {
+        "unselected": { "background": "#FFFFFF", "border": "1px solid #E8E8E8", "text": "#1A1A1A" },
+        "selected": { "background": "#1A1A1A", "border": "none", "text": "#FFFFFF" }
+      },
+      "usage": "Filtros, opciones del quiz, mood selector. Redondeados, compactos."
+    },
+    {
+      "name": "GarmentGridItem",
+      "variants": ["default", "selected", "lowConfidence"],
+      "style": { "aspectRatio": "1:1", "borderRadius": 12, "background": "#F5F5F5", "padding": 8 },
+      "usage": "Thumbnail de prenda en grilla. Tap abre detalle. Long press abre menú contextual."
+    },
+    {
+      "name": "OutfitCard",
+      "variants": ["hero", "small", "minimal"],
+      "props": { "outfit": "Outfit", "showWeather": "boolean", "showMood": "boolean", "onLike": "function" },
+      "style": {
+        "hero": { "borderRadius": 16, "height": 280, "shadow": "md" },
+        "small": { "borderRadius": 12, "height": 180, "shadow": "sm" },
+        "minimal": { "borderRadius": 8, "height": 120, "shadow": "none" }
+      },
+      "usage": "Mostrar outfit completo. Hero en Home, small en listas, minimal en historial."
+    },
+    {
+      "name": "WeatherBadge",
+      "variants": ["compact", "expanded"],
+      "style": { "borderRadius": 20, "background": "rgba(255,255,255,0.9)", "backdropBlur": 8, "padding": "6px 12px" },
+      "usage": "Indicador de clima. Siempre visible en outfit generator y home."
+    },
+    {
+      "name": "SocialAuthButton",
+      "variants": ["google", "apple"],
+      "style": {
+        "google": { "background": "#FFFFFF", "border": "1px solid #E8E8E8", "text": "#1A1A1A", "height": 52, "borderRadius": 12 },
+        "apple": { "background": "#000000", "text": "#FFFFFF", "height": 52, "borderRadius": 12 }
+      },
+      "usage": "Botones de autenticación social. Siempre con ícono del provider a la izquierda."
+    },
+    {
+      "name": "SubscriptionCard",
+      "variants": ["trial", "free", "premium", "expired"],
+      "style": { "borderRadius": 16, "border": "1px solid #C67A5C", "background": "#FAF0EB", "padding": 20 },
+      "usage": "Estado de suscripción en Settings. Destacado visualmente con accent color."
+    },
+    {
+      "name": "SectionHeader",
+      "props": { "title": "string", "action": "string", "onAction": "function" },
+      "style": { "titleFont": "headlineSmall", "actionFont": "labelLarge", "actionColor": "#C67A5C" },
+      "usage": "Encabezado de sección con link 'Ver todo' / 'Ver más' a la derecha."
+    },
+    {
+      "name": "EmptyState",
+      "props": { "illustration": "string", "title": "string", "subtitle": "string", "ctaLabel": "string" },
+      "style": { "centered": true, "illustrationSize": 200, "padding": 32 },
+      "usage": "Cuando una sección no tiene datos. Siempre con CTA para guiar al usuario."
+    },
+    {
+      "name": "SnackBar",
+      "variants": ["success", "error", "info"],
+      "style": { "borderRadius": 12, "background": "#1A1A1A", "text": "#FFFFFF", "position": "bottom", "margin": 16 },
+      "usage": "Feedback efímero: 'Prenda agregada', 'Outfit guardado'. Auto-dismiss en 3s."
+    },
+    {
+      "name": "BottomNavBar",
+      "items": [
+        { "icon": "house", "label": "Inicio", "route": "/home" },
+        { "icon": "tshirt", "label": "Guardarropa", "route": "/wardrobe" },
+        { "icon": "camera-plus", "label": "Escanear", "route": "/scan", "isFab": true },
+        { "icon": "sparkle", "label": "Outfits", "route": "/outfits" },
+        { "icon": "user", "label": "Perfil", "route": "/settings" }
+      ],
+      "style": { "background": "#FFFFFF", "activeColor": "#1A1A1A", "inactiveColor": "#9E9E9E", "fabColor": "#C67A5C", "fabSize": 56, "height": 64, "elevation": "md" },
+      "usage": "Navegación principal. El botón central de escaneo es un FAB elevado con accent color."
+    },
+    {
+      "name": "ConfirmationDialog",
+      "variants": ["destructive", "neutral"],
+      "style": { "borderRadius": 16, "background": "#FFFFFF", "overlay": "rgba(0,0,0,0.5)", "padding": 24 },
+      "usage": "Eliminar prenda, cancelar suscripción. Siempre con opción de cancelar."
+    },
+    {
+      "name": "ProgressBar",
+      "variants": ["linear", "circular"],
+      "style": { "height": 4, "background": "#F0F0F0", "fillColor": "#C67A5C", "borderRadius": 2 },
+      "usage": "Progreso del quiz, carga de procesamiento."
+    },
+    {
+      "name": "ClassificationTag",
+      "variants": ["confirmed", "lowConfidence", "editing"],
+      "style": {
+        "confirmed": { "background": "#F2F2F2", "text": "#1A1A1A", "borderRadius": 8 },
+        "lowConfidence": { "background": "#FFFFFF", "border": "1px dashed #FFB74D", "text": "#1A1A1A" },
+        "editing": { "background": "#FAF0EB", "border": "1px solid #C67A5C", "text": "#1A1A1A" }
+      },
+      "usage": "Tags de clasificación IA en GarmentPreview. Low confidence invita a corrección."
+    }
+  ],
+  "flows": [
+    {
+      "name": "Onboarding y Registro",
+      "description": "Desde instalación hasta guardarropa listo para usar.",
+      "steps": [
+        { "step": 1, "screen": "Splash", "action": "Auto — verificar sesión", "next": "Si hay sesión → Home. Si no → Onboarding" },
+        { "step": 2, "screen": "Onboarding", "action": "Swipe 3 slides o saltar", "next": "AuthScreen" },
+        { "step": 3, "screen": "AuthScreen", "action": "Registro con Google/Apple/Email", "next": "StyleQuiz" },
+        { "step": 4, "screen": "StyleQuiz", "action": "Completar 5 preguntas o saltar", "next": "StyleQuizResult (si completa) o HomeDashboard (si salta)" },
+        { "step": 5, "screen": "StyleQuizResult", "action": "Ver resultado, CTA continuar", "next": "HomeDashboard (con empty state + CTA escanear)" },
+        { "step": 6, "screen": "HomeDashboard", "action": "Empty state guía a primera captura", "next": "CameraScanner" }
+      ],
+      "metrics": { "targetCompletion": ">70%", "targetTime": "<2 minutos hasta Home" }
+    },
+    {
+      "name": "Escaneo de Prenda",
+      "description": "Capturar, procesar y agregar una prenda al guardarropa.",
+      "steps": [
+        { "step": 1, "screen": "HomeDashboard / WardrobeGrid", "action": "Tap FAB 'Escanear' o QuickAction", "next": "CameraScanner" },
+        { "step": 2, "screen": "CameraScanner", "action": "Tomar foto o seleccionar de galería", "next": "GarmentPreview (con loading)" },
+        { "step": 3, "screen": "GarmentPreview", "action": "Procesamiento IA (background removal + clasificación)", "next": "Resultado con tags" },
+        { "step": 4, "screen": "GarmentPreview", "action": "Revisar/corregir tags, confirmar", "next": "SnackBar de éxito + volver a pantalla anterior" },
+        { "step": "4b", "screen": "GarmentPreview", "action": "Reintentar (si foto mala)", "next": "CameraScanner" }
+      ],
+      "metrics": { "targetTime": "<15 segundos de foto a prenda guardada", "targetAccuracy": ">85% clasificación correcta" }
+    },
+    {
+      "name": "Generación de Outfit",
+      "description": "Pedir y recibir una recomendación de outfit personalizada.",
+      "steps": [
+        { "step": 1, "screen": "HomeDashboard", "action": "Tap 'Nuevo outfit' o tap en Outfit del Día", "next": "OutfitGenerator" },
+        { "step": 2, "screen": "OutfitGenerator", "action": "Seleccionar mood y/o evento (opcional)", "next": "Generación automática" },
+        { "step": 3, "screen": "OutfitGenerator", "action": "Ver outfit generado", "next": "Like → OutfitDetail / Dislike → nueva sugerencia / Guardar → Favorites" },
+        { "step": 4, "screen": "OutfitDetail", "action": "Swap prenda si quiere cambiar algo", "next": "Outfit actualizado" },
+        { "step": 5, "screen": "OutfitDetail", "action": "'Usar hoy' o 'Agendar'", "next": "Registrado en historial + SnackBar confirmación" }
+      ],
+      "metrics": { "targetGenerationTime": "<3 segundos", "targetSatisfaction": ">60% like rate" }
+    },
+    {
+      "name": "Exploración de Guardarropa",
+      "description": "Navegar, filtrar y buscar prendas en el guardarropa digital.",
+      "steps": [
+        { "step": 1, "screen": "BottomNavBar", "action": "Tap 'Guardarropa'", "next": "WardrobeGrid" },
+        { "step": 2, "screen": "WardrobeGrid", "action": "Buscar por texto natural o usar filtros", "next": "Resultados filtrados en grid" },
+        { "step": 3, "screen": "WardrobeGrid", "action": "Tap en prenda", "next": "GarmentDetail" },
+        { "step": 4, "screen": "GarmentDetail", "action": "Ver detalles, editar atributos, ver outfits relacionados", "next": "Acciones inline" },
+        { "step": "4b", "screen": "GarmentDetail", "action": "Eliminar prenda", "next": "ConfirmationDialog → soft delete → volver a grid" }
+      ]
+    },
+    {
+      "name": "Upgrade a Premium",
+      "description": "Conversión de usuario free a premium en momento de valor.",
+      "steps": [
+        { "step": 1, "screen": "Cualquiera", "action": "Usuario intenta feature premium (try-on, >5 escaneos, etc.)", "next": "Paywall (bottom sheet)" },
+        { "step": 2, "screen": "Paywall", "action": "Ver comparativa y precio", "next": "Decidir" },
+        { "step": 3, "screen": "Paywall", "action": "'Empezar trial gratis'", "next": "App Store / Play Store payment flow" },
+        { "step": "3b", "screen": "Paywall", "action": "'Ahora no'", "next": "Cerrar bottom sheet, volver a pantalla anterior" },
+        { "step": 4, "screen": "Settings", "action": "Gestionar suscripción", "next": "SubscriptionCard con estado actual" }
+      ],
+      "metrics": { "targetTrialConversion": ">8%", "targetChurn": "<10% mensual" }
+    },
+    {
+      "name": "Landing Page Conversion",
+      "description": "Visitante web descubre Stylo AI y se une a waitlist o descarga.",
+      "steps": [
+        { "step": 1, "screen": "LandingPage — Hero", "action": "Lee propuesta de valor en <10 seg", "next": "Scroll o CTA" },
+        { "step": 2, "screen": "LandingPage — Features", "action": "Ve features principales", "next": "Scroll" },
+        { "step": 3, "screen": "LandingPage — HowItWorks", "action": "Entiende el flujo en 3 pasos", "next": "Scroll" },
+        { "step": 4, "screen": "LandingPage — Pricing", "action": "Ve planes y FAQ", "next": "Scroll a waitlist" },
+        { "step": 5, "screen": "LandingPage — Waitlist", "action": "Ingresa email", "next": "Confirmación visual + email automático de bienvenida" }
+      ],
+      "metrics": { "targetConversion": ">15% landing → descarga/waitlist" }
+    }
+  ],
+  "accessibility": {
+    "touchTargets": "Mínimo 48x48dp para todos los elementos interactivos",
+    "contrast": "WCAG AA mínimo (4.5:1 texto normal, 3:1 texto grande)",
+    "textScaling": "Soportar hasta 200% de escala de texto del sistema",
+    "screenReader": "Todos los elementos con labels descriptivos para VoiceOver/TalkBack",
+    "motion": "Respetar 'Reduce Motion' del sistema. Deshabilitar animaciones si está activo",
+    "colorBlind": "No depender solo del color para comunicar estado. Usar íconos + texto complementario"
+  },
+  "darkMode": {
+    "background": "#121212",
+    "surface": "#1E1E1E",
+    "surfaceElevated": "#2A2A2A",
+    "textPrimary": "#F5F5F5",
+    "textSecondary": "#A0A0A0",
+    "border": "#333333",
+    "secondary": "#D4967E",
+    "secondarySubtle": "#2A2018",
+    "note": "Dark mode en Fase 2. Diseñar light-first pero usar tokens semánticos para facilitar la implementación."
+  }
+}

@@ -1,0 +1,107 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:stylo_ai/core/theme/app_theme.dart';
+import 'package:stylo_ai/features/subscription/domain/entities/subscription.dart';
+import 'package:stylo_ai/features/subscription/domain/repositories/subscription_repository.dart';
+import 'package:stylo_ai/features/subscription/presentation/providers/subscription_provider.dart';
+import 'package:stylo_ai/features/subscription/presentation/screens/paywall_screen.dart';
+
+// ── Fake repository ─────────────────────────────────────────────────────────
+
+class FakeSubscriptionRepository implements SubscriptionRepository {
+  @override
+  Future<Subscription> getStatus() async => const Subscription(
+        id: 'sub1',
+        plan: SubscriptionPlan.free,
+        status: SubscriptionStatus.active,
+      );
+
+  @override
+  Future<Subscription> verifyPurchase({
+    required String productId,
+    required String receiptData,
+    required String platform,
+  }) async =>
+      const Subscription(
+        id: 'sub1',
+        plan: SubscriptionPlan.premium,
+        status: SubscriptionStatus.active,
+      );
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+Widget buildTestWidget() {
+  final router = GoRouter(
+    initialLocation: '/paywall',
+    routes: [
+      GoRoute(
+        path: '/paywall',
+        builder: (_, __) => const PaywallScreen(),
+      ),
+    ],
+  );
+
+  return ProviderScope(
+    overrides: [
+      subscriptionRepositoryProvider
+          .overrideWithValue(FakeSubscriptionRepository()),
+    ],
+    child: MaterialApp.router(
+      theme: AppTheme.light,
+      routerConfig: router,
+    ),
+  );
+}
+
+// ── Tests ────────────────────────────────────────────────────────────────────
+
+void main() {
+  group('PaywallScreen', () {
+    testWidgets('renders STYLO logo and headline', (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump();
+
+      expect(find.text('STYLO'), findsOneWidget);
+    });
+
+    testWidgets('renders CTA button', (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump();
+
+      expect(find.text('Empezar trial gratis'), findsOneWidget);
+    });
+
+    testWidgets('renders close button', (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump();
+
+      expect(find.byType(IconButton), findsWidgets);
+    });
+
+    testWidgets('renders feature rows', (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump();
+
+      expect(find.text('Guardarropa digital'), findsOneWidget);
+    });
+
+    testWidgets('renders price info', (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump();
+
+      // Scroll to price card
+      final scrollable = find.byType(Scrollable).first;
+      await tester.scrollUntilVisible(
+        find.text('Plan mensual'),
+        200,
+        scrollable: scrollable,
+      );
+      await tester.pump();
+
+      expect(find.text('Plan mensual'), findsOneWidget);
+    });
+  });
+}

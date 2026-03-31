@@ -1,0 +1,46 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stylo_ai/core/network/api_client.dart';
+import 'package:stylo_ai/features/auth/presentation/providers/auth_provider.dart';
+
+void main() {
+  group('apiClientProvider', () {
+    late ProviderContainer container;
+
+    setUp(() async {
+      dotenv.testLoad(fileInput: 'API_BASE_URL=https://api.stylo.ai/api/v1');
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      container = ProviderContainer(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ],
+      );
+    });
+
+    tearDown(() => container.dispose());
+
+    test('creates a Dio instance', () {
+      final dio = container.read(apiClientProvider);
+      expect(dio, isA<Dio>());
+    });
+
+    test('has correct Content-Type header', () {
+      final dio = container.read(apiClientProvider);
+      expect(dio.options.headers['Content-Type'], 'application/json');
+    });
+
+    test('has correct Accept header', () {
+      final dio = container.read(apiClientProvider);
+      expect(dio.options.headers['Accept'], 'application/json');
+    });
+
+    test('has interceptors configured', () {
+      final dio = container.read(apiClientProvider);
+      expect(dio.interceptors.length, greaterThanOrEqualTo(2));
+    });
+  });
+}

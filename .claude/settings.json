@@ -1,0 +1,1 @@
+{"permissions":{"allow":["Bash(flutter *)","Bash(dart *)","Bash(pod install*)","Bash(git add*)","Bash(git commit*)","Bash(git push*)","Bash(gh *)","Read","Write","Edit","Bash(cat *)","Bash(ls *)","Bash(mkdir *)"],"deny":["Bash(rm -rf*)","Bash(curl* | bash*)"]}}

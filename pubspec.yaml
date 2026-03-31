@@ -1,0 +1,94 @@
+name: stylo_ai
+description: "Stylo AI - Tu estilo, potenciado por IA"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Navigation
+  go_router: ^14.8.1
+
+  # Networking
+  dio: ^5.7.0
+
+  # Firebase
+  firebase_core: ^3.13.0
+  firebase_auth: ^5.5.4
+  firebase_messaging: ^15.2.4
+  google_sign_in: ^6.2.2
+  sign_in_with_apple: ^6.1.4
+
+  # Storage
+  shared_preferences: ^2.5.3
+  flutter_secure_storage: ^9.2.4
+
+  # Images
+  image_picker: ^1.1.2
+  cached_network_image: ^3.4.1
+
+  # UI
+  phosphor_flutter: ^2.1.0
+  google_fonts: ^6.2.1
+  shimmer: ^3.0.0
+  smooth_page_indicator: ^1.2.0+3
+
+  # Utils
+  intl: ^0.20.1
+  equatable: ^2.0.7
+  json_annotation: ^4.9.0
+  flutter_dotenv: ^5.2.1
+  path: ^1.9.1
+  uuid: ^4.5.1
+  connectivity_plus: ^6.1.4
+  permission_handler: ^11.4.0
+  geolocator: ^13.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.14
+  json_serializable: ^6.9.3
+  riverpod_generator: ^2.6.3
+  mockito: ^5.4.5
+  # build_verify removed - incompatible with current dep graph
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/images/onboarding/
+    - assets/animations/
+    - .env
+
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans/PlusJakartaSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/PlusJakartaSans/PlusJakartaSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/PlusJakartaSans/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/PlusJakartaSans/PlusJakartaSans-Bold.ttf
+          weight: 700
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter/Inter-SemiBold.ttf
+          weight: 600
