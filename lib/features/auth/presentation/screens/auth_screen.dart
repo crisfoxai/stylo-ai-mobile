@@ -35,8 +35,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     super.dispose();
   }
 
-  /// BUG-002 fix: Reset form state and clear controllers when toggling modes
+  /// BUG-002 fix: Reset form state, clear controllers, and dismiss keyboard
   void _toggleMode() {
+    FocusScope.of(context).unfocus();
     setState(() {
       _isLogin = !_isLogin;
       _formKey.currentState?.reset();
