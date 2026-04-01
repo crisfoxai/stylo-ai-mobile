@@ -21,6 +21,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _passwordController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
+  final _scrollController = ScrollController();
   bool _isLogin = true;
   bool _obscurePassword = true;
 
@@ -30,7 +31,32 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     _passwordController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  /// BUG-002 fix: Reset form state and clear controllers when toggling modes
+  void _toggleMode() {
+    setState(() {
+      _isLogin = !_isLogin;
+      _formKey.currentState?.reset();
+      _emailController.clear();
+      _passwordController.clear();
+      _firstNameController.clear();
+      _lastNameController.clear();
+      _obscurePassword = true;
+    });
+
+    // BUG-001 fix: Scroll to bottom after toggle so the link stays visible
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   void _submit() {
@@ -71,6 +97,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
+          controller: _scrollController,
           padding: const EdgeInsets.all(AppSpacing.xxl),
           child: Form(
             key: _formKey,
@@ -79,129 +106,193 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               children: [
                 const SizedBox(height: AppSpacing.xxxxl),
                 // Logo
-                Center(
-                  child: Text(
-                    'STYLO',
-                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                      color: AppColors.accent,
-                      letterSpacing: 4,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Center(
-                  child: Text(
-                    'Tu estilo, potenciado por IA',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
+                Semantics(
+                  label: 'STYLO, tu estilo potenciado por IA',
+                  header: true,
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          'STYLO',
+                          style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                            color: AppColors.accent,
+                            letterSpacing: 4,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          'Tu estilo, potenciado por IA',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxxxl),
 
                 // Social auth buttons
-                StyloButton(
-                  label: 'Continuar con Google',
-                  onPressed: () => ref.read(authNotifierProvider.notifier).signInWithGoogle(),
-                  variant: StyloButtonVariant.outlined,
-                  icon: Icons.g_mobiledata,
+                Semantics(
+                  button: true,
+                  label: 'Iniciar sesión con Google',
+                  child: StyloButton(
+                    label: 'Continuar con Google',
+                    onPressed: () => ref.read(authNotifierProvider.notifier).signInWithGoogle(),
+                    variant: StyloButtonVariant.outlined,
+                    icon: Icons.g_mobiledata,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
-                StyloButton(
-                  label: 'Continuar con Apple',
-                  onPressed: () => ref.read(authNotifierProvider.notifier).signInWithApple(),
-                  variant: StyloButtonVariant.primary,
-                  icon: Icons.apple,
+                Semantics(
+                  button: true,
+                  label: 'Iniciar sesión con Apple',
+                  child: StyloButton(
+                    label: 'Continuar con Apple',
+                    onPressed: () => ref.read(authNotifierProvider.notifier).signInWithApple(),
+                    variant: StyloButtonVariant.primary,
+                    icon: Icons.apple,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.xxl),
 
                 // Divider
-                Row(
-                  children: [
-                    const Expanded(child: Divider(color: AppColors.border)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                      child: Text('o', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textTertiary)),
-                    ),
-                    const Expanded(child: Divider(color: AppColors.border)),
-                  ],
+                Semantics(
+                  label: 'o',
+                  excludeSemantics: true,
+                  child: Row(
+                    children: [
+                      const Expanded(child: Divider(color: AppColors.border)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                        child: Text('o', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textTertiary)),
+                      ),
+                      const Expanded(child: Divider(color: AppColors.border)),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.xxl),
 
-                // Name fields (only for signup)
-                if (!_isLogin) ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: StyloTextField(
-                          controller: _firstNameController,
-                          label: 'Nombre',
-                          validator: Validators.name,
+                // Name fields (only for signup) — BUG-001: AnimatedSize for smooth transition
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  alignment: Alignment.topCenter,
+                  child: _isLogin
+                      ? const SizedBox.shrink()
+                      : Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Semantics(
+                                    textField: true,
+                                    label: 'Campo de nombre',
+                                    child: StyloTextField(
+                                      controller: _firstNameController,
+                                      label: 'Nombre',
+                                      validator: Validators.name,
+                                      textInputAction: TextInputAction.next,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.md),
+                                Expanded(
+                                  child: Semantics(
+                                    textField: true,
+                                    label: 'Campo de apellido',
+                                    child: StyloTextField(
+                                      controller: _lastNameController,
+                                      label: 'Apellido',
+                                      validator: Validators.name,
+                                      textInputAction: TextInputAction.next,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
+                          ],
                         ),
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: StyloTextField(
-                          controller: _lastNameController,
-                          label: 'Apellido',
-                          validator: Validators.name,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                ],
+                ),
 
                 // Email
-                StyloTextField(
-                  controller: _emailController,
-                  label: 'Email',
-                  keyboardType: TextInputType.emailAddress,
-                  validator: Validators.email,
+                Semantics(
+                  textField: true,
+                  label: 'Campo de email',
+                  child: StyloTextField(
+                    controller: _emailController,
+                    label: 'Email',
+                    keyboardType: TextInputType.emailAddress,
+                    validator: Validators.email,
+                    textInputAction: TextInputAction.next,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
 
                 // Password
-                StyloTextField(
-                  controller: _passwordController,
-                  label: 'Contraseña',
-                  obscureText: _obscurePassword,
-                  validator: _isLogin ? null : Validators.password,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                      color: AppColors.textTertiary,
+                Semantics(
+                  textField: true,
+                  label: 'Campo de contraseña',
+                  child: StyloTextField(
+                    controller: _passwordController,
+                    label: 'Contraseña',
+                    obscureText: _obscurePassword,
+                    validator: _isLogin ? null : Validators.password,
+                    textInputAction: TextInputAction.done,
+                    suffixIcon: Semantics(
+                      button: true,
+                      label: _obscurePassword ? 'Mostrar contraseña' : 'Ocultar contraseña',
+                      child: IconButton(
+                        icon: Icon(
+                          _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                          color: AppColors.textTertiary,
+                        ),
+                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      ),
                     ),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxl),
 
                 // Submit button
-                StyloButton(
-                  label: _isLogin ? 'Iniciar sesión' : 'Crear cuenta',
-                  onPressed: _submit,
-                  isLoading: authState.status == AuthStatus.loading,
+                Semantics(
+                  button: true,
+                  label: _isLogin ? 'Iniciar sesión con email' : 'Crear cuenta nueva',
+                  child: StyloButton(
+                    label: _isLogin ? 'Iniciar sesión' : 'Crear cuenta',
+                    onPressed: _submit,
+                    isLoading: authState.status == AuthStatus.loading,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
 
                 // Toggle login/signup
                 Center(
-                  child: TextButton(
-                    onPressed: () => setState(() => _isLogin = !_isLogin),
-                    child: Text(
-                      _isLogin ? '¿No tenés cuenta? Registrate' : '¿Ya tenés cuenta? Iniciá sesión',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.accent),
+                  child: Semantics(
+                    button: true,
+                    label: _isLogin
+                        ? 'Cambiar a modo registro'
+                        : 'Cambiar a modo inicio de sesión',
+                    child: TextButton(
+                      onPressed: _toggleMode,
+                      child: Text(
+                        _isLogin ? '¿No tenés cuenta? Registrate' : '¿Ya tenés cuenta? Iniciá sesión',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.accent),
+                      ),
                     ),
                   ),
                 ),
 
                 // Legal text
                 const SizedBox(height: AppSpacing.xxl),
-                Text(
-                  'Al continuar, aceptás los Términos y Política de Privacidad',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.textTertiary),
+                Semantics(
+                  label: 'Al continuar, aceptás los Términos y Política de Privacidad',
+                  child: Text(
+                    'Al continuar, aceptás los Términos y Política de Privacidad',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.textTertiary),
+                  ),
                 ),
               ],
             ),
