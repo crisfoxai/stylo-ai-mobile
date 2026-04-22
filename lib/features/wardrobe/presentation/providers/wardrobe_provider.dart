@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/storage/local_db.dart';
 import '../../data/datasources/wardrobe_remote_datasource.dart';
 import '../../data/repositories/wardrobe_repository_impl.dart';
 import '../../domain/entities/garment.dart';
@@ -9,8 +10,10 @@ import '../../domain/repositories/wardrobe_repository.dart';
 // ─── Repository Provider ────────────────────────────────────────────────────
 
 final wardrobeRepositoryProvider = Provider<WardrobeRepository>((ref) {
+  final isarAsync = ref.watch(isarProvider);
   return WardrobeRepositoryImpl(
     WardrobeRemoteDataSource(ref.watch(apiClientProvider)),
+    isar: isarAsync.valueOrNull,
   );
 });
 

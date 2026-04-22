@@ -1,26 +1,21 @@
-import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class StyleProfile extends Equatable {
-  final String id;
-  final List<String> aesthetics;
-  final List<String> favoriteColors;
-  final List<String> occasions;
-  final String adventureLevel;
-  final List<String> priorities;
-  final String? styleBadge;
-  final DateTime createdAt;
+part 'style_profile.freezed.dart';
+part 'style_profile.g.dart';
 
-  const StyleProfile({
-    required this.id,
-    required this.aesthetics,
-    required this.favoriteColors,
-    required this.occasions,
-    required this.adventureLevel,
-    required this.priorities,
-    this.styleBadge,
-    required this.createdAt,
-  });
+@freezed
+class StyleProfile with _$StyleProfile {
+  const factory StyleProfile({
+    required String id,
+    @Default([]) List<String> aesthetics,
+    @Default([]) List<String> favoriteColors,
+    @Default([]) List<String> occasions,
+    @Default('') String adventureLevel,
+    @Default([]) List<String> priorities,
+    String? styleBadge,
+    required DateTime createdAt,
+  }) = _StyleProfile;
 
-  @override
-  List<Object?> get props => [id, aesthetics, favoriteColors, occasions, adventureLevel, priorities, styleBadge];
+  factory StyleProfile.fromJson(Map<String, dynamic> json) =>
+      _$StyleProfileFromJson(json);
 }

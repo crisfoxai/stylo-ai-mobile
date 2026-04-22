@@ -1,27 +1,26 @@
-import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class User extends Equatable {
-  final String id;
-  final String email;
-  final String firstName;
-  final String lastName;
-  final String? avatarUrl;
-  final bool hasStyleProfile;
-  final DateTime createdAt;
+part 'user.freezed.dart';
+part 'user.g.dart';
 
-  const User({
-    required this.id,
-    required this.email,
-    required this.firstName,
-    required this.lastName,
-    this.avatarUrl,
-    this.hasStyleProfile = false,
-    required this.createdAt,
-  });
+@freezed
+class User with _$User {
+  const User._();
+
+  const factory User({
+    required String id,
+    required String email,
+    required String firstName,
+    required String lastName,
+    String? avatarUrl,
+    @Default(false) bool hasStyleProfile,
+    required DateTime createdAt,
+  }) = _User;
+
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
   String get fullName => '$firstName $lastName';
-  String get initials => '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'.toUpperCase();
-
-  @override
-  List<Object?> get props => [id, email, firstName, lastName, avatarUrl, hasStyleProfile, createdAt];
+  String get initials =>
+      '${firstName.isNotEmpty ? firstName[0] : ''}'
+      '${lastName.isNotEmpty ? lastName[0] : ''}'.toUpperCase();
 }

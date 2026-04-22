@@ -1,47 +1,56 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../constants/storage_keys.dart';
 
 class AuthInterceptor extends Interceptor {
   final Ref _ref;
-  final _storage = const FlutterSecureStorage();
+  final FirebaseAuth _auth;
 
-  AuthInterceptor(this._ref);
+  AuthInterceptor(this._ref, {FirebaseAuth? auth})
+      : _auth = auth ?? FirebaseAuth.instance;
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
-    final token = await _storage.read(key: StorageKeys.accessToken);
-    if (token != null) {
-      options.headers['Authorization'] = 'Bearer $token';
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      try {
+        final token = await user.getIdToken();
+        options.headers['Authorization'] = 'Bearer $token';
+      } catch (_) {
+        // If token fetch fails, proceed without auth header
+      }
     }
     handler.next(options);
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
     if (err.response?.statusCode == 401) {
-      try {
-        final refreshToken = await _storage.read(key: StorageKeys.refreshToken);
-        if (refreshToken != null) {
-          final dio = Dio(BaseOptions(baseUrl: err.requestOptions.baseUrl));
-          final response = await dio.post('/auth/refresh', data: {
-            'refreshToken': refreshToken,
-          });
-
-          final newAccessToken = response.data['data']['accessToken'] as String;
-          final newRefreshToken = response.data['data']['refreshToken'] as String;
-
-          await _storage.write(key: StorageKeys.accessToken, value: newAccessToken);
-          await _storage.write(key: StorageKeys.refreshToken, value: newRefreshToken);
-
-          err.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-          final retryResponse = await Dio().fetch(err.requestOptions);
+      final user = _auth.currentUser;
+      if (user != null) {
+        try {
+          // Force-refresh the Firebase ID token once
+          final freshToken = await user.getIdToken(true);
+          err.requestOptions.headers['Authorization'] = 'Bearer $freshToken';
+          final retryDio = Dio(
+            BaseOptions(
+              baseUrl: err.requestOptions.baseUrl,
+              headers: err.requestOptions.headers,
+            ),
+          );
+          final retryResponse = await retryDio.fetch(err.requestOptions);
           handler.resolve(retryResponse);
           return;
+        } catch (_) {
+          // Refresh failed — sign out; authStateProvider stream handles redirect
+          await _auth.signOut();
         }
-      } catch (_) {
-        await _storage.deleteAll();
       }
     }
     handler.next(err);

@@ -18,4 +18,5 @@ class RouteNames {
   static const String profile = 'profile';
   static const String tryOn = 'try-on';
   static const String paywall = 'paywall';
+  static const String subscriptionManage = 'subscription-manage';
 }

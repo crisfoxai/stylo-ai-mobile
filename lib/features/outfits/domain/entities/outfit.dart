@@ -1,91 +1,39 @@
-import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class OutfitGarment extends Equatable {
-  final String garmentId;
-  final String? thumbnailUrl;
-  final String type;
-  final String color;
-  final String style;
+part 'outfit.freezed.dart';
+part 'outfit.g.dart';
 
-  const OutfitGarment({
-    required this.garmentId,
-    this.thumbnailUrl,
-    required this.type,
-    required this.color,
-    required this.style,
-  });
+@freezed
+class OutfitGarment with _$OutfitGarment {
+  const factory OutfitGarment({
+    required String garmentId,
+    String? thumbnailUrl,
+    required String type,
+    required String color,
+    required String style,
+  }) = _OutfitGarment;
 
-  @override
-  List<Object?> get props => [garmentId, thumbnailUrl, type, color, style];
+  factory OutfitGarment.fromJson(Map<String, dynamic> json) =>
+      _$OutfitGarmentFromJson(json);
 }
 
-class Outfit extends Equatable {
-  final String id;
-  final String name;
-  final List<OutfitGarment> garments;
-  final String? mood;
-  final String? event;
-  final String? weatherContext;
-  final double? score;
-  final String? rationale;
-  final bool isFavorite;
-  final DateTime? wornAt;
-  final DateTime createdAt;
-
-  const Outfit({
-    required this.id,
-    required this.name,
-    required this.garments,
-    this.mood,
-    this.event,
-    this.weatherContext,
-    this.score,
-    this.rationale,
-    this.isFavorite = false,
-    this.wornAt,
-    required this.createdAt,
-  });
-
-  Outfit copyWith({
-    String? id,
-    String? name,
-    List<OutfitGarment>? garments,
+@freezed
+class Outfit with _$Outfit {
+  const factory Outfit({
+    required String id,
+    required String name,
+    @Default([]) List<OutfitGarment> garments,
     String? mood,
     String? event,
+    String? occasion,
     String? weatherContext,
     double? score,
     String? rationale,
-    bool? isFavorite,
+    @Default(false) bool isFavorite,
     DateTime? wornAt,
-    DateTime? createdAt,
-  }) {
-    return Outfit(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      garments: garments ?? this.garments,
-      mood: mood ?? this.mood,
-      event: event ?? this.event,
-      weatherContext: weatherContext ?? this.weatherContext,
-      score: score ?? this.score,
-      rationale: rationale ?? this.rationale,
-      isFavorite: isFavorite ?? this.isFavorite,
-      wornAt: wornAt ?? this.wornAt,
-      createdAt: createdAt ?? this.createdAt,
-    );
-  }
+    required DateTime createdAt,
+  }) = _Outfit;
 
-  @override
-  List<Object?> get props => [
-        id,
-        name,
-        garments,
-        mood,
-        event,
-        weatherContext,
-        score,
-        rationale,
-        isFavorite,
-        wornAt,
-        createdAt,
-      ];
+  factory Outfit.fromJson(Map<String, dynamic> json) =>
+      _$OutfitFromJson(json);
 }

@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,7 +10,6 @@ void main() {
     late ProviderContainer container;
 
     setUp(() async {
-      dotenv.testLoad(fileInput: 'API_BASE_URL=https://api.stylo.ai/api/v1');
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
       container = ProviderContainer(
@@ -41,6 +39,12 @@ void main() {
     test('has interceptors configured', () {
       final dio = container.read(apiClientProvider);
       expect(dio.interceptors.length, greaterThanOrEqualTo(2));
+    });
+
+    test('uses the API base URL from Env', () {
+      final dio = container.read(apiClientProvider);
+      expect(dio.options.baseUrl, isNotEmpty);
+      expect(dio.options.baseUrl.startsWith('https://'), isTrue);
     });
   });
 }

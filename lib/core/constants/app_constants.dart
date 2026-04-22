@@ -1,9 +1,9 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../env.dart';
 
 class AppConstants {
   AppConstants._();
 
-  static String get apiBaseUrl => dotenv.env['API_BASE_URL'] ?? 'https://api.stylo.ai/api/v1';
+  static String get apiBaseUrl => Env.apiBaseUrl;
   static const String appVersion = '1.0.0';
   static const Duration connectTimeout = Duration(seconds: 15);
   static const Duration receiveTimeout = Duration(seconds: 30);

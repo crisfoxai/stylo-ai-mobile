@@ -1,21 +1,26 @@
-import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'subscription.freezed.dart';
+part 'subscription.g.dart';
 
 enum SubscriptionPlan { free, premium }
 
 enum SubscriptionStatus { active, expired, cancelled, trialing }
 
-class Subscription extends Equatable {
-  final String id;
-  final SubscriptionPlan plan;
-  final SubscriptionStatus status;
-  final DateTime? expiresAt;
+@freezed
+class Subscription with _$Subscription {
+  const Subscription._();
 
-  const Subscription({
-    required this.id,
-    required this.plan,
-    required this.status,
-    this.expiresAt,
-  });
+  const factory Subscription({
+    required String id,
+    required SubscriptionPlan plan,
+    required SubscriptionStatus status,
+    String? platform,
+    DateTime? expiresAt,
+  }) = _Subscription;
+
+  factory Subscription.fromJson(Map<String, dynamic> json) =>
+      _$SubscriptionFromJson(json);
 
   bool get isActive =>
       status == SubscriptionStatus.active ||
@@ -25,7 +30,4 @@ class Subscription extends Equatable {
 
   bool get isExpired =>
       expiresAt != null && DateTime.now().isAfter(expiresAt!);
-
-  @override
-  List<Object?> get props => [id, plan, status, expiresAt];
 }

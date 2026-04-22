@@ -40,4 +40,9 @@ class Endpoints {
 
   // Weather
   static const String weather = '/weather/current';
+
+  // Notifications
+  static const String registerPushToken = '/notifications/register-token';
+  // Try-On
+  static const String tryOn = '/tryon';
 }

@@ -19,6 +19,7 @@ import '../../features/wardrobe/presentation/screens/garment_preview_screen.dart
 import '../../features/wardrobe/presentation/screens/wardrobe_grid_screen.dart';
 import '../../shared/widgets/main_shell.dart';
 import '../../features/subscription/presentation/screens/paywall_screen.dart';
+import '../../features/subscription/presentation/screens/subscription_manage_screen.dart';
 import '../../features/try_on/presentation/screens/virtual_try_on_screen.dart';
 import '../router/route_names.dart';
 import '../../features/outfits/presentation/screens/home_dashboard_screen.dart';
@@ -85,6 +86,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/paywall',
         name: RouteNames.paywall,
         builder: (_, __) => const PaywallScreen(),
+      ),
+      GoRoute(
+        path: '/subscription/manage',
+        name: RouteNames.subscriptionManage,
+        builder: (_, __) => const SubscriptionManageScreen(),
       ),
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),

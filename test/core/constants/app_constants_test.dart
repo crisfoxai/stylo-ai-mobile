@@ -1,20 +1,7 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stylo_ai/core/constants/app_constants.dart';
 
 void main() {
-  setUpAll(() async {
-    // Load dotenv so AppConstants.apiBaseUrl doesn't throw NotInitializedError.
-    // The .env file may be empty or minimal in tests — the getter falls back to
-    // the hardcoded default URL when the key is absent.
-    try {
-      await dotenv.load(fileName: '.env');
-    } catch (_) {
-      // If .env is missing or unreadable in CI, use an empty env.
-      dotenv.testLoad(fileInput: '');
-    }
-  });
-
   group('AppConstants', () {
     group('version', () {
       test('appVersion is 1.0.0', () {
@@ -95,7 +82,10 @@ void main() {
       });
 
       test('maxImageSizeBytes is greater than thumbnailSize', () {
-        expect(AppConstants.maxImageSizeBytes, greaterThan(AppConstants.thumbnailSize));
+        expect(
+          AppConstants.maxImageSizeBytes,
+          greaterThan(AppConstants.thumbnailSize),
+        );
       });
     });
 
@@ -105,7 +95,7 @@ void main() {
       });
 
       test('apiBaseUrl starts with https', () {
-        // When dotenv is not loaded, falls back to the default URL
+        // Uses String.fromEnvironment default value: https://api.stylo.ai/api/v1
         expect(
           AppConstants.apiBaseUrl.startsWith('https://'),
           isTrue,

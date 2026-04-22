@@ -1,24 +1,20 @@
-import 'dart:convert';
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stylo_ai/core/constants/storage_keys.dart';
 import 'package:stylo_ai/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:stylo_ai/features/auth/data/models/user_model.dart';
 
-@GenerateMocks([FlutterSecureStorage])
-import 'auth_local_datasource_test.mocks.dart';
+class _MockFlutterSecureStorage extends Mock implements FlutterSecureStorage {}
 
 void main() {
   late AuthLocalDataSource dataSource;
-  late MockFlutterSecureStorage mockSecureStorage;
+  late _MockFlutterSecureStorage mockSecureStorage;
   late SharedPreferences prefs;
 
   setUp(() async {
-    mockSecureStorage = MockFlutterSecureStorage();
+    mockSecureStorage = _MockFlutterSecureStorage();
     SharedPreferences.setMockInitialValues({});
     prefs = await SharedPreferences.getInstance();
     dataSource = AuthLocalDataSource(mockSecureStorage, prefs);
@@ -27,36 +23,44 @@ void main() {
   group('AuthLocalDataSource', () {
     group('saveTokens', () {
       test('stores access token and refresh token in secure storage', () async {
-        when(mockSecureStorage.write(
-          key: anyNamed('key'),
-          value: anyNamed('value'),
-        )).thenAnswer((_) async {});
+        when(
+          () => mockSecureStorage.write(
+            key: any(named: 'key'),
+            value: any(named: 'value'),
+          ),
+        ).thenAnswer((_) async {});
 
         await dataSource.saveTokens('access_123', 'refresh_456');
 
-        verify(mockSecureStorage.write(
-          key: StorageKeys.accessToken,
-          value: 'access_123',
-        )).called(1);
-        verify(mockSecureStorage.write(
-          key: StorageKeys.refreshToken,
-          value: 'refresh_456',
-        )).called(1);
+        verify(
+          () => mockSecureStorage.write(
+            key: StorageKeys.accessToken,
+            value: 'access_123',
+          ),
+        ).called(1);
+        verify(
+          () => mockSecureStorage.write(
+            key: StorageKeys.refreshToken,
+            value: 'refresh_456',
+          ),
+        ).called(1);
       });
     });
 
     group('getAccessToken', () {
       test('returns token when present', () async {
-        when(mockSecureStorage.read(key: StorageKeys.accessToken))
-            .thenAnswer((_) async => 'my_token');
+        when(
+          () => mockSecureStorage.read(key: StorageKeys.accessToken),
+        ).thenAnswer((_) async => 'my_token');
 
         final result = await dataSource.getAccessToken();
         expect(result, 'my_token');
       });
 
       test('returns null when no token stored', () async {
-        when(mockSecureStorage.read(key: StorageKeys.accessToken))
-            .thenAnswer((_) async => null);
+        when(
+          () => mockSecureStorage.read(key: StorageKeys.accessToken),
+        ).thenAnswer((_) async => null);
 
         final result = await dataSource.getAccessToken();
         expect(result, isNull);
@@ -65,8 +69,9 @@ void main() {
 
     group('getRefreshToken', () {
       test('returns refresh token when present', () async {
-        when(mockSecureStorage.read(key: StorageKeys.refreshToken))
-            .thenAnswer((_) async => 'refresh_abc');
+        when(
+          () => mockSecureStorage.read(key: StorageKeys.refreshToken),
+        ).thenAnswer((_) async => 'refresh_abc');
 
         final result = await dataSource.getRefreshToken();
         expect(result, 'refresh_abc');
@@ -102,9 +107,8 @@ void main() {
 
     group('clearAll', () {
       test('deletes secure storage and removes user from prefs', () async {
-        when(mockSecureStorage.deleteAll()).thenAnswer((_) async {});
+        when(() => mockSecureStorage.deleteAll()).thenAnswer((_) async {});
 
-        // First save a user so there is something to clear
         final user = UserModel(
           id: 'u1',
           email: 'test@example.com',
@@ -118,7 +122,7 @@ void main() {
 
         await dataSource.clearAll();
 
-        verify(mockSecureStorage.deleteAll()).called(1);
+        verify(() => mockSecureStorage.deleteAll()).called(1);
         expect(dataSource.getUser(), isNull);
       });
     });

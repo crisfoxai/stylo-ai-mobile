@@ -1,214 +1,192 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/loading_overlay.dart';
 import '../../../../shared/widgets/stylo_button.dart';
+import '../../../subscription/presentation/providers/subscription_provider.dart';
+import '../providers/try_on_provider.dart';
 
-class VirtualTryOnScreen extends ConsumerWidget {
-  const VirtualTryOnScreen({super.key});
+class VirtualTryOnScreen extends ConsumerStatefulWidget {
+  final String? outfitId;
+
+  const VirtualTryOnScreen({super.key, this.outfitId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<VirtualTryOnScreen> createState() =>
+      _VirtualTryOnScreenState();
+}
+
+class _VirtualTryOnScreenState extends ConsumerState<VirtualTryOnScreen> {
+  File? _selectedPhoto;
+  final ImagePicker _picker = ImagePicker();
+
+  @override
+  Widget build(BuildContext context) {
+    final tryOnState = ref.watch(tryOnProvider);
+    final isPremium = ref.watch(isPremiumProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(PhosphorIconsRegular.arrowLeft, color: AppColors.textPrimary),
+          icon: const Icon(
+            PhosphorIconsRegular.arrowLeft,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Prueba Virtual',
-          style: AppTypography.headlineSmall.copyWith(color: AppColors.textPrimary),
+          style: AppTypography.headlineSmall
+              .copyWith(color: AppColors.textPrimary),
         ),
         centerTitle: false,
       ),
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.xxxl),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Illustration
-                _TryOnIllustration(),
-
-                const SizedBox(height: AppSpacing.xxxl),
-
-                // Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                    vertical: AppSpacing.sm,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.accentSubtle,
-                    borderRadius: BorderRadius.circular(AppRadius.full),
-                    border: Border.all(color: AppColors.accent.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        PhosphorIconsFill.sparkle,
-                        size: 16,
-                        color: AppColors.accent,
-                      ),
-                      const SizedBox(width: AppSpacing.xs),
-                      Text(
-                        'En desarrollo',
-                        style: AppTypography.labelMedium.copyWith(
-                          color: AppColors.accent,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+      body: LoadingOverlay(
+        isLoading: tryOnState.status == TryOnStatus.loading,
+        message: 'Generando prueba virtual...',
+        child: SafeArea(
+          child: tryOnState.status == TryOnStatus.success
+              ? _ResultView(
+                  resultUrl: tryOnState.resultUrl!,
+                  onReset: () => ref.read(tryOnProvider.notifier).reset(),
+                )
+              : _PickerView(
+                  selectedPhoto: _selectedPhoto,
+                  isPremium: isPremium,
+                  onPickCamera: () => _pickPhoto(ImageSource.camera),
+                  onPickGallery: () => _pickPhoto(ImageSource.gallery),
+                  onProcess: _selectedPhoto != null && isPremium
+                      ? _processTryOn
+                      : null,
+                  errorMessage: tryOnState.errorMessage,
                 ),
-
-                const SizedBox(height: AppSpacing.xl),
-
-                Text(
-                  'Próximamente',
-                  style: AppTypography.displayMedium.copyWith(
-                    color: AppColors.textPrimary,
-                    letterSpacing: -0.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                const SizedBox(height: AppSpacing.lg),
-
-                Text(
-                  'Pronto podrás probarte virtualmente cualquier prenda de tu guardarropa usando inteligencia artificial.',
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                    height: 1.6,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                const SizedBox(height: AppSpacing.sm),
-
-                Text(
-                  'Combina outfits, visualiza cómo te queda cada prenda y descubre tu estilo antes de vestirte.',
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.textTertiary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                const SizedBox(height: AppSpacing.xxxl),
-
-                // Feature bullets
-                _FeatureBullet(
-                  icon: PhosphorIconsRegular.camera,
-                  text: 'Foto tuya como base virtual',
-                ),
-                const SizedBox(height: AppSpacing.md),
-                _FeatureBullet(
-                  icon: PhosphorIconsRegular.tShirt,
-                  text: 'Combina prendas de tu guardarropa',
-                ),
-                const SizedBox(height: AppSpacing.md),
-                _FeatureBullet(
-                  icon: PhosphorIconsRegular.sparkle,
-                  text: 'Sugerencias de outfits con IA',
-                ),
-
-                const SizedBox(height: AppSpacing.xxxxl),
-
-                StyloButton(
-                  label: 'Avisarme cuando esté disponible',
-                  variant: StyloButtonVariant.outlined,
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Te avisaremos cuando esté listo.',
-                          style: AppTypography.bodySmall.copyWith(color: Colors.white),
-                        ),
-                        backgroundColor: AppColors.primary,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.sm),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );
   }
+
+  Future<void> _pickPhoto(ImageSource source) async {
+    final xFile = await _picker.pickImage(
+      source: source,
+      imageQuality: 85,
+      maxWidth: 1920,
+      maxHeight: 1920,
+    );
+    if (xFile != null && mounted) {
+      setState(() => _selectedPhoto = File(xFile.path));
+    }
+  }
+
+  Future<void> _processTryOn() async {
+    final photo = _selectedPhoto;
+    if (photo == null) return;
+    await ref.read(tryOnProvider.notifier).process(
+          outfitId: widget.outfitId ?? '',
+          userPhoto: photo,
+        );
+  }
 }
 
-class _TryOnIllustration extends StatelessWidget {
+class _PickerView extends StatelessWidget {
+  final File? selectedPhoto;
+  final bool isPremium;
+  final VoidCallback onPickCamera;
+  final VoidCallback onPickGallery;
+  final VoidCallback? onProcess;
+  final String? errorMessage;
+
+  const _PickerView({
+    required this.selectedPhoto,
+    required this.isPremium,
+    required this.onPickCamera,
+    required this.onPickGallery,
+    required this.onProcess,
+    required this.errorMessage,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 200,
-      height: 200,
-      child: Stack(
-        alignment: Alignment.center,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Background circle
-          Container(
-            width: 200,
-            height: 200,
-            decoration: BoxDecoration(
-              color: AppColors.accentSubtle,
-              shape: BoxShape.circle,
+          if (!isPremium) ...[
+            _PaywallBanner(onUpgrade: () => context.push('/paywall')),
+            const SizedBox(height: AppSpacing.xl),
+          ],
+          AspectRatio(
+            aspectRatio: 3 / 4,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              child: selectedPhoto != null
+                  ? Image.file(selectedPhoto!, fit: BoxFit.cover)
+                  : Container(
+                      color: AppColors.surface,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            PhosphorIconsRegular.userCircle,
+                            size: 64,
+                            color: AppColors.textTertiary,
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          Text(
+                            'Seleccioná tu foto',
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
             ),
           ),
-          // Inner circle
-          Container(
-            width: 140,
-            height: 140,
-            decoration: BoxDecoration(
-              color: AppColors.accent.withOpacity(0.15),
-              shape: BoxShape.circle,
-            ),
+          const SizedBox(height: AppSpacing.xl),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: isPremium ? onPickCamera : null,
+                  icon: const Icon(PhosphorIconsRegular.camera, size: 18),
+                  label: const Text('Cámara'),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: isPremium ? onPickGallery : null,
+                  icon: const Icon(PhosphorIconsRegular.image, size: 18),
+                  label: const Text('Galería'),
+                ),
+              ),
+            ],
           ),
-          // Icon
-          Icon(
-            PhosphorIconsRegular.tShirt,
-            size: 80,
-            color: AppColors.accent,
-          ),
-          // Sparkle decorations
-          Positioned(
-            top: 20,
-            right: 24,
-            child: Icon(
-              PhosphorIconsFill.sparkle,
-              size: 20,
-              color: AppColors.accent.withOpacity(0.6),
+          if (errorMessage != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              errorMessage!,
+              style:
+                  AppTypography.bodySmall.copyWith(color: AppColors.error),
+              textAlign: TextAlign.center,
             ),
-          ),
-          Positioned(
-            bottom: 28,
-            left: 20,
-            child: Icon(
-              PhosphorIconsFill.sparkle,
-              size: 14,
-              color: AppColors.accent.withOpacity(0.4),
-            ),
-          ),
-          Positioned(
-            top: 40,
-            left: 16,
-            child: Icon(
-              PhosphorIconsFill.star,
-              size: 12,
-              color: AppColors.accentLight.withOpacity(0.5),
-            ),
+          ],
+          const SizedBox(height: AppSpacing.xl),
+          StyloButton(
+            label: 'Probarme el outfit',
+            onPressed: onProcess,
           ),
         ],
       ),
@@ -216,30 +194,110 @@ class _TryOnIllustration extends StatelessWidget {
   }
 }
 
-class _FeatureBullet extends StatelessWidget {
-  final IconData icon;
-  final String text;
+class _PaywallBanner extends StatelessWidget {
+  final VoidCallback onUpgrade;
 
-  const _FeatureBullet({required this.icon, required this.text});
+  const _PaywallBanner({required this.onUpgrade});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: AppColors.accentSubtle,
-            borderRadius: BorderRadius.circular(AppRadius.sm),
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.accentSubtle,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppColors.accent.withOpacity(0.4)),
+      ),
+      child: Row(
+        children: [
+          const Icon(PhosphorIconsFill.crown, color: AppColors.accent),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Función Premium',
+                  style: AppTypography.labelMedium.copyWith(
+                    color: AppColors.accent,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  'Actualizá para usar la prueba virtual.',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
           ),
-          child: Icon(icon, size: 18, color: AppColors.accent),
-        ),
-        const SizedBox(width: AppSpacing.md),
+          TextButton(
+            onPressed: onUpgrade,
+            child: const Text('Ver planes'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ResultView extends StatelessWidget {
+  final String resultUrl;
+  final VoidCallback onReset;
+
+  const _ResultView({required this.resultUrl, required this.onReset});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
         Expanded(
-          child: Text(
-            text,
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimary),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              child: CachedNetworkImage(
+                imageUrl: resultUrl,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                placeholder: (_, __) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                errorWidget: (_, __, ___) => const Center(
+                  child: Icon(PhosphorIconsRegular.imageBroken, size: 48),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            0,
+            AppSpacing.xl,
+            AppSpacing.xxl,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onReset,
+                  icon: const Icon(
+                    PhosphorIconsRegular.arrowCounterClockwise,
+                    size: 18,
+                  ),
+                  label: const Text('Reintentar'),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: StyloButton(
+                  label: 'Guardar',
+                  onPressed: () {/* save to gallery */},
+                ),
+              ),
+            ],
           ),
         ),
       ],
