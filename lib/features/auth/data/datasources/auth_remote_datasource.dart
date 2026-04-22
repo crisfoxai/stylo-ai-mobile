@@ -1,28 +1,58 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
 import '../../../../core/network/endpoints.dart';
 import '../models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 class AuthRemoteDataSource {
   final Dio _dio;
+  final fb.FirebaseAuth _firebaseAuth;
 
-  AuthRemoteDataSource(this._dio);
+  AuthRemoteDataSource(this._dio, {fb.FirebaseAuth? firebaseAuth})
+      : _firebaseAuth = firebaseAuth ?? fb.FirebaseAuth.instance;
 
   Future<AuthResult> login(String email, String password) async {
-    final response = await _dio.post(Endpoints.login, data: {
-      'email': email,
-      'password': password,
-    });
+    // Authenticate with Firebase
+    final credential = await _firebaseAuth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    // Get Firebase JWT
+    final idToken = await credential.user!.getIdToken();
+
+    // Send JWT to backend for validation
+    final response = await _dio.post(
+      Endpoints.login,
+      options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+      data: {'email': email},
+    );
     return _parseAuthResponse(response.data['data']);
   }
 
   Future<AuthResult> register(String email, String password, String firstName, String lastName) async {
-    final response = await _dio.post(Endpoints.register, data: {
-      'email': email,
-      'password': password,
-      'firstName': firstName,
-      'lastName': lastName,
-    });
+    // Create user in Firebase
+    final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    // Update display name in Firebase
+    await credential.user!.updateDisplayName('$firstName $lastName');
+
+    // Get Firebase JWT
+    final idToken = await credential.user!.getIdToken();
+
+    // Send JWT + profile to backend
+    final response = await _dio.post(
+      Endpoints.register,
+      options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+      data: {
+        'email': email,
+        'firstName': firstName,
+        'lastName': lastName,
+      },
+    );
     return _parseAuthResponse(response.data['data']);
   }
 
@@ -58,10 +88,16 @@ class AuthRemoteDataSource {
     await _dio.post(Endpoints.logout, data: {
       'refreshToken': refreshToken,
     });
+    await _firebaseAuth.signOut();
   }
 
   Future<void> forgotPassword(String email) async {
-    await _dio.post(Endpoints.forgotPassword, data: {'email': email});
+    await _firebaseAuth.sendPasswordResetEmail(email: email);
+  }
+
+  /// Get current Firebase user's ID token (JWT) for backend auth
+  Future<String?> getIdToken() async {
+    return await _firebaseAuth.currentUser?.getIdToken();
   }
 
   AuthResult _parseAuthResponse(Map<String, dynamic> data, {bool isNewUser = false}) {

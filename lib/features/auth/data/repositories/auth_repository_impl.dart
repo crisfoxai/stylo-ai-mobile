@@ -43,12 +43,26 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<AuthResult> signInWithGoogle() async {
-    final googleUser = await _googleSignIn.signIn();
-    if (googleUser == null) throw Exception('Google sign in cancelled');
-    final auth = await googleUser.authentication;
-    final result = await _remoteDataSource.googleSignIn(auth.idToken!);
-    await _persistAuth(result);
-    return result;
+    try {
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) throw Exception('Google sign in cancelled');
+      final auth = await googleUser.authentication;
+      final result = await _remoteDataSource.googleSignIn(auth.idToken!);
+      await _persistAuth(result);
+      return result;
+    } on Exception catch (e) {
+      final message = e.toString();
+      if (message.contains('PlatformException') ||
+          message.contains('network_error') ||
+          message.contains('sign_in_required') ||
+          message.contains('ApiException') ||
+          message.contains('UNSPECIFIED')) {
+        throw Exception(
+          'Google Sign-In no está disponible. Verifica tu conexión o usa otro método de inicio de sesión.',
+        );
+      }
+      rethrow;
+    }
   }
 
   @override

@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "326882772609",
+    "project_id": "stylo-ai-7070",
+    "storage_bucket": "stylo-ai-7070.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:326882772609:android:926c92bbf8356cf83def80",
+        "android_client_info": {
+          "package_name": "app.styloai.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "326882772609-a569vjiosjgbumt34prkef7l8ibgkns1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfJ7bsFM7rgmBIoOxoi1DriDTrWHMoYCo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "326882772609-a569vjiosjgbumt34prkef7l8ibgkns1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "326882772609-uvhvsng72k7m8fas4l7o0rhka9o7npgh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "app.styloai.mobile"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
