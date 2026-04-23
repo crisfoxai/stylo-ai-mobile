@@ -31,7 +31,9 @@ class AuthRemoteDataSource {
           .post(
             Endpoints.login,
             options: Options(headers: {'Authorization': 'Bearer $idToken'}),
-            data: {'email': email},
+            // TODO(TL): backend Docker uses {email,password}; source uses Firebase-only
+            // /auth/session. Remove `password` once Ariel aligns Docker↔source (card_Ea2AwaQhoDTE).
+            data: {'email': email, 'password': password},
           )
           .timeout(const Duration(seconds: 20), onTimeout: () {
         debugPrint('[AUTH] MANUAL TIMEOUT 20s on $url');
@@ -74,8 +76,10 @@ class AuthRemoteDataSource {
           .post(
             Endpoints.register,
             options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+            // TODO(TL): align with backend once card_Ea2AwaQhoDTE resolves contract.
             data: {
               'email': email,
+              'password': password,
               'firstName': firstName,
               'lastName': lastName,
             },

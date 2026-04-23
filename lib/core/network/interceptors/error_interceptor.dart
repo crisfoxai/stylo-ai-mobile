@@ -19,7 +19,7 @@ class ErrorInterceptor extends Interceptor {
     } else if (err.response != null) {
       final statusCode = err.response!.statusCode ?? 500;
       final data = err.response!.data;
-      final message = data is Map ? (data['error']?['message'] ?? 'Error desconocido') as String : 'Error desconocido';
+      final message = data is Map ? _extractMessage(data as Map) : 'Error desconocido';
 
       exception = switch (statusCode) {
         400 => ValidationException(message: message),
@@ -42,5 +42,12 @@ class ErrorInterceptor extends Interceptor {
       response: err.response,
       type: err.type,
     ));
+  }
+
+  // NestJS may return message as String or List<String> — handle both.
+  String _extractMessage(Map<dynamic, dynamic> data) {
+    final raw = data['error']?['message'] ?? data['message'] ?? 'Error desconocido';
+    if (raw is List) return raw.join(', ');
+    return raw.toString();
   }
 }
