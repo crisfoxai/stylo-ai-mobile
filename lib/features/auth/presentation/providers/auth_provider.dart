@@ -112,8 +112,12 @@ final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref
   return AuthNotifier(ref.watch(authRepositoryProvider));
 });
 
-final authStateProvider = StreamProvider<User?>((ref) {
-  return ref.watch(authRepositoryProvider).authStateChanges;
+final authStateProvider = StreamProvider<User?>((ref) async* {
+  final repo = ref.watch(authRepositoryProvider);
+  // Replay currentUser so app restores session on cold start.
+  // Broadcast stream emits in constructor before listeners attach — this fills the gap.
+  if (repo.currentUser != null) yield repo.currentUser;
+  yield* repo.authStateChanges;
 });
 
 final currentUserProvider = Provider<User?>((ref) {

@@ -59,9 +59,11 @@ class StyleQuizScreen extends ConsumerWidget {
             : null,
         actions: [
           TextButton(
-            onPressed: () {
-              ref.read(onboardingDataSourceProvider).setStyleQuizComplete();
-              context.go('/home');
+            onPressed: () async {
+              // Await before navigating — router guard reads onboardingComplete
+              // synchronously and would redirect back if write hasn't landed yet.
+              await ref.read(onboardingDataSourceProvider).setStyleQuizComplete();
+              if (context.mounted) context.go('/home');
             },
             child: const Text('Saltar'),
           ),
