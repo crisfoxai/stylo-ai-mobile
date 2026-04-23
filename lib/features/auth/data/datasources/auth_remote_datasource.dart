@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter/foundation.dart';
@@ -23,14 +24,34 @@ class AuthRemoteDataSource {
     final idToken = await credential.user!.getIdToken();
     debugPrint('[AUTH] idToken length=${idToken?.length ?? 0}');
 
-    debugPrint('[AUTH] POST ${_dio.options.baseUrl}${Endpoints.login} starting');
-    final response = await _dio.post(
-      Endpoints.login,
-      options: Options(headers: {'Authorization': 'Bearer $idToken'}),
-      data: {'email': email},
-    );
-    debugPrint('[AUTH] POST /auth/login status=${response.statusCode}');
-    return _parseAuthResponse(response.data['data']);
+    final url = '${_dio.options.baseUrl}${Endpoints.login}';
+    debugPrint('[AUTH] POST $url starting');
+    try {
+      final response = await _dio
+          .post(
+            Endpoints.login,
+            options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+            data: {'email': email},
+          )
+          .timeout(const Duration(seconds: 20), onTimeout: () {
+        debugPrint('[AUTH] MANUAL TIMEOUT 20s on $url');
+        throw TimeoutException('Backend /auth/login no respondió en 20s');
+      });
+      debugPrint('[AUTH] POST /auth/login status=${response.statusCode}');
+      return _parseAuthResponse(response.data['data']);
+    } on DioException catch (e) {
+      debugPrint(
+        '[AUTH] DioException type=${e.type} '
+        'status=${e.response?.statusCode} msg=${e.message} error=${e.error}',
+      );
+      rethrow;
+    } on TimeoutException catch (e) {
+      debugPrint('[AUTH] TimeoutException: ${e.message}');
+      rethrow;
+    } catch (e, s) {
+      debugPrint('[AUTH] Unexpected in login: $e\n$s');
+      rethrow;
+    }
   }
 
   Future<AuthResult> register(String email, String password, String firstName, String lastName) async {
@@ -46,18 +67,38 @@ class AuthRemoteDataSource {
     final idToken = await credential.user!.getIdToken();
     debugPrint('[AUTH] idToken length=${idToken?.length ?? 0}');
 
-    debugPrint('[AUTH] POST ${_dio.options.baseUrl}${Endpoints.register} starting');
-    final response = await _dio.post(
-      Endpoints.register,
-      options: Options(headers: {'Authorization': 'Bearer $idToken'}),
-      data: {
-        'email': email,
-        'firstName': firstName,
-        'lastName': lastName,
-      },
-    );
-    debugPrint('[AUTH] POST /auth/register status=${response.statusCode}');
-    return _parseAuthResponse(response.data['data']);
+    final url = '${_dio.options.baseUrl}${Endpoints.register}';
+    debugPrint('[AUTH] POST $url starting');
+    try {
+      final response = await _dio
+          .post(
+            Endpoints.register,
+            options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+            data: {
+              'email': email,
+              'firstName': firstName,
+              'lastName': lastName,
+            },
+          )
+          .timeout(const Duration(seconds: 20), onTimeout: () {
+        debugPrint('[AUTH] MANUAL TIMEOUT 20s on $url');
+        throw TimeoutException('Backend /auth/register no respondió en 20s');
+      });
+      debugPrint('[AUTH] POST /auth/register status=${response.statusCode}');
+      return _parseAuthResponse(response.data['data']);
+    } on DioException catch (e) {
+      debugPrint(
+        '[AUTH] DioException type=${e.type} '
+        'status=${e.response?.statusCode} msg=${e.message} error=${e.error}',
+      );
+      rethrow;
+    } on TimeoutException catch (e) {
+      debugPrint('[AUTH] TimeoutException: ${e.message}');
+      rethrow;
+    } catch (e, s) {
+      debugPrint('[AUTH] Unexpected in register: $e\n$s');
+      rethrow;
+    }
   }
 
   Future<AuthResult> googleSignIn(String idToken) async {
