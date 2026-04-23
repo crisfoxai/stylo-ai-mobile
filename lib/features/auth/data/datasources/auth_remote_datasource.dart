@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:flutter/foundation.dart';
 import '../../../../core/network/endpoints.dart';
 import '../models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -12,38 +13,40 @@ class AuthRemoteDataSource {
       : _firebaseAuth = firebaseAuth ?? fb.FirebaseAuth.instance;
 
   Future<AuthResult> login(String email, String password) async {
-    // Authenticate with Firebase
+    debugPrint('[AUTH] Firebase sign-in start');
     final credential = await _firebaseAuth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
+    debugPrint('[AUTH] Firebase sign-in ok, uid=${credential.user!.uid}');
 
-    // Get Firebase JWT
     final idToken = await credential.user!.getIdToken();
+    debugPrint('[AUTH] idToken length=${idToken?.length ?? 0}');
 
-    // Send JWT to backend for validation
+    debugPrint('[AUTH] POST ${_dio.options.baseUrl}${Endpoints.login} starting');
     final response = await _dio.post(
       Endpoints.login,
       options: Options(headers: {'Authorization': 'Bearer $idToken'}),
       data: {'email': email},
     );
+    debugPrint('[AUTH] POST /auth/login status=${response.statusCode}');
     return _parseAuthResponse(response.data['data']);
   }
 
   Future<AuthResult> register(String email, String password, String firstName, String lastName) async {
-    // Create user in Firebase
+    debugPrint('[AUTH] Firebase register start');
     final credential = await _firebaseAuth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
+    debugPrint('[AUTH] Firebase register ok, uid=${credential.user!.uid}');
 
-    // Update display name in Firebase
     await credential.user!.updateDisplayName('$firstName $lastName');
 
-    // Get Firebase JWT
     final idToken = await credential.user!.getIdToken();
+    debugPrint('[AUTH] idToken length=${idToken?.length ?? 0}');
 
-    // Send JWT + profile to backend
+    debugPrint('[AUTH] POST ${_dio.options.baseUrl}${Endpoints.register} starting');
     final response = await _dio.post(
       Endpoints.register,
       options: Options(headers: {'Authorization': 'Bearer $idToken'}),
@@ -53,6 +56,7 @@ class AuthRemoteDataSource {
         'lastName': lastName,
       },
     );
+    debugPrint('[AUTH] POST /auth/register status=${response.statusCode}');
     return _parseAuthResponse(response.data['data']);
   }
 
