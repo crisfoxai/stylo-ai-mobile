@@ -79,6 +79,11 @@ dev_dependencies:
   integration_test:
     sdk: flutter
 
+dependency_overrides:
+  # isar_generator ^3.1.0+1 requires source_gen <2.0.0; riverpod_generator ^2.6.3 requires ^2.0.0.
+  # Override to 2.x — isar_generator 3.x is API-compatible with source_gen 2.x at runtime.
+  source_gen: ^2.0.0
+
 flutter:
   uses-material-design: true
 
