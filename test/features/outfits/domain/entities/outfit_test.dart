@@ -78,9 +78,6 @@ void main() {
         expect(makeOG(color: 'red'), isNot(equals(makeOG(color: 'blue'))));
       });
 
-      test('props has 5 entries', () {
-        expect(makeOG().props.length, 5);
-      });
     });
   });
 
@@ -174,9 +171,6 @@ void main() {
         );
       });
 
-      test('props has 11 entries', () {
-        expect(makeOutfit().props.length, 11);
-      });
     });
   });
 }

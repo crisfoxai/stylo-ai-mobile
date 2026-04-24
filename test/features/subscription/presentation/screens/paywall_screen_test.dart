@@ -1,12 +1,17 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:stylo_ai/core/network/interceptors/auth_interceptor.dart';
 import 'package:stylo_ai/core/theme/app_theme.dart';
 import 'package:stylo_ai/features/subscription/domain/entities/subscription.dart';
 import 'package:stylo_ai/features/subscription/domain/repositories/subscription_repository.dart';
 import 'package:stylo_ai/features/subscription/presentation/providers/subscription_provider.dart';
 import 'package:stylo_ai/features/subscription/presentation/screens/paywall_screen.dart';
+
+class _MockFirebaseAuth extends Mock implements FirebaseAuth {}
 
 // ── Fake repository ─────────────────────────────────────────────────────────
 
@@ -48,6 +53,7 @@ Widget buildTestWidget() {
     overrides: [
       subscriptionRepositoryProvider
           .overrideWithValue(FakeSubscriptionRepository()),
+      firebaseAuthProvider.overrideWithValue(_MockFirebaseAuth()),
     ],
     child: MaterialApp.router(
       theme: AppTheme.light,

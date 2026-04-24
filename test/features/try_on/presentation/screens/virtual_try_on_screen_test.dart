@@ -1,9 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:stylo_ai/core/network/interceptors/auth_interceptor.dart';
 import 'package:stylo_ai/core/theme/app_theme.dart';
 import 'package:stylo_ai/features/try_on/presentation/screens/virtual_try_on_screen.dart';
+
+class _MockFirebaseAuth extends Mock implements FirebaseAuth {}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -19,6 +24,9 @@ Widget buildTestWidget() {
   );
 
   return ProviderScope(
+    overrides: [
+      firebaseAuthProvider.overrideWithValue(_MockFirebaseAuth()),
+    ],
     child: MaterialApp.router(
       theme: AppTheme.light,
       routerConfig: router,

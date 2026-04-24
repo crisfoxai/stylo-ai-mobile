@@ -1,14 +1,19 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:stylo_ai/core/network/interceptors/auth_interceptor.dart';
+import 'package:stylo_ai/core/theme/app_theme.dart';
 import 'package:stylo_ai/features/auth/domain/entities/user.dart';
 import 'package:stylo_ai/features/auth/domain/repositories/auth_repository.dart';
 import 'package:stylo_ai/features/auth/presentation/providers/auth_provider.dart';
 import 'package:stylo_ai/features/auth/presentation/screens/auth_screen.dart';
-import 'package:stylo_ai/core/theme/app_theme.dart';
+
+class _MockFirebaseAuth extends Mock implements FirebaseAuth {}
 
 // ── Fake repository ───────────────────────────────────────────────────────────
 
@@ -144,6 +149,7 @@ Widget buildTestWidget(FakeAuthRepository repo) {
   return ProviderScope(
     overrides: [
       authRepositoryProvider.overrideWithValue(repo),
+      firebaseAuthProvider.overrideWithValue(_MockFirebaseAuth()),
     ],
     child: MaterialApp.router(
       theme: AppTheme.light,
