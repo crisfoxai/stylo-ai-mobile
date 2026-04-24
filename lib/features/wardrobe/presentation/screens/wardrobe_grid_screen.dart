@@ -6,6 +6,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/garment_tile.dart';
 import '../../../../shared/widgets/stylo_chip.dart';
+import '../../domain/entities/garment.dart';
 import '../providers/wardrobe_provider.dart';
 
 class WardrobeGridScreen extends ConsumerStatefulWidget {
@@ -190,7 +191,7 @@ class _WardrobeGridScreenState extends ConsumerState<WardrobeGridScreen> {
     );
   }
 
-  Widget _buildContent(WardrobeState state, List garments) {
+  Widget _buildContent(WardrobeState state, List<Garment> garments) {
     if (state.isLoading && garments.isEmpty) {
       return _buildLoadingGrid();
     }

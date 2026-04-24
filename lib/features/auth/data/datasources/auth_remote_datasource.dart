@@ -40,7 +40,7 @@ class AuthRemoteDataSource {
         throw TimeoutException('Backend /auth/login no respondió en 20s');
       });
       debugPrint('[AUTH] POST /auth/login status=${response.statusCode}');
-      return _parseAuthResponse(response.data['data']);
+      return _parseAuthResponse(response.data['data'] as Map<String, dynamic>);
     } on DioException catch (e) {
       debugPrint(
         '[AUTH] DioException type=${e.type} '
@@ -89,7 +89,7 @@ class AuthRemoteDataSource {
         throw TimeoutException('Backend /auth/register no respondió en 20s');
       });
       debugPrint('[AUTH] POST /auth/register status=${response.statusCode}');
-      return _parseAuthResponse(response.data['data']);
+      return _parseAuthResponse(response.data['data'] as Map<String, dynamic>);
     } on DioException catch (e) {
       debugPrint(
         '[AUTH] DioException type=${e.type} '
@@ -109,7 +109,8 @@ class AuthRemoteDataSource {
     final response = await _dio.post(Endpoints.googleAuth, data: {
       'idToken': idToken,
     });
-    return _parseAuthResponse(response.data['data'], isNewUser: response.data['data']['user']['isNewUser'] as bool? ?? false);
+    final googleData = response.data['data'] as Map<String, dynamic>;
+    return _parseAuthResponse(googleData, isNewUser: googleData['user']['isNewUser'] as bool? ?? false);
   }
 
   Future<AuthResult> appleSignIn(String identityToken, String authorizationCode, String? firstName, String? lastName) async {
@@ -119,7 +120,8 @@ class AuthRemoteDataSource {
       if (firstName != null) 'firstName': firstName,
       if (lastName != null) 'lastName': lastName,
     });
-    return _parseAuthResponse(response.data['data'], isNewUser: response.data['data']['user']['isNewUser'] as bool? ?? false);
+    final appleData = response.data['data'] as Map<String, dynamic>;
+    return _parseAuthResponse(appleData, isNewUser: appleData['user']['isNewUser'] as bool? ?? false);
   }
 
   Future<Map<String, String>> refreshToken(String token) async {
