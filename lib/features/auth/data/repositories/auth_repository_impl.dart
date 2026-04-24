@@ -4,7 +4,6 @@ import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
 import '../datasources/auth_local_datasource.dart';
-import '../models/user_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
@@ -99,7 +98,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   Future<void> _persistAuth(AuthResult result) async {
     await _localDataSource.saveTokens(result.accessToken, result.refreshToken);
-    await _localDataSource.saveUser(result.user as UserModel);
+    await _localDataSource.saveUser(result.user);
     _currentUser = result.user;
     _authStateController.add(result.user);
   }

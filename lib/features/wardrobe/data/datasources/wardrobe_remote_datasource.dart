@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../domain/repositories/wardrobe_repository.dart';
-import '../models/garment_model.dart';
+import '../../domain/entities/garment.dart';
 
 class WardrobeRemoteDataSource {
   final Dio _dio;
@@ -30,7 +30,7 @@ class WardrobeRemoteDataSource {
 
     final items = itemsList
         .cast<Map<String, dynamic>>()
-        .map(GarmentModel.fromJson)
+        .map(Garment.fromJson)
         .toList();
 
     final total = meta?['total'] as int? ?? items.length;
@@ -45,9 +45,9 @@ class WardrobeRemoteDataSource {
     );
   }
 
-  Future<GarmentModel> getGarment(String id) async {
+  Future<Garment> getGarment(String id) async {
     final response = await _dio.get(Endpoints.garment(id));
-    return GarmentModel.fromJson(response.data['data'] as Map<String, dynamic>);
+    return Garment.fromJson(response.data['data'] as Map<String, dynamic>);
   }
 
   Future<ScanJobResult> scanGarment(String imagePath) async {
@@ -73,9 +73,9 @@ class WardrobeRemoteDataSource {
     final response = await _dio.get(Endpoints.garmentJob(jobId));
     final data = response.data['data'] as Map<String, dynamic>;
 
-    GarmentModel? garment;
+    Garment? garment;
     if (data['garment'] != null) {
-      garment = GarmentModel.fromJson(data['garment'] as Map<String, dynamic>);
+      garment = Garment.fromJson(data['garment'] as Map<String, dynamic>);
     }
 
     return ScanJobStatus(
@@ -86,17 +86,17 @@ class WardrobeRemoteDataSource {
     );
   }
 
-  Future<GarmentModel> updateGarment(
+  Future<Garment> updateGarment(
       String id, Map<String, dynamic> data) async {
     final response = await _dio.patch(Endpoints.garment(id), data: data);
-    return GarmentModel.fromJson(response.data['data'] as Map<String, dynamic>);
+    return Garment.fromJson(response.data['data'] as Map<String, dynamic>);
   }
 
   Future<void> deleteGarment(String id) async {
     await _dio.delete(Endpoints.garment(id));
   }
 
-  Future<List<GarmentModel>> searchGarments(String query) async {
+  Future<List<Garment>> searchGarments(String query) async {
     final response = await _dio.get(
       Endpoints.garments,
       queryParameters: {'search': query, 'limit': 50},
@@ -107,7 +107,7 @@ class WardrobeRemoteDataSource {
 
     return itemsList
         .cast<Map<String, dynamic>>()
-        .map(GarmentModel.fromJson)
+        .map(Garment.fromJson)
         .toList();
   }
 }

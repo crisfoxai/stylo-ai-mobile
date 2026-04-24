@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter/foundation.dart';
 import '../../../../core/network/endpoints.dart';
-import '../models/user_model.dart';
+import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 class AuthRemoteDataSource {
@@ -150,7 +150,7 @@ class AuthRemoteDataSource {
   }
 
   AuthResult _parseAuthResponse(Map<String, dynamic> data, {bool isNewUser = false}) {
-    final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+    final user = User.fromJson(data['user'] as Map<String, dynamic>);
     final tokens = data['tokens'] as Map<String, dynamic>;
     return AuthResult(
       user: user,

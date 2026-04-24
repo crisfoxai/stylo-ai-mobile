@@ -1,20 +1,20 @@
 import 'package:dio/dio.dart';
 import '../../../../core/network/endpoints.dart';
-import '../models/subscription_model.dart';
+import '../../domain/entities/subscription.dart';
 
 class SubscriptionRemoteDataSource {
   final Dio _dio;
 
   SubscriptionRemoteDataSource(this._dio);
 
-  Future<SubscriptionModel> getStatus() async {
+  Future<Subscription> getStatus() async {
     final response = await _dio.get(Endpoints.subscription);
-    return SubscriptionModel.fromJson(
+    return Subscription.fromJson(
       response.data['data'] as Map<String, dynamic>,
     );
   }
 
-  Future<SubscriptionModel> verifyPurchase({
+  Future<Subscription> verifyPurchase({
     required String productId,
     required String receiptData,
     required String platform,
@@ -27,7 +27,7 @@ class SubscriptionRemoteDataSource {
         'platform': platform,
       },
     );
-    return SubscriptionModel.fromJson(
+    return Subscription.fromJson(
       response.data['data'] as Map<String, dynamic>,
     );
   }

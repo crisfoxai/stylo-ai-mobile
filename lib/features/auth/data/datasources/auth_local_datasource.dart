@@ -1,8 +1,8 @@
+import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/constants/storage_keys.dart';
-import '../models/user_model.dart';
-import 'dart:convert';
+import '../../domain/entities/user.dart';
 
 class AuthLocalDataSource {
   final FlutterSecureStorage _secureStorage;
@@ -18,14 +18,14 @@ class AuthLocalDataSource {
   Future<String?> getAccessToken() => _secureStorage.read(key: StorageKeys.accessToken);
   Future<String?> getRefreshToken() => _secureStorage.read(key: StorageKeys.refreshToken);
 
-  Future<void> saveUser(UserModel user) async {
+  Future<void> saveUser(User user) async {
     await _prefs.setString(StorageKeys.userId, jsonEncode(user.toJson()));
   }
 
-  UserModel? getUser() {
+  User? getUser() {
     final userJson = _prefs.getString(StorageKeys.userId);
     if (userJson == null) return null;
-    return UserModel.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+    return User.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
   }
 
   Future<void> clearAll() async {
