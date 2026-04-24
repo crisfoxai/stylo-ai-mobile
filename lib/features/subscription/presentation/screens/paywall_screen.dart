@@ -9,14 +9,8 @@ import '../../../../shared/widgets/stylo_button.dart';
 import '../../application/iap_service.dart';
 import '../providers/subscription_provider.dart';
 
-final _iapServiceProvider = Provider<IapService>((ref) {
-  final service = IapService();
-  ref.onDispose(service.dispose);
-  return service;
-});
-
 final _productsProvider = FutureProvider<List<ProductDetails>>((ref) async {
-  final service = ref.read(_iapServiceProvider);
+  final service = ref.read(iapServiceProvider);
   final available = await service.isAvailable;
   if (!available) return [];
   return service.loadProducts();
@@ -39,7 +33,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   }
 
   void _listenPurchases() {
-    ref.read(_iapServiceProvider).listenToPurchases((purchases) async {
+    ref.read(iapServiceProvider).listenToPurchases((purchases) async {
       for (final purchase in purchases) {
         await _handlePurchase(purchase);
       }
@@ -47,7 +41,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   }
 
   Future<void> _handlePurchase(PurchaseDetails details) async {
-    final iapService = ref.read(_iapServiceProvider);
+    final iapService = ref.read(iapServiceProvider);
     switch (details.status) {
       case PurchaseStatus.purchased:
       case PurchaseStatus.restored:
@@ -83,7 +77,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       (p) => p.id == productId,
       orElse: () => products.first,
     );
-    await ref.read(_iapServiceProvider).buyProduct(product);
+    await ref.read(iapServiceProvider).buyProduct(product);
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,9 +7,16 @@ import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:stylo_ai/core/network/interceptors/auth_interceptor.dart';
 import 'package:stylo_ai/core/theme/app_theme.dart';
+import 'package:stylo_ai/features/subscription/presentation/providers/subscription_provider.dart';
+import 'package:stylo_ai/features/try_on/data/datasources/try_on_remote_datasource.dart';
+import 'package:stylo_ai/features/try_on/presentation/providers/try_on_provider.dart';
 import 'package:stylo_ai/features/try_on/presentation/screens/virtual_try_on_screen.dart';
 
 class _MockFirebaseAuth extends Mock implements FirebaseAuth {}
+
+class _FakeTryOnDataSource extends TryOnRemoteDataSource {
+  _FakeTryOnDataSource() : super(Dio());
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -20,12 +28,18 @@ Widget buildTestWidget() {
         path: '/try-on',
         builder: (_, __) => const VirtualTryOnScreen(),
       ),
+      GoRoute(
+        path: '/paywall',
+        builder: (_, __) => const Scaffold(body: Text('Paywall')),
+      ),
     ],
   );
 
   return ProviderScope(
     overrides: [
       firebaseAuthProvider.overrideWithValue(_MockFirebaseAuth()),
+      isPremiumProvider.overrideWithValue(false),
+      tryOnProvider.overrideWith((ref) => TryOnNotifier(_FakeTryOnDataSource())),
     ],
     child: MaterialApp.router(
       theme: AppTheme.light,
@@ -35,7 +49,6 @@ Widget buildTestWidget() {
 }
 
 Future<void> pumpScreen(WidgetTester tester) async {
-  // Use a standard mobile surface to avoid overflow
   await tester.binding.setSurfaceSize(const Size(600, 1000));
   addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -47,31 +60,30 @@ Future<void> pumpScreen(WidgetTester tester) async {
 
 void main() {
   group('VirtualTryOnScreen', () {
-    testWidgets('renders Próximamente heading', (tester) async {
-      await pumpScreen(tester);
-      expect(find.text('Próximamente'), findsOneWidget);
-    });
-
-    testWidgets('renders feature bullets', (tester) async {
-      await pumpScreen(tester);
-      expect(find.text('Foto tuya como base virtual'), findsOneWidget);
-      expect(find.text('Combina prendas de tu guardarropa'), findsOneWidget);
-      expect(find.text('Sugerencias de outfits con IA'), findsOneWidget);
-    });
-
-    testWidgets('renders notification button', (tester) async {
-      await pumpScreen(tester);
-      expect(find.text('Avisarme cuando esté disponible'), findsOneWidget);
-    });
-
     testWidgets('renders app bar with title', (tester) async {
       await pumpScreen(tester);
       expect(find.text('Prueba Virtual'), findsOneWidget);
     });
 
-    testWidgets('renders En desarrollo badge', (tester) async {
+    testWidgets('renders photo placeholder text', (tester) async {
       await pumpScreen(tester);
-      expect(find.text('En desarrollo'), findsOneWidget);
+      expect(find.text('Seleccioná tu foto'), findsOneWidget);
+    });
+
+    testWidgets('renders camera and gallery buttons', (tester) async {
+      await pumpScreen(tester);
+      expect(find.text('Cámara'), findsOneWidget);
+      expect(find.text('Galería'), findsOneWidget);
+    });
+
+    testWidgets('renders process button', (tester) async {
+      await pumpScreen(tester);
+      expect(find.text('Probarme el outfit'), findsOneWidget);
+    });
+
+    testWidgets('renders premium paywall banner when not premium', (tester) async {
+      await pumpScreen(tester);
+      expect(find.text('Función Premium'), findsOneWidget);
     });
   });
 }

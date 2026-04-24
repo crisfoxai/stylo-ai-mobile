@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
+import '../../application/iap_service.dart';
 import '../../data/datasources/subscription_remote_datasource.dart';
 import '../../data/repositories/subscription_repository_impl.dart';
 import '../../domain/entities/subscription.dart';
@@ -78,4 +79,10 @@ final subscriptionNotifierProvider =
 final isPremiumProvider = Provider<bool>((ref) {
   final sub = ref.watch(subscriptionNotifierProvider).subscription;
   return sub?.isPremium ?? false;
+});
+
+final iapServiceProvider = Provider<IapService>((ref) {
+  final service = IapService();
+  ref.onDispose(service.dispose);
+  return service;
 });
