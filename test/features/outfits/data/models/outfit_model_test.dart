@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stylo_ai/features/outfits/data/models/outfit_model.dart';
 import 'package:stylo_ai/features/outfits/domain/entities/outfit.dart';
@@ -171,7 +173,10 @@ void main() {
       });
 
       test('round-trips correctly through fromJson/toJson', () {
-        final json = model.toJson();
+        // Go through jsonEncode/jsonDecode to properly serialize nested objects,
+        // matching how Outfit.toJson is used in production (via jsonEncode).
+        final json =
+            jsonDecode(jsonEncode(model.toJson())) as Map<String, dynamic>;
         final restored = OutfitModel.fromJson(json);
         expect(restored.id, model.id);
         expect(restored.name, model.name);
