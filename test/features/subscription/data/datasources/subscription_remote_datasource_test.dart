@@ -40,7 +40,7 @@ void main() {
 
     group('verifyPurchase', () {
       test('returns premium subscription after verification', () async {
-        when(() => mockDio.post(any())).thenAnswer(
+        when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
           (_) async => fakeOk({
             'data': {'id': 'sub2', 'plan': 'premium', 'status': 'active'},
           }),
