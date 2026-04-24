@@ -75,6 +75,11 @@ dev_dependencies:
   integration_test:
     sdk: flutter
 
+dependency_overrides:
+  # build_runner 2.4.x uses build ^2.0.0; some transitive deps pull build ^3.
+  # Pin to ^2.5.0 to align all packages — authorized by TL (Martín).
+  build: ^2.5.0
+
 flutter:
   uses-material-design: true
 
