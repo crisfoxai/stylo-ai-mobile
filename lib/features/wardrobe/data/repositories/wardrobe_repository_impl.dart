@@ -1,4 +1,4 @@
-import 'package:isar/isar.dart';
+import 'package:isar_community/isar.dart';
 import '../../../../core/storage/local_db.dart';
 import '../../domain/entities/garment.dart';
 import '../../domain/repositories/wardrobe_repository.dart';

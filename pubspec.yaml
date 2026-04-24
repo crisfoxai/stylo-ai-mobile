@@ -61,9 +61,9 @@ dependencies:
   in_app_purchase: ^3.2.0
   url_launcher: ^6.3.1
 
-  # Local DB (offline cache)
-  isar: ^3.1.0+1
-  isar_flutter_libs: ^3.1.0+1
+  # Local DB (offline cache) — isar_community fork supports analyzer ^7 (resolves isar 3.x conflict)
+  isar_community: ^3.3.0
+  isar_community_flutter_libs: ^3.3.0
   path_provider: ^2.1.5
 
 dev_dependencies:
@@ -74,15 +74,10 @@ dev_dependencies:
   json_serializable: ^6.9.3
   freezed: ^2.5.7
   riverpod_generator: ^2.6.3
-  isar_generator: ^3.1.0+1
+  isar_community_generator: ^3.3.0
   mocktail: ^1.0.4
   integration_test:
     sdk: flutter
-
-dependency_overrides:
-  # isar_generator ^3.1.0+1 requires source_gen <2.0.0; riverpod_generator ^2.6.3 requires ^2.0.0.
-  # Override to 2.x — isar_generator 3.x is API-compatible with source_gen 2.x at runtime.
-  source_gen: ^2.0.0
 
 flutter:
   uses-material-design: true
