@@ -1,4 +1,4 @@
-package com.styloai.stylo_ai
+package app.styloai.mobile
 
 import io.flutter.embedding.android.FlutterActivity
 
