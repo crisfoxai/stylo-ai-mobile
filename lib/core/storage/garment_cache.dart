@@ -1,14 +1,6 @@
-import 'package:isar_community/isar.dart';
-
-part 'garment_cache.g.dart';
-
-@collection
 class GarmentCache {
-  Id id = Isar.autoIncrement;
-
-  @Index(unique: true)
+  int id = 0;
   late String garmentId;
-
   late String name;
   late String imageUrl;
   String? thumbnailUrl;
