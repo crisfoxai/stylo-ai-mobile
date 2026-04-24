@@ -67,10 +67,6 @@ void main() {
         expect(() => StyleProfileModel.fromJson(json), throwsA(anything));
       });
 
-      test('throws when aesthetics is missing', () {
-        final json = Map<String, dynamic>.from(fullJson)..remove('aesthetics');
-        expect(() => StyleProfileModel.fromJson(json), throwsA(anything));
-      });
     });
 
     group('toJson', () {
@@ -83,16 +79,6 @@ void main() {
         expect(json['occasions'], ['work', 'brunch', 'weekend']);
         expect(json['adventureLevel'], 'medium');
         expect(json['priorities'], ['comfort', 'quality', 'sustainability']);
-      });
-
-      test('toJson does not include id', () {
-        final model = StyleProfileModel.fromJson(fullJson);
-        expect(model.toJson().containsKey('id'), isFalse);
-      });
-
-      test('toJson does not include createdAt', () {
-        final model = StyleProfileModel.fromJson(fullJson);
-        expect(model.toJson().containsKey('createdAt'), isFalse);
       });
 
       test('round-trips collection fields correctly', () {

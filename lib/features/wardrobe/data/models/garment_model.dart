@@ -1,4 +1,5 @@
-// GarmentModel is now just a type alias: Garment handles fromJson/toJson
-// via freezed + json_serializable code generation.
-// Use Garment.fromJson() directly in data sources.
+import '../../domain/entities/garment.dart';
 export '../../domain/entities/garment.dart';
+
+// Type alias for backwards-compatible test references.
+typedef GarmentModel = Garment;

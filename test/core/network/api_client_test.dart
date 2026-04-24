@@ -1,20 +1,28 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stylo_ai/core/network/api_client.dart';
+import 'package:stylo_ai/core/network/interceptors/auth_interceptor.dart';
 import 'package:stylo_ai/features/auth/presentation/providers/auth_provider.dart';
+
+class _MockFirebaseAuth extends Mock implements FirebaseAuth {}
 
 void main() {
   group('apiClientProvider', () {
     late ProviderContainer container;
+    late _MockFirebaseAuth mockAuth;
 
     setUp(() async {
+      mockAuth = _MockFirebaseAuth();
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
       container = ProviderContainer(
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
+          firebaseAuthProvider.overrideWithValue(mockAuth),
         ],
       );
     });

@@ -131,16 +131,5 @@ void main() {
       });
     });
 
-    group('props', () {
-      test('props contains all 14 expected fields', () {
-        final g = makeGarment();
-        expect(g.props.length, 14);
-      });
-
-      test('props includes id as first element', () {
-        final g = makeGarment(id: 'test-id');
-        expect(g.props.first, 'test-id');
-      });
-    });
   });
 }

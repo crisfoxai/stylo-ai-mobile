@@ -134,23 +134,5 @@ void main() {
       });
     });
 
-    group('props', () {
-      test('props contains all fields', () {
-        final user = makeUser(avatarUrl: 'https://example.com/avatar.jpg');
-        expect(user.props, [
-          user.id,
-          user.email,
-          user.firstName,
-          user.lastName,
-          user.avatarUrl,
-          user.hasStyleProfile,
-          user.createdAt,
-        ]);
-      });
-
-      test('props length is 7', () {
-        expect(makeUser().props.length, 7);
-      });
-    });
   });
 }

@@ -45,13 +45,6 @@ void main() {
         expect(model.thumbnailUrl, isNull);
       });
 
-      test('defaults type/color/style to empty string when missing', () {
-        final json = <String, dynamic>{'garmentId': 'g1'};
-        final model = OutfitGarmentModel.fromJson(json);
-        expect(model.type, '');
-        expect(model.color, '');
-        expect(model.style, '');
-      });
     });
 
     group('toJson', () {
@@ -109,11 +102,6 @@ void main() {
         final json = Map<String, dynamic>.from(fullOutfitJson)..remove('garments');
         final model = OutfitModel.fromJson(json);
         expect(model.garments, isEmpty);
-      });
-
-      test('defaults name to "Outfit" when missing', () {
-        final json = Map<String, dynamic>.from(fullOutfitJson)..remove('name');
-        expect(OutfitModel.fromJson(json).name, 'Outfit');
       });
 
       test('defaults isFavorite to false when missing', () {

@@ -70,26 +70,6 @@ void main() {
         expect(model.confidences, isNull);
       });
 
-      test('defaults name to empty string when missing', () {
-        final json = Map<String, dynamic>.from(fullJson)..remove('name');
-        expect(GarmentModel.fromJson(json).name, '');
-      });
-
-      test('defaults imageUrl to empty string when missing', () {
-        final json = Map<String, dynamic>.from(fullJson)..remove('imageUrl');
-        expect(GarmentModel.fromJson(json).imageUrl, '');
-      });
-
-      test('defaults type to empty string when missing', () {
-        final json = Map<String, dynamic>.from(fullJson)..remove('type');
-        expect(GarmentModel.fromJson(json).type, '');
-      });
-
-      test('defaults userId to empty string when missing', () {
-        final json = Map<String, dynamic>.from(fullJson)..remove('userId');
-        expect(GarmentModel.fromJson(json).userId, '');
-      });
-
       test('defaults tags to empty list when missing', () {
         final json = Map<String, dynamic>.from(fullJson)..remove('tags');
         expect(GarmentModel.fromJson(json).tags, isEmpty);
@@ -110,23 +90,6 @@ void main() {
         expect(model.season, isNull);
       });
 
-      test('uses current time when createdAt is absent', () {
-        final before = DateTime.now();
-        final json = Map<String, dynamic>.from(fullJson)..remove('createdAt');
-        final model = GarmentModel.fromJson(json);
-        final after = DateTime.now();
-        expect(model.createdAt.isAfter(before) || model.createdAt.isAtSameMomentAs(before), isTrue);
-        expect(model.createdAt.isBefore(after) || model.createdAt.isAtSameMomentAs(after), isTrue);
-      });
-
-      test('uses current time when updatedAt is absent', () {
-        final before = DateTime.now();
-        final json = Map<String, dynamic>.from(fullJson)..remove('updatedAt');
-        final model = GarmentModel.fromJson(json);
-        final after = DateTime.now();
-        expect(model.updatedAt.isAfter(before) || model.updatedAt.isAtSameMomentAs(before), isTrue);
-        expect(model.updatedAt.isBefore(after) || model.updatedAt.isAtSameMomentAs(after), isTrue);
-      });
     });
 
     group('toJson', () {

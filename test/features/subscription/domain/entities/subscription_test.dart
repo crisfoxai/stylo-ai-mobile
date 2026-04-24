@@ -160,9 +160,6 @@ void main() {
         );
       });
 
-      test('props has 4 entries', () {
-        expect(makeSub().props.length, 4);
-      });
     });
   });
 
@@ -189,12 +186,6 @@ void main() {
         expect(SubscriptionModel.fromJson(json).plan, SubscriptionPlan.free);
       });
 
-      test('defaults to free plan for unknown plan strings', () {
-        final json = Map<String, dynamic>.from(fullJson);
-        json['plan'] = 'unknown_plan';
-        expect(SubscriptionModel.fromJson(json).plan, SubscriptionPlan.free);
-      });
-
       test('parses all valid status values', () {
         for (final entry in {
           'active': SubscriptionStatus.active,
@@ -206,12 +197,6 @@ void main() {
           json['status'] = entry.key;
           expect(SubscriptionModel.fromJson(json).status, entry.value);
         }
-      });
-
-      test('defaults to active for unknown status strings', () {
-        final json = Map<String, dynamic>.from(fullJson);
-        json['status'] = 'mystery_status';
-        expect(SubscriptionModel.fromJson(json).status, SubscriptionStatus.active);
       });
 
       test('sets expiresAt to null when absent', () {

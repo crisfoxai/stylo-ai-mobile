@@ -1,4 +1,6 @@
-// OutfitModel and OutfitGarmentModel are now handled by Freezed-generated
-// Outfit and OutfitGarment classes with fromJson/toJson.
-// Use Outfit.fromJson() directly in data sources.
+import '../../domain/entities/outfit.dart';
 export '../../domain/entities/outfit.dart';
+
+// Type aliases for backwards-compatible test references.
+typedef OutfitModel = Outfit;
+typedef OutfitGarmentModel = OutfitGarment;

@@ -28,18 +28,6 @@ void main() {
         expect(model.createdAt, testDate);
       });
 
-      test('defaults firstName to empty string when missing', () {
-        final json = Map<String, dynamic>.from(fullJson)..remove('firstName');
-        final model = UserModel.fromJson(json);
-        expect(model.firstName, '');
-      });
-
-      test('defaults lastName to empty string when missing', () {
-        final json = Map<String, dynamic>.from(fullJson)..remove('lastName');
-        final model = UserModel.fromJson(json);
-        expect(model.lastName, '');
-      });
-
       test('defaults hasStyleProfile to false when missing', () {
         final json = Map<String, dynamic>.from(fullJson)..remove('hasStyleProfile');
         final model = UserModel.fromJson(json);

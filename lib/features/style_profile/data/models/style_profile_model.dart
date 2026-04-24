@@ -1,3 +1,5 @@
-// StyleProfileModel is now the Freezed-generated StyleProfile entity.
-// Use StyleProfile.fromJson() directly in data sources.
+import '../../domain/entities/style_profile.dart';
 export '../../domain/entities/style_profile.dart';
+
+// Type alias for backwards-compatible test references.
+typedef StyleProfileModel = StyleProfile;

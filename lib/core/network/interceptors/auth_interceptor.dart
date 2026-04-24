@@ -2,12 +2,17 @@ import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+final firebaseAuthProvider = Provider<FirebaseAuth>(
+  (ref) => FirebaseAuth.instance,
+);
+
 class AuthInterceptor extends Interceptor {
   final Ref _ref;
-  final FirebaseAuth _auth;
+  late final FirebaseAuth _auth;
 
-  AuthInterceptor(this._ref, {FirebaseAuth? auth})
-      : _auth = auth ?? FirebaseAuth.instance;
+  AuthInterceptor(this._ref, {FirebaseAuth? auth}) {
+    _auth = auth ?? _ref.read(firebaseAuthProvider);
+  }
 
   @override
   Future<void> onRequest(

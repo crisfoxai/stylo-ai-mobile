@@ -93,29 +93,5 @@ void main() {
       });
     });
 
-    group('props', () {
-      test('props contains 7 entries', () {
-        expect(makeProfile().props.length, 7);
-      });
-
-      test('props does not include createdAt', () {
-        // Based on the entity definition, createdAt is NOT in props
-        final profile = makeProfile();
-        expect(profile.props.contains(profile.createdAt), isFalse);
-      });
-
-      test('props includes all list fields', () {
-        final profile = makeProfile();
-        expect(profile.props, containsAll([
-          profile.id,
-          profile.aesthetics,
-          profile.favoriteColors,
-          profile.occasions,
-          profile.adventureLevel,
-          profile.priorities,
-          profile.styleBadge,
-        ]));
-      });
-    });
   });
 }
