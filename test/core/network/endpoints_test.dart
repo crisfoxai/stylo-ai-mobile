@@ -48,25 +48,25 @@ void main() {
     });
 
     group('Wardrobe endpoints', () {
-      test('garments endpoint is /garments', () {
-        expect(Endpoints.garments, '/garments');
+      test('garments endpoint is /wardrobe', () {
+        expect(Endpoints.garments, '/wardrobe');
       });
 
       test('garment(id) returns correct dynamic path', () {
-        expect(Endpoints.garment('abc123'), '/garments/abc123');
+        expect(Endpoints.garment('abc123'), '/wardrobe/abc123');
       });
 
       test('garment(id) interpolates different IDs correctly', () {
-        expect(Endpoints.garment('xyz-456'), '/garments/xyz-456');
-        expect(Endpoints.garment('1'), '/garments/1');
+        expect(Endpoints.garment('xyz-456'), '/wardrobe/xyz-456');
+        expect(Endpoints.garment('1'), '/wardrobe/1');
       });
 
-      test('scanUpload endpoint is /garments/scan', () {
-        expect(Endpoints.scanUpload, '/garments/scan');
+      test('scanUpload endpoint is /wardrobe', () {
+        expect(Endpoints.scanUpload, '/wardrobe');
       });
 
       test('garmentJob(jobId) returns correct dynamic path', () {
-        expect(Endpoints.garmentJob('job-001'), '/garments/jobs/job-001');
+        expect(Endpoints.garmentJob('job-001'), '/wardrobe/jobs/job-001');
       });
     });
 

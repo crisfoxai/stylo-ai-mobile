@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -18,6 +19,15 @@ class AuthRepositoryImpl implements AuthRepository {
     if (_currentUser != null) {
       _authStateController.add(_currentUser);
     }
+    // When the auth interceptor calls FirebaseAuth.signOut() on persistent 401,
+    // mirror that sign-out in our local state so GoRouter redirects to /auth.
+    fb.FirebaseAuth.instance.authStateChanges().listen((fbUser) {
+      if (fbUser == null && _currentUser != null) {
+        _localDataSource.clearAll().ignore();
+        _currentUser = null;
+        _authStateController.add(null);
+      }
+    });
   }
 
   @override

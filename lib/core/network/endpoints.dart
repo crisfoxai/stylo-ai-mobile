@@ -16,10 +16,10 @@ class Endpoints {
   static const String stats = '/users/me/stats';
 
   // Wardrobe
-  static const String garments = '/garments';
-  static String garment(String id) => '/garments/$id';
-  static const String scanUpload = '/garments/scan';
-  static String garmentJob(String jobId) => '/garments/jobs/$jobId';
+  static const String garments = '/wardrobe';
+  static String garment(String id) => '/wardrobe/$id';
+  static const String scanUpload = '/wardrobe';
+  static String garmentJob(String jobId) => '/wardrobe/jobs/$jobId';
 
   // Outfits
   static const String outfits = '/outfits';

@@ -6,6 +6,24 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/outfit.dart';
 import '../providers/outfit_generator_provider.dart';
 
+// Maps display labels (ES) to API values (EN) expected by the backend.
+const _moodApiValues = <String, String>{
+  'Casual': 'casual',
+  'Formal': 'formal',
+  'Atrevido': 'party',
+  'Relajado': 'travel',
+  'Energético': 'sport',
+};
+
+const _eventApiValues = <String, String>{
+  'Trabajo': 'work',
+  'Cita': 'date',
+  'Brunch': 'casual',
+  'Gym': 'sport',
+  'Fiesta': 'party',
+  'Día libre': 'casual',
+};
+
 class OutfitGeneratorScreen extends ConsumerWidget {
   const OutfitGeneratorScreen({super.key});
 
@@ -150,11 +168,12 @@ class _SelectorView extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: moods.map((mood) {
-              final selected = mood == selectedMood;
+              final apiValue = _moodApiValues[mood] ?? mood;
+              final selected = apiValue == selectedMood;
               return _SelectableChip(
                 label: mood,
                 selected: selected,
-                onTap: () => onMoodSelected(mood),
+                onTap: () => onMoodSelected(apiValue),
               );
             }).toList(),
           ),
@@ -180,11 +199,12 @@ class _SelectorView extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: events.map((event) {
-              final selected = event == selectedEvent;
+              final apiValue = _eventApiValues[event] ?? event;
+              final selected = apiValue == selectedEvent;
               return _SelectableChip(
                 label: event,
                 selected: selected,
-                onTap: () => onEventSelected(event),
+                onTap: () => onEventSelected(apiValue),
               );
             }).toList(),
           ),
