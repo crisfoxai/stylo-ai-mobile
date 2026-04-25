@@ -24,7 +24,7 @@ class AuthRemoteDataSource {
     final idToken = await credential.user!.getIdToken();
     debugPrint('[AUTH] idToken length=${idToken?.length ?? 0}');
 
-    const url = '/auth/session';
+    const url = '/auth/firebase';
     debugPrint('[AUTH] POST ${_dio.options.baseUrl}$url starting');
     try {
       final response = await _dio
@@ -35,10 +35,12 @@ class AuthRemoteDataSource {
           )
           .timeout(const Duration(seconds: 20), onTimeout: () {
         debugPrint('[AUTH] MANUAL TIMEOUT 20s on $url');
-        throw TimeoutException('Backend /auth/session no respondió en 20s');
+        throw TimeoutException('Backend /auth/firebase no respondió en 20s');
       });
       debugPrint('[AUTH] POST $url status=${response.statusCode}');
-      return _parseAuthResponse(response.data as Map<String, dynamic>, idToken: idToken);
+      final body = response.data as Map<String, dynamic>;
+      final loginData = body['data'] as Map<String, dynamic>? ?? body;
+      return _parseAuthResponse(loginData, idToken: idToken);
     } on DioException catch (e) {
       debugPrint(
         '[AUTH] DioException type=${e.type} '
@@ -67,7 +69,7 @@ class AuthRemoteDataSource {
     final idToken = await credential.user!.getIdToken();
     debugPrint('[AUTH] idToken length=${idToken?.length ?? 0}');
 
-    const url = '/auth/session';
+    const url = '/auth/firebase';
     debugPrint('[AUTH] POST ${_dio.options.baseUrl}$url starting');
     try {
       final response = await _dio
@@ -78,10 +80,12 @@ class AuthRemoteDataSource {
           )
           .timeout(const Duration(seconds: 20), onTimeout: () {
         debugPrint('[AUTH] MANUAL TIMEOUT 20s on $url');
-        throw TimeoutException('Backend /auth/session no respondió en 20s');
+        throw TimeoutException('Backend /auth/firebase no respondió en 20s');
       });
       debugPrint('[AUTH] POST $url status=${response.statusCode}');
-      return _parseAuthResponse(response.data as Map<String, dynamic>, idToken: idToken, isNewUser: true);
+      final body = response.data as Map<String, dynamic>;
+      final registerData = body['data'] as Map<String, dynamic>? ?? body;
+      return _parseAuthResponse(registerData, idToken: idToken, isNewUser: true);
     } on DioException catch (e) {
       debugPrint(
         '[AUTH] DioException type=${e.type} '
@@ -101,7 +105,8 @@ class AuthRemoteDataSource {
     final response = await _dio.post(Endpoints.googleAuth, data: {
       'idToken': idToken,
     });
-    final googleData = response.data as Map<String, dynamic>;
+    final body = response.data as Map<String, dynamic>;
+    final googleData = body['data'] as Map<String, dynamic>? ?? body;
     return _parseAuthResponse(
       googleData,
       isNewUser: (googleData['user'] as Map<String, dynamic>?)?['isNewUser'] as bool? ?? false,
@@ -116,7 +121,8 @@ class AuthRemoteDataSource {
       if (firstName != null) 'firstName': firstName,
       if (lastName != null) 'lastName': lastName,
     });
-    final appleData = response.data as Map<String, dynamic>;
+    final body = response.data as Map<String, dynamic>;
+    final appleData = body['data'] as Map<String, dynamic>? ?? body;
     return _parseAuthResponse(
       appleData,
       isNewUser: (appleData['user'] as Map<String, dynamic>?)?['isNewUser'] as bool? ?? false,
