@@ -24,23 +24,21 @@ class AuthRemoteDataSource {
     final idToken = await credential.user!.getIdToken();
     debugPrint('[AUTH] idToken length=${idToken?.length ?? 0}');
 
-    final url = '${_dio.options.baseUrl}${Endpoints.login}';
-    debugPrint('[AUTH] POST $url starting');
+    const url = '/auth/session';
+    debugPrint('[AUTH] POST ${_dio.options.baseUrl}$url starting');
     try {
       final response = await _dio
           .post(
-            Endpoints.login,
+            url,
             options: Options(headers: {'Authorization': 'Bearer $idToken'}),
-            // TODO(TL): backend Docker uses {email,password}; source uses Firebase-only
-            // /auth/session. Remove `password` once Ariel aligns Docker↔source (card_Ea2AwaQhoDTE).
-            data: {'email': email, 'password': password},
+            data: {'idToken': idToken!},
           )
           .timeout(const Duration(seconds: 20), onTimeout: () {
         debugPrint('[AUTH] MANUAL TIMEOUT 20s on $url');
-        throw TimeoutException('Backend /auth/login no respondió en 20s');
+        throw TimeoutException('Backend /auth/session no respondió en 20s');
       });
-      debugPrint('[AUTH] POST /auth/login status=${response.statusCode}');
-      return _parseAuthResponse(response.data['data'] as Map<String, dynamic>);
+      debugPrint('[AUTH] POST $url status=${response.statusCode}');
+      return _parseAuthResponse(response.data as Map<String, dynamic>, idToken: idToken);
     } on DioException catch (e) {
       debugPrint(
         '[AUTH] DioException type=${e.type} '
@@ -69,27 +67,21 @@ class AuthRemoteDataSource {
     final idToken = await credential.user!.getIdToken();
     debugPrint('[AUTH] idToken length=${idToken?.length ?? 0}');
 
-    final url = '${_dio.options.baseUrl}${Endpoints.register}';
-    debugPrint('[AUTH] POST $url starting');
+    const url = '/auth/session';
+    debugPrint('[AUTH] POST ${_dio.options.baseUrl}$url starting');
     try {
       final response = await _dio
           .post(
-            Endpoints.register,
+            url,
             options: Options(headers: {'Authorization': 'Bearer $idToken'}),
-            // TODO(TL): align with backend once card_Ea2AwaQhoDTE resolves contract.
-            data: {
-              'email': email,
-              'password': password,
-              'firstName': firstName,
-              'lastName': lastName,
-            },
+            data: {'idToken': idToken!},
           )
           .timeout(const Duration(seconds: 20), onTimeout: () {
         debugPrint('[AUTH] MANUAL TIMEOUT 20s on $url');
-        throw TimeoutException('Backend /auth/register no respondió en 20s');
+        throw TimeoutException('Backend /auth/session no respondió en 20s');
       });
-      debugPrint('[AUTH] POST /auth/register status=${response.statusCode}');
-      return _parseAuthResponse(response.data['data'] as Map<String, dynamic>);
+      debugPrint('[AUTH] POST $url status=${response.statusCode}');
+      return _parseAuthResponse(response.data as Map<String, dynamic>, idToken: idToken, isNewUser: true);
     } on DioException catch (e) {
       debugPrint(
         '[AUTH] DioException type=${e.type} '
@@ -109,8 +101,12 @@ class AuthRemoteDataSource {
     final response = await _dio.post(Endpoints.googleAuth, data: {
       'idToken': idToken,
     });
-    final googleData = response.data['data'] as Map<String, dynamic>;
-    return _parseAuthResponse(googleData, isNewUser: googleData['user']['isNewUser'] as bool? ?? false);
+    final googleData = response.data as Map<String, dynamic>;
+    return _parseAuthResponse(
+      googleData,
+      isNewUser: (googleData['user'] as Map<String, dynamic>?)?['isNewUser'] as bool? ?? false,
+      idToken: idToken,
+    );
   }
 
   Future<AuthResult> appleSignIn(String identityToken, String authorizationCode, String? firstName, String? lastName) async {
@@ -120,8 +116,12 @@ class AuthRemoteDataSource {
       if (firstName != null) 'firstName': firstName,
       if (lastName != null) 'lastName': lastName,
     });
-    final appleData = response.data['data'] as Map<String, dynamic>;
-    return _parseAuthResponse(appleData, isNewUser: appleData['user']['isNewUser'] as bool? ?? false);
+    final appleData = response.data as Map<String, dynamic>;
+    return _parseAuthResponse(
+      appleData,
+      isNewUser: (appleData['user'] as Map<String, dynamic>?)?['isNewUser'] as bool? ?? false,
+      idToken: identityToken,
+    );
   }
 
   Future<Map<String, String>> refreshToken(String token) async {
@@ -151,14 +151,38 @@ class AuthRemoteDataSource {
     return await _firebaseAuth.currentUser?.getIdToken();
   }
 
-  AuthResult _parseAuthResponse(Map<String, dynamic> data, {bool isNewUser = false}) {
-    final user = User.fromJson(data['user'] as Map<String, dynamic>);
-    final tokens = data['tokens'] as Map<String, dynamic>;
+  AuthResult _parseAuthResponse(
+    Map<String, dynamic> data, {
+    bool isNewUser = false,
+    String? idToken,
+  }) {
+    final rawUser = data['user'] as Map<String, dynamic>;
+    final displayName = (rawUser['displayName'] as String?) ?? '';
+    final parts = displayName.trim().split(RegExp(r'\s+'));
+    final firstName = parts.isNotEmpty ? parts.first : '';
+    final lastName = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+
+    final userJson = <String, dynamic>{
+      'id': ((rawUser['_id'] ?? rawUser['id']) as Object).toString(),
+      'email': (rawUser['email'] as String?) ?? '',
+      'firstName': firstName,
+      'lastName': lastName,
+      'avatarUrl': rawUser['photoUrl'] as String?,
+      'hasStyleProfile': rawUser['hasStyleProfile'] as bool? ?? false,
+      'createdAt': rawUser['createdAt'] as String? ?? DateTime.now().toIso8601String(),
+    };
+
+    final user = User.fromJson(userJson);
+    final expiresAtStr = data['expiresAt'] as String?;
+    final expiresIn = expiresAtStr != null
+        ? DateTime.parse(expiresAtStr).difference(DateTime.now()).inSeconds.clamp(0, 7200)
+        : 3600;
+
     return AuthResult(
       user: user,
-      accessToken: tokens['accessToken'] as String,
-      refreshToken: tokens['refreshToken'] as String,
-      expiresIn: tokens['expiresIn'] as int,
+      accessToken: idToken ?? '',
+      refreshToken: '',
+      expiresIn: expiresIn,
       isNewUser: isNewUser,
     );
   }
