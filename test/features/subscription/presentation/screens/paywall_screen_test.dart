@@ -33,7 +33,7 @@ class FakeSubscriptionRepository implements SubscriptionRepository {
   }) async =>
       const Subscription(
         id: 'sub1',
-        plan: SubscriptionPlan.premium,
+        plan: SubscriptionPlan.pro,
         status: SubscriptionStatus.active,
       );
 }

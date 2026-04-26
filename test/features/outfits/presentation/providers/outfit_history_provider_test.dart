@@ -37,16 +37,13 @@ class FakeOutfitRepository implements OutfitRepository {
   }
 
   @override
-  Future<Outfit> toggleFavorite(String id) async {
+  Future<void> toggleFavorite(String id) async {
     if (errorToThrow != null) {
       final e = errorToThrow!;
       errorToThrow = null;
       throw e;
     }
-    // Toggle isFavorite
-    final outfit = favoriteOutfits.firstWhere((o) => o.id == id,
-        orElse: () => _makeOutfit(id: id, isFavorite: false));
-    return _makeOutfit(id: id, isFavorite: !outfit.isFavorite);
+    // Toggle isFavorite (no-op in fake)
   }
 
   Outfit _makeOutfit({String id = 'o-1', bool isFavorite = false}) => Outfit(
@@ -60,14 +57,18 @@ class FakeOutfitRepository implements OutfitRepository {
       );
 
   @override
-  Future<Outfit> generateOutfit({required String mood, required String event}) async =>
+  Future<Outfit> generateOutfit({
+    required String mood,
+    required String event,
+    List<String>? excludeIds,
+  }) async =>
       _makeOutfit();
   @override
   Future<List<Outfit>> getOutfits({int page = 1, int limit = 20}) async => [];
   @override
   Future<Outfit> getOutfit(String id) async => _makeOutfit(id: id);
   @override
-  Future<Outfit> logWorn(String id) async => _makeOutfit(id: id);
+  Future<void> logWorn(String id) async {}
 }
 
 void main() {

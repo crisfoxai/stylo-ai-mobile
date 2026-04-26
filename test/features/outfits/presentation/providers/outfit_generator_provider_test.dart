@@ -35,6 +35,7 @@ class FakeOutfitRepository implements OutfitRepository {
   Future<Outfit> generateOutfit({
     required String mood,
     required String event,
+    List<String>? excludeIds,
   }) async {
     if (errorToThrow != null) {
       final e = errorToThrow!;
@@ -47,23 +48,21 @@ class FakeOutfitRepository implements OutfitRepository {
   }
 
   @override
-  Future<Outfit> toggleFavorite(String id) async {
+  Future<void> toggleFavorite(String id) async {
     if (errorToThrow != null) {
       final e = errorToThrow!;
       errorToThrow = null;
       throw e;
     }
-    return _makeOutfit(isFavorite: true);
   }
 
   @override
-  Future<Outfit> logWorn(String id) async {
+  Future<void> logWorn(String id) async {
     if (errorToThrow != null) {
       final e = errorToThrow!;
       errorToThrow = null;
       throw e;
     }
-    return _makeOutfit(wornAt: DateTime(2024, 6, 5));
   }
 
   @override
@@ -375,7 +374,7 @@ void main() {
       expect(container.read(outfitGeneratorProvider).isLoggingWorn, isFalse);
     });
 
-    test('updates outfit with wornAt on success', () async {
+    test('shows success message on success', () async {
       container.read(outfitGeneratorProvider.notifier).setMood('confident');
       container.read(outfitGeneratorProvider.notifier).setEvent('work');
       await container.read(outfitGeneratorProvider.notifier).generateOutfit();
@@ -383,7 +382,7 @@ void main() {
 
       final state = container.read(outfitGeneratorProvider);
       expect(state.isLoggingWorn, isFalse);
-      expect(state.generatedOutfit!.wornAt, isNotNull);
+      expect(state.successMessage, isNotNull);
     });
 
     test('sets errorMessage when logWorn fails', () async {

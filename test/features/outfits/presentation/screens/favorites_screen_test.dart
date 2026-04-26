@@ -26,22 +26,20 @@ class FakeOutfitRepository implements OutfitRepository {
       favoriteOutfits.firstWhere((o) => o.id == id);
 
   @override
-  Future<Outfit> generateOutfit(
-          {required String mood, required String event}) =>
-      throw UnimplementedError();
+  Future<Outfit> generateOutfit({
+    required String mood,
+    required String event,
+    List<String>? excludeIds,
+  }) => throw UnimplementedError();
 
   @override
   Future<List<Outfit>> getOutfits({int page = 1, int limit = 20}) async => [];
 
   @override
-  Future<Outfit> toggleFavorite(String id) async {
-    final outfit = favoriteOutfits.firstWhere((o) => o.id == id);
-    return outfit.copyWith(isFavorite: !outfit.isFavorite);
-  }
+  Future<void> toggleFavorite(String id) async {}
 
   @override
-  Future<Outfit> logWorn(String id) async =>
-      favoriteOutfits.firstWhere((o) => o.id == id);
+  Future<void> logWorn(String id) async {}
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────

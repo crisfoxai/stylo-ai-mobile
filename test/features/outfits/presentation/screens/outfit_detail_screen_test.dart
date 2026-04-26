@@ -33,8 +33,11 @@ class FakeOutfitRepository implements OutfitRepository {
   }
 
   @override
-  Future<Outfit> generateOutfit(
-          {required String mood, required String event}) =>
+  Future<Outfit> generateOutfit({
+    required String mood,
+    required String event,
+    List<String>? excludeIds,
+  }) =>
       throw UnimplementedError();
 
   @override
@@ -45,7 +48,7 @@ class FakeOutfitRepository implements OutfitRepository {
   Future<Outfit> toggleFavorite(String id) async => outfitToReturn!;
 
   @override
-  Future<Outfit> logWorn(String id) async => outfitToReturn!;
+  Future<void> logWorn(String id) async {}
 
   @override
   Future<List<Outfit>> getFavorites() => throw UnimplementedError();

@@ -42,7 +42,7 @@ void main() {
       test('returns premium subscription after verification', () async {
         when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
           (_) async => fakeOk({
-            'data': {'id': 'sub2', 'plan': 'premium', 'status': 'active'},
+            'data': {'id': 'sub2', 'plan': 'pro', 'status': 'active'},
           }),
         );
 
@@ -52,7 +52,7 @@ void main() {
           platform: 'ios',
         );
 
-        expect(result.plan, SubscriptionPlan.premium);
+        expect(result.plan, SubscriptionPlan.pro);
         expect(result.status, SubscriptionStatus.active);
       });
     });

@@ -37,7 +37,7 @@ class FakeSubscriptionRepository implements SubscriptionRepository {
     }
     return const Subscription(
       id: 'sub-1',
-      plan: SubscriptionPlan.premium,
+      plan: SubscriptionPlan.pro,
       status: SubscriptionStatus.active,
     );
   }
@@ -110,7 +110,7 @@ void main() {
           );
 
       final state = container.read(subscriptionNotifierProvider);
-      expect(state.subscription!.plan, SubscriptionPlan.premium);
+      expect(state.subscription!.plan, SubscriptionPlan.pro);
       expect(state.isLoading, isFalse);
     });
 

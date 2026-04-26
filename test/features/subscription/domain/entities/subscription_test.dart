@@ -4,29 +4,32 @@ import 'package:stylo_ai/features/subscription/data/models/subscription_model.da
 
 void main() {
   group('SubscriptionPlan enum', () {
-    test('has two values', () {
-      expect(SubscriptionPlan.values.length, 2);
+    test('has four values', () {
+      expect(SubscriptionPlan.values.length, 4);
     });
 
-    test('contains free and premium', () {
+    test('contains expected values', () {
       expect(SubscriptionPlan.values, containsAll([
         SubscriptionPlan.free,
-        SubscriptionPlan.premium,
+        SubscriptionPlan.stylist,
+        SubscriptionPlan.pro,
+        SubscriptionPlan.proUnlimited,
       ]));
     });
   });
 
   group('SubscriptionStatus enum', () {
-    test('has four values', () {
-      expect(SubscriptionStatus.values.length, 4);
+    test('has five values', () {
+      expect(SubscriptionStatus.values.length, 5);
     });
 
     test('contains expected values', () {
       expect(SubscriptionStatus.values, containsAll([
         SubscriptionStatus.active,
+        SubscriptionStatus.free,
+        SubscriptionStatus.grace,
         SubscriptionStatus.expired,
         SubscriptionStatus.cancelled,
-        SubscriptionStatus.trialing,
       ]));
     });
   });
@@ -67,8 +70,8 @@ void main() {
         expect(makeSub(status: SubscriptionStatus.active).isActive, isTrue);
       });
 
-      test('returns true when status is trialing', () {
-        expect(makeSub(status: SubscriptionStatus.trialing).isActive, isTrue);
+      test('returns true when status is grace', () {
+        expect(makeSub(status: SubscriptionStatus.grace).isActive, isTrue);
       });
 
       test('returns false when status is expired', () {
@@ -81,18 +84,18 @@ void main() {
     });
 
     group('isPremium getter', () {
-      test('returns true for active premium subscription', () {
+      test('returns true for active pro subscription', () {
         final sub = makeSub(
-          plan: SubscriptionPlan.premium,
+          plan: SubscriptionPlan.pro,
           status: SubscriptionStatus.active,
         );
         expect(sub.isPremium, isTrue);
       });
 
-      test('returns true for trialing premium subscription', () {
+      test('returns true for grace pro subscription', () {
         final sub = makeSub(
-          plan: SubscriptionPlan.premium,
-          status: SubscriptionStatus.trialing,
+          plan: SubscriptionPlan.pro,
+          status: SubscriptionStatus.grace,
         );
         expect(sub.isPremium, isTrue);
       });
@@ -104,36 +107,67 @@ void main() {
         );
       });
 
-      test('returns false for expired premium subscription', () {
+      test('returns false for expired pro subscription', () {
         final sub = makeSub(
-          plan: SubscriptionPlan.premium,
+          plan: SubscriptionPlan.pro,
           status: SubscriptionStatus.expired,
         );
         expect(sub.isPremium, isFalse);
       });
 
-      test('returns false for cancelled premium subscription', () {
+      test('returns false for cancelled pro subscription', () {
         final sub = makeSub(
-          plan: SubscriptionPlan.premium,
+          plan: SubscriptionPlan.pro,
           status: SubscriptionStatus.cancelled,
         );
         expect(sub.isPremium, isFalse);
       });
     });
 
-    group('isExpired getter', () {
-      test('returns false when expiresAt is null', () {
-        expect(makeSub().isExpired, isFalse);
+    group('hasTryon getter', () {
+      test('returns true for active pro subscription', () {
+        expect(makeSub(plan: SubscriptionPlan.pro).hasTryon, isTrue);
       });
 
-      test('returns true when expiresAt is in the past', () {
-        final pastDate = DateTime.now().subtract(const Duration(days: 1));
-        expect(makeSub(expiresAt: pastDate).isExpired, isTrue);
+      test('returns true for active proUnlimited subscription', () {
+        expect(makeSub(plan: SubscriptionPlan.proUnlimited).hasTryon, isTrue);
       });
 
-      test('returns false when expiresAt is in the future', () {
-        final futureDate = DateTime.now().add(const Duration(days: 30));
-        expect(makeSub(expiresAt: futureDate).isExpired, isFalse);
+      test('returns false for stylist plan', () {
+        expect(makeSub(plan: SubscriptionPlan.stylist).hasTryon, isFalse);
+      });
+
+      test('returns false for free plan', () {
+        expect(makeSub(plan: SubscriptionPlan.free).hasTryon, isFalse);
+      });
+    });
+
+    group('hasChat getter', () {
+      test('returns true for active stylist subscription', () {
+        expect(makeSub(plan: SubscriptionPlan.stylist).hasChat, isTrue);
+      });
+
+      test('returns true for active pro subscription', () {
+        expect(makeSub(plan: SubscriptionPlan.pro).hasChat, isTrue);
+      });
+
+      test('returns false for free plan', () {
+        expect(makeSub(plan: SubscriptionPlan.free).hasChat, isFalse);
+      });
+    });
+
+    group('tryonLimit getter', () {
+      test('returns 20 for pro', () {
+        expect(makeSub(plan: SubscriptionPlan.pro).tryonLimit, 20);
+      });
+
+      test('returns 80 for proUnlimited', () {
+        expect(makeSub(plan: SubscriptionPlan.proUnlimited).tryonLimit, 80);
+      });
+
+      test('returns 0 for free and stylist', () {
+        expect(makeSub(plan: SubscriptionPlan.free).tryonLimit, 0);
+        expect(makeSub(plan: SubscriptionPlan.stylist).tryonLimit, 0);
       });
     });
 
@@ -149,7 +183,7 @@ void main() {
       test('subscriptions with different plans are not equal', () {
         expect(
           makeSub(plan: SubscriptionPlan.free),
-          isNot(equals(makeSub(plan: SubscriptionPlan.premium))),
+          isNot(equals(makeSub(plan: SubscriptionPlan.pro))),
         );
       });
 
@@ -159,14 +193,13 @@ void main() {
           isNot(equals(makeSub(status: SubscriptionStatus.expired))),
         );
       });
-
     });
   });
 
   group('SubscriptionModel', () {
     final fullJson = {
       'id': 'sub-abc',
-      'plan': 'premium',
+      'plan': 'pro',
       'status': 'active',
       'expiresAt': '2025-12-31T00:00:00.000Z',
     };
@@ -175,7 +208,7 @@ void main() {
       test('parses a fully populated JSON object', () {
         final model = SubscriptionModel.fromJson(fullJson);
         expect(model.id, 'sub-abc');
-        expect(model.plan, SubscriptionPlan.premium);
+        expect(model.plan, SubscriptionPlan.pro);
         expect(model.status, SubscriptionStatus.active);
         expect(model.expiresAt, isNotNull);
       });
@@ -191,7 +224,7 @@ void main() {
           'active': SubscriptionStatus.active,
           'expired': SubscriptionStatus.expired,
           'cancelled': SubscriptionStatus.cancelled,
-          'trialing': SubscriptionStatus.trialing,
+          'grace': SubscriptionStatus.grace,
         }.entries) {
           final json = Map<String, dynamic>.from(fullJson);
           json['status'] = entry.key;
@@ -216,7 +249,7 @@ void main() {
         final model = SubscriptionModel.fromJson(fullJson);
         final json = model.toJson();
         expect(json['id'], 'sub-abc');
-        expect(json['plan'], 'premium');
+        expect(json['plan'], 'pro');
         expect(json['status'], 'active');
         expect(json['expiresAt'], isNotNull);
       });

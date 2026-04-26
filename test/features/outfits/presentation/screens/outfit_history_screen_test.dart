@@ -27,8 +27,11 @@ class FakeOutfitRepository implements OutfitRepository {
       historyOutfits.firstWhere((o) => o.id == id);
 
   @override
-  Future<Outfit> generateOutfit(
-          {required String mood, required String event}) =>
+  Future<Outfit> generateOutfit({
+    required String mood,
+    required String event,
+    List<String>? excludeIds,
+  }) =>
       throw UnimplementedError();
 
   @override

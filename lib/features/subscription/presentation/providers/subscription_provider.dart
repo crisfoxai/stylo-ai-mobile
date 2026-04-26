@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import '../../../../core/network/api_client.dart';
 import '../../application/iap_service.dart';
 import '../../data/datasources/subscription_remote_datasource.dart';
@@ -37,8 +38,10 @@ class SubscriptionState {
 
 class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
   final SubscriptionRepository _repository;
+  final Ref _ref;
 
-  SubscriptionNotifier(this._repository) : super(const SubscriptionState()) {
+  SubscriptionNotifier(this._repository, this._ref)
+      : super(const SubscriptionState()) {
     fetchStatus();
   }
 
@@ -65,21 +68,55 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
         platform: platform,
       );
       state = state.copyWith(subscription: subscription, isLoading: false);
+      _ref.invalidate(subscriptionNotifierProvider);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  void handlePurchaseUpdate(List<PurchaseDetails> purchases) {
+    for (final purchase in purchases) {
+      if (purchase.status == PurchaseStatus.purchased ||
+          purchase.status == PurchaseStatus.restored) {
+        final iapService = _ref.read(iapServiceProvider);
+        final receiptData = iapService.receiptDataFor(purchase);
+        verifyPurchase(
+          productId: purchase.productID,
+          receiptData: receiptData,
+          platform: iapService.platform,
+        );
+        iapService.completePurchase(purchase);
+      }
     }
   }
 }
 
 final subscriptionNotifierProvider =
     StateNotifierProvider<SubscriptionNotifier, SubscriptionState>((ref) {
-  return SubscriptionNotifier(ref.watch(subscriptionRepositoryProvider));
+  return SubscriptionNotifier(ref.watch(subscriptionRepositoryProvider), ref);
 });
 
 final isPremiumProvider = Provider<bool>((ref) {
-  final sub = ref.watch(subscriptionNotifierProvider).subscription;
-  return sub?.isPremium ?? false;
+  return ref.watch(subscriptionNotifierProvider).subscription?.isPremium ??
+      false;
 });
+
+final hasTryonProvider = Provider<bool>((ref) {
+  return ref.watch(subscriptionNotifierProvider).subscription?.hasTryon ??
+      false;
+});
+
+final hasChatProvider = Provider<bool>((ref) {
+  return ref.watch(subscriptionNotifierProvider).subscription?.hasChat ?? false;
+});
+
+final subscriptionPlanProvider = Provider<SubscriptionPlan>((ref) {
+  return ref.watch(subscriptionNotifierProvider).subscription?.plan ??
+      SubscriptionPlan.free;
+});
+
+// Convenience alias kept for backwards compat with existing screens
+final subscriptionProvider = subscriptionNotifierProvider;
 
 final iapServiceProvider = Provider<IapService>((ref) {
   final service = IapService();

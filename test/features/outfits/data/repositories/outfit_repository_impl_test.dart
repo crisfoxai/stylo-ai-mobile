@@ -49,11 +49,11 @@ void main() {
 
     test('toggleFavorite delegates to datasource', () async {
       when(() => mockDs.toggleFavorite(any()))
-          .thenAnswer((_) async => fakeOutfit);
+          .thenAnswer((_) async {});
 
-      final result = await repo.toggleFavorite('o1');
+      await repo.toggleFavorite('o1');
 
-      expect(result.id, fakeOutfit.id);
+      verify(() => mockDs.toggleFavorite('o1')).called(1);
     });
 
     test('getFavorites delegates to datasource', () async {

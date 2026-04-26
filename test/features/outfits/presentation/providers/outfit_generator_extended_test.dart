@@ -22,22 +22,24 @@ class _FakeOutfitRepository implements OutfitRepository {
   );
 
   @override
-  Future<Outfit> generateOutfit({required String mood, required String event}) async {
+  Future<Outfit> generateOutfit({
+    required String mood,
+    required String event,
+    List<String>? excludeIds,
+  }) async {
     generateCount++;
     if (shouldFail) throw Exception('Generation failed');
     return _outfit;
   }
 
   @override
-  Future<Outfit> toggleFavorite(String id) async {
+  Future<void> toggleFavorite(String id) async {
     if (shouldFail) throw Exception('Favorite failed');
-    return _outfit.copyWith(isFavorite: true);
   }
 
   @override
-  Future<Outfit> logWorn(String id) async {
+  Future<void> logWorn(String id) async {
     if (shouldFail) throw Exception('Log failed');
-    return _outfit.copyWith(wornAt: DateTime.now());
   }
 
   @override
@@ -196,7 +198,7 @@ void main() {
       await notifier.generateOutfit();
       await notifier.logAsWorn();
       final state = container.read(outfitGeneratorProvider);
-      expect(state.generatedOutfit!.wornAt, isNotNull);
+      expect(state.successMessage, isNotNull);
       expect(state.isLoggingWorn, isFalse);
     });
 
