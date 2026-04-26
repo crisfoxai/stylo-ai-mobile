@@ -1,11 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
+import '../../../../features/subscription/presentation/providers/subscription_provider.dart';
 import '../../../../shared/widgets/stylo_button.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -156,6 +159,13 @@ class SettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: AppSpacing.xxxl),
 
+          // Debug section — only visible in debug builds
+          if (kDebugMode) ...[
+            _SectionHeader(title: '[DEBUG]'),
+            _DebugUpgradeButton(),
+            const SizedBox(height: AppSpacing.xxl),
+          ],
+
           // Sign out button
           StyloButton(
             label: 'Cerrar sesión',
@@ -278,6 +288,87 @@ class _SectionHeader extends StatelessWidget {
           color: AppColors.textTertiary,
           letterSpacing: 1.2,
           fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _DebugUpgradeButton extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_DebugUpgradeButton> createState() => _DebugUpgradeButtonState();
+}
+
+class _DebugUpgradeButtonState extends ConsumerState<_DebugUpgradeButton> {
+  bool _loading = false;
+
+  Future<void> _devUpgrade() async {
+    setState(() => _loading = true);
+    try {
+      final dio = ref.read(apiClientProvider);
+      await dio.post<void>(
+        '/subscriptions/dev-upgrade',
+        data: {'plan': 'pro_unlimited'},
+      );
+      ref.invalidate(subscriptionProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Plan actualizado a Pro Unlimited')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        final msg = e.toString().contains('DioException')
+            ? 'Error al conectar con el servidor'
+            : e.toString();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.xs),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2D1B69),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: const Color(0xFF7C3AED), width: 1),
+      ),
+      child: ListTile(
+        onTap: _loading ? null : _devUpgrade,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.xs,
+        ),
+        leading: const Icon(Icons.bug_report, size: 22, color: Color(0xFFA78BFA)),
+        title: Text(
+          'Activar Pro Unlimited (dev)',
+          style: AppTypography.bodyMedium.copyWith(color: const Color(0xFFA78BFA)),
+        ),
+        trailing: _loading
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFFA78BFA),
+                ),
+              )
+            : const Icon(
+                PhosphorIconsRegular.caretRight,
+                size: 16,
+                color: Color(0xFFA78BFA),
+              ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
         ),
       ),
     );
