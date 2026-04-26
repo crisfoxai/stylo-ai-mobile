@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/utils/garment_translations.dart';
 import '../../../../shared/widgets/garment_tile.dart';
 import '../../../../shared/widgets/stylo_chip.dart';
 import '../../domain/entities/garment.dart';
@@ -27,6 +28,15 @@ class _WardrobeGridScreenState extends ConsumerState<WardrobeGridScreen> {
     (label: 'Zapatos', value: 'shoes'),
     (label: 'Accesorios', value: 'accessory'),
     (label: 'Abrigos', value: 'outerwear'),
+  ];
+
+  static const _categoryFilterOptions = [
+    'shirt', 'pants', 'jacket', 'sneakers', 'boots', 'dress', 'coat', 'skirt',
+  ];
+
+  static const _colorFilterOptions = [
+    'grey', 'white', 'black', 'blue', 'red', 'green', 'brown', 'navy',
+    'beige', 'pink', 'orange', 'yellow', 'purple',
   ];
 
   @override
@@ -60,6 +70,29 @@ class _WardrobeGridScreenState extends ConsumerState<WardrobeGridScreen> {
     await ref.read(wardrobeNotifierProvider.notifier).loadGarments(refresh: true);
   }
 
+  void _showFilterSheet() {
+    final state = ref.read(wardrobeNotifierProvider);
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+      ),
+      builder: (context) => _FilterSheet(
+        selectedCategory: state.activeFilter,
+        selectedColor: state.activeColorFilter,
+        onCategoryChanged: (v) =>
+            ref.read(wardrobeNotifierProvider.notifier).setFilter(v),
+        onColorChanged: (v) =>
+            ref.read(wardrobeNotifierProvider.notifier).setColorFilter(v),
+        onClear: () {
+          ref.read(wardrobeNotifierProvider.notifier).setFilter(null);
+          ref.read(wardrobeNotifierProvider.notifier).setColorFilter(null);
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(wardrobeNotifierProvider);
@@ -78,7 +111,7 @@ class _WardrobeGridScreenState extends ConsumerState<WardrobeGridScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.tune_outlined, color: AppColors.textPrimary),
-            onPressed: () {},
+            onPressed: _showFilterSheet,
           ),
         ],
       ),
@@ -236,7 +269,9 @@ class _WardrobeGridScreenState extends ConsumerState<WardrobeGridScreen> {
           return GarmentTile(
             imageUrl: garment.thumbnailUrl ?? garment.imageUrl,
             category: garment.type,
+            garmentCategory: garment.category,
             name: garment.name,
+            color: garment.color,
             onTap: () => context.pushNamed(
               'garment-detail',
               pathParameters: {'id': garment.id},
@@ -355,6 +390,141 @@ class _WardrobeGridScreenState extends ConsumerState<WardrobeGridScreen> {
             OutlinedButton(
               onPressed: _onRefresh,
               child: const Text('Reintentar'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterSheet extends StatefulWidget {
+  final String? selectedCategory;
+  final String? selectedColor;
+  final ValueChanged<String?> onCategoryChanged;
+  final ValueChanged<String?> onColorChanged;
+  final VoidCallback onClear;
+
+  const _FilterSheet({
+    this.selectedCategory,
+    this.selectedColor,
+    required this.onCategoryChanged,
+    required this.onColorChanged,
+    required this.onClear,
+  });
+
+  @override
+  State<_FilterSheet> createState() => _FilterSheetState();
+}
+
+class _FilterSheetState extends State<_FilterSheet> {
+  static const _categories = [
+    'shirt', 'pants', 'jacket', 'sneakers', 'boots', 'dress', 'coat', 'skirt',
+  ];
+
+  static const _colors = [
+    'grey', 'white', 'black', 'blue', 'red', 'green', 'brown', 'navy',
+    'beige', 'pink', 'orange', 'yellow', 'purple',
+  ];
+
+  late String? _category;
+  late String? _color;
+
+  @override
+  void initState() {
+    super.initState();
+    _category = widget.selectedCategory;
+    _color = widget.selectedColor;
+  }
+
+  void _apply() {
+    widget.onCategoryChanged(_category);
+    widget.onColorChanged(_color);
+    Navigator.pop(context);
+  }
+
+  void _clear() {
+    widget.onClear();
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.xxl,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Filtros',
+                  style: AppTypography.headlineSmall.copyWith(color: AppColors.textPrimary),
+                ),
+                TextButton(
+                  onPressed: _clear,
+                  child: Text(
+                    'Limpiar',
+                    style: AppTypography.labelMedium.copyWith(color: AppColors.accent),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Categoría',
+              style: AppTypography.labelMedium.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: _categories.map((cat) {
+                final isSelected = _category == cat;
+                return StyloChip(
+                  label: GarmentTranslations.category(cat),
+                  isSelected: isSelected,
+                  onTap: () => setState(() => _category = isSelected ? null : cat),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Color',
+              style: AppTypography.labelMedium.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: _colors.map((col) {
+                final isSelected = _color == col;
+                return StyloChip(
+                  label: GarmentTranslations.color(col),
+                  isSelected: isSelected,
+                  onTap: () => setState(() => _color = isSelected ? null : col),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: AppSpacing.xxl),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: _apply,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                ),
+                child: const Text('Aplicar filtros'),
+              ),
             ),
           ],
         ),

@@ -26,6 +26,7 @@ class WardrobeState {
   final bool hasMore;
   final int total;
   final String? activeFilter;
+  final String? activeColorFilter;
   final String searchQuery;
 
   const WardrobeState({
@@ -37,6 +38,7 @@ class WardrobeState {
     this.hasMore = true,
     this.total = 0,
     this.activeFilter,
+    this.activeColorFilter,
     this.searchQuery = '',
   });
 
@@ -49,9 +51,11 @@ class WardrobeState {
     bool? hasMore,
     int? total,
     String? activeFilter,
+    String? activeColorFilter,
     String? searchQuery,
     bool clearError = false,
     bool clearFilter = false,
+    bool clearColorFilter = false,
   }) =>
       WardrobeState(
         garments: garments ?? this.garments,
@@ -62,6 +66,7 @@ class WardrobeState {
         hasMore: hasMore ?? this.hasMore,
         total: total ?? this.total,
         activeFilter: clearFilter ? null : (activeFilter ?? this.activeFilter),
+        activeColorFilter: clearColorFilter ? null : (activeColorFilter ?? this.activeColorFilter),
         searchQuery: searchQuery ?? this.searchQuery,
       );
 }
@@ -76,8 +81,14 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
 
   Map<String, dynamic>? get _activeFilters {
     final filter = state.activeFilter;
-    if (filter == null || filter.isEmpty) return null;
-    return {'type': filter};
+    final colorFilter = state.activeColorFilter;
+    if ((filter == null || filter.isEmpty) && (colorFilter == null || colorFilter.isEmpty)) {
+      return null;
+    }
+    return {
+      if (filter != null && filter.isNotEmpty) 'category': filter,
+      if (colorFilter != null && colorFilter.isNotEmpty) 'color': colorFilter,
+    };
   }
 
   Future<void> loadGarments({bool refresh = false}) async {
@@ -146,6 +157,16 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
       state = state.copyWith(clearFilter: true);
     } else {
       state = state.copyWith(activeFilter: filter);
+    }
+    await loadGarments(refresh: true);
+  }
+
+  Future<void> setColorFilter(String? color) async {
+    if (state.activeColorFilter == color) return;
+    if (color == null) {
+      state = state.copyWith(clearColorFilter: true);
+    } else {
+      state = state.copyWith(activeColorFilter: color);
     }
     await loadGarments(refresh: true);
   }

@@ -26,6 +26,7 @@ mixin _$Garment {
   String get imageUrl => throw _privateConstructorUsedError;
   String? get thumbnailUrl => throw _privateConstructorUsedError;
   String get type => throw _privateConstructorUsedError;
+  String? get category => throw _privateConstructorUsedError;
   String? get color => throw _privateConstructorUsedError;
   String? get style => throw _privateConstructorUsedError;
   String? get material => throw _privateConstructorUsedError;
@@ -57,6 +58,7 @@ abstract class $GarmentCopyWith<$Res> {
     String imageUrl,
     String? thumbnailUrl,
     String type,
+    String? category,
     String? color,
     String? style,
     String? material,
@@ -90,6 +92,7 @@ class _$GarmentCopyWithImpl<$Res, $Val extends Garment>
     Object? imageUrl = null,
     Object? thumbnailUrl = freezed,
     Object? type = null,
+    Object? category = freezed,
     Object? color = freezed,
     Object? style = freezed,
     Object? material = freezed,
@@ -123,6 +126,10 @@ class _$GarmentCopyWithImpl<$Res, $Val extends Garment>
                 ? _value.type
                 : type // ignore: cast_nullable_to_non_nullable
                       as String,
+            category: freezed == category
+                ? _value.category
+                : category // ignore: cast_nullable_to_non_nullable
+                      as String?,
             color: freezed == color
                 ? _value.color
                 : color // ignore: cast_nullable_to_non_nullable
@@ -183,6 +190,7 @@ abstract class _$$GarmentImplCopyWith<$Res> implements $GarmentCopyWith<$Res> {
     String imageUrl,
     String? thumbnailUrl,
     String type,
+    String? category,
     String? color,
     String? style,
     String? material,
@@ -215,6 +223,7 @@ class __$$GarmentImplCopyWithImpl<$Res>
     Object? imageUrl = null,
     Object? thumbnailUrl = freezed,
     Object? type = null,
+    Object? category = freezed,
     Object? color = freezed,
     Object? style = freezed,
     Object? material = freezed,
@@ -248,6 +257,10 @@ class __$$GarmentImplCopyWithImpl<$Res>
             ? _value.type
             : type // ignore: cast_nullable_to_non_nullable
                   as String,
+        category: freezed == category
+            ? _value.category
+            : category // ignore: cast_nullable_to_non_nullable
+                  as String?,
         color: freezed == color
             ? _value.color
             : color // ignore: cast_nullable_to_non_nullable
@@ -302,6 +315,7 @@ class _$GarmentImpl implements _Garment {
     required this.imageUrl,
     this.thumbnailUrl,
     required this.type,
+    this.category,
     this.color,
     this.style,
     this.material,
@@ -329,6 +343,8 @@ class _$GarmentImpl implements _Garment {
   final String? thumbnailUrl;
   @override
   final String type;
+  @override
+  final String? category;
   @override
   final String? color;
   @override
@@ -368,7 +384,7 @@ class _$GarmentImpl implements _Garment {
 
   @override
   String toString() {
-    return 'Garment(id: $id, name: $name, imageUrl: $imageUrl, thumbnailUrl: $thumbnailUrl, type: $type, color: $color, style: $style, material: $material, season: $season, tags: $tags, userId: $userId, confidences: $confidences, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Garment(id: $id, name: $name, imageUrl: $imageUrl, thumbnailUrl: $thumbnailUrl, type: $type, category: $category, color: $color, style: $style, material: $material, season: $season, tags: $tags, userId: $userId, confidences: $confidences, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -383,6 +399,8 @@ class _$GarmentImpl implements _Garment {
             (identical(other.thumbnailUrl, thumbnailUrl) ||
                 other.thumbnailUrl == thumbnailUrl) &&
             (identical(other.type, type) || other.type == type) &&
+            (identical(other.category, category) ||
+                other.category == category) &&
             (identical(other.color, color) || other.color == color) &&
             (identical(other.style, style) || other.style == style) &&
             (identical(other.material, material) ||
@@ -410,6 +428,7 @@ class _$GarmentImpl implements _Garment {
     imageUrl,
     thumbnailUrl,
     type,
+    category,
     color,
     style,
     material,
@@ -443,6 +462,7 @@ abstract class _Garment implements Garment {
     required final String imageUrl,
     final String? thumbnailUrl,
     required final String type,
+    final String? category,
     final String? color,
     final String? style,
     final String? material,
@@ -467,6 +487,8 @@ abstract class _Garment implements Garment {
   String? get thumbnailUrl;
   @override
   String get type;
+  @override
+  String? get category;
   @override
   String? get color;
   @override

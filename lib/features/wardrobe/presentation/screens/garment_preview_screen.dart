@@ -6,6 +6,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/utils/garment_translations.dart';
 import '../../../../shared/widgets/stylo_button.dart';
 import '../providers/wardrobe_provider.dart';
 
@@ -111,7 +112,7 @@ class _GarmentPreviewScreenState extends ConsumerState<GarmentPreviewScreen> {
             // Classification area
             Expanded(
               flex: 4,
-              child: Padding(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: _buildClassificationArea(scanState),
               ),
@@ -211,44 +212,48 @@ class _GarmentPreviewScreenState extends ConsumerState<GarmentPreviewScreen> {
 
   Widget _buildClassificationResult(ScanState scanState) {
     final garment = scanState.result!;
+    final displayName = garment.name.isNotEmpty
+        ? garment.name
+        : GarmentTranslations.computedName(garment.color, garment.category ?? garment.type);
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.auto_awesome, size: 18, color: AppColors.accent),
-              const SizedBox(width: AppSpacing.sm),
-              Text(
-                'Clasificación IA',
-                style: AppTypography.titleLarge.copyWith(color: AppColors.textPrimary),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-
-          // Name
-          if (garment.name.isNotEmpty) ...[
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.auto_awesome, size: 18, color: AppColors.accent),
+            const SizedBox(width: AppSpacing.sm),
             Text(
-              garment.name,
-              style: AppTypography.headlineSmall.copyWith(color: AppColors.textPrimary),
+              'Clasificación IA',
+              style: AppTypography.titleLarge.copyWith(color: AppColors.textPrimary),
             ),
-            const SizedBox(height: AppSpacing.md),
           ],
+        ),
+        const SizedBox(height: AppSpacing.lg),
 
-          // Attribute chips
-          _buildAttributeSection('Tipo', garment.type.isNotEmpty ? [garment.type] : []),
-          if (garment.color != null && garment.color!.isNotEmpty)
-            _buildAttributeSection('Color', [garment.color!]),
-          if (garment.style != null && garment.style!.isNotEmpty)
-            _buildAttributeSection('Estilo', [garment.style!]),
-          if (garment.season != null && garment.season!.isNotEmpty)
-            _buildAttributeSection('Temporada', [garment.season!]),
-          if (garment.tags.isNotEmpty)
-            _buildAttributeSection('Etiquetas', garment.tags),
+        // Name
+        if (displayName.isNotEmpty) ...[
+          Text(
+            displayName,
+            style: AppTypography.headlineSmall.copyWith(color: AppColors.textPrimary),
+          ),
+          const SizedBox(height: AppSpacing.md),
         ],
-      ),
+
+        // Attribute chips (translated)
+        if (garment.type.isNotEmpty)
+          _buildAttributeSection('Tipo', [GarmentTranslations.type(garment.type)]),
+        if (garment.category != null && garment.category!.isNotEmpty)
+          _buildAttributeSection('Categoría', [GarmentTranslations.category(garment.category!)]),
+        if (garment.color != null && garment.color!.isNotEmpty)
+          _buildAttributeSection('Color', [GarmentTranslations.color(garment.color!)]),
+        if (garment.style != null && garment.style!.isNotEmpty)
+          _buildAttributeSection('Estilo', [garment.style!]),
+        if (garment.season != null && garment.season!.isNotEmpty)
+          _buildAttributeSection('Temporada', [garment.season!]),
+        if (garment.tags.isNotEmpty)
+          _buildAttributeSection('Etiquetas', garment.tags),
+      ],
     );
   }
 

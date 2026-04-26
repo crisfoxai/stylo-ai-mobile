@@ -4,11 +4,14 @@ import 'package:shimmer/shimmer.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
+import '../utils/garment_translations.dart';
 
 class GarmentTile extends StatelessWidget {
   final String? imageUrl;
   final String category;
   final String? name;
+  final String? color;
+  final String? garmentCategory;
   final VoidCallback? onTap;
 
   const GarmentTile({
@@ -16,6 +19,8 @@ class GarmentTile extends StatelessWidget {
     this.imageUrl,
     required this.category,
     this.name,
+    this.color,
+    this.garmentCategory,
     this.onTap,
   });
 
@@ -88,6 +93,11 @@ class GarmentTile extends StatelessWidget {
   }
 
   Widget _buildLabel() {
+    final displayName = (name != null && name!.isNotEmpty)
+        ? name!
+        : GarmentTranslations.computedName(color, garmentCategory ?? category);
+    final displayCategory = GarmentTranslations.type(category);
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
@@ -97,9 +107,9 @@ class GarmentTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (name != null)
+          if (displayName.isNotEmpty)
             Text(
-              name!,
+              displayName,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTypography.labelMedium.copyWith(
@@ -107,7 +117,7 @@ class GarmentTile extends StatelessWidget {
               ),
             ),
           Text(
-            category,
+            displayCategory,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.labelSmall.copyWith(

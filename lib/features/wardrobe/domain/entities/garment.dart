@@ -13,6 +13,7 @@ class Garment with _$Garment {
     required String imageUrl,
     String? thumbnailUrl,
     required String type,
+    String? category,
     String? color,
     String? style,
     String? material,
