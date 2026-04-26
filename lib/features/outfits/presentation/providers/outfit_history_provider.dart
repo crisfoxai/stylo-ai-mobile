@@ -147,13 +147,12 @@ class FavoritesNotifier extends StateNotifier<FavoritesState> {
 
   Future<void> toggleFavorite(String id) async {
     try {
-      final updated = await _repository.toggleFavorite(id);
+      await _repository.toggleFavorite(id);
+      // Toggle locally — 204 no body from backend
       final newList = state.outfits.map((o) {
-        return o.id == id ? updated : o;
+        return o.id == id ? o.copyWith(isFavorite: !o.isFavorite) : o;
       }).toList();
-      // If the outfit is no longer a favorite, remove it from the list
-      final filtered =
-          newList.where((o) => o.isFavorite).toList();
+      final filtered = newList.where((o) => o.isFavorite).toList();
       state = state.copyWith(outfits: filtered);
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString());

@@ -11,8 +11,9 @@ class OutfitRepositoryImpl implements OutfitRepository {
   Future<Outfit> generateOutfit({
     required String mood,
     required String event,
+    List<String>? excludeIds,
   }) =>
-      _remoteDataSource.generateOutfit(mood: mood, event: event);
+      _remoteDataSource.generateOutfit(mood: mood, event: event, excludeIds: excludeIds);
 
   @override
   Future<List<Outfit>> getOutfits({int page = 1, int limit = 20}) =>
@@ -22,11 +23,10 @@ class OutfitRepositoryImpl implements OutfitRepository {
   Future<Outfit> getOutfit(String id) => _remoteDataSource.getOutfit(id);
 
   @override
-  Future<Outfit> toggleFavorite(String id) =>
-      _remoteDataSource.toggleFavorite(id);
+  Future<void> toggleFavorite(String id) => _remoteDataSource.toggleFavorite(id);
 
   @override
-  Future<Outfit> logWorn(String id) => _remoteDataSource.logWorn(id);
+  Future<void> logWorn(String id) => _remoteDataSource.logWorn(id);
 
   @override
   Future<List<Outfit>> getFavorites() => _remoteDataSource.getFavorites();

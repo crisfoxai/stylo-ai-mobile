@@ -19,6 +19,7 @@ class OutfitGeneratorState {
   final String? selectedEvent;
   final Outfit? generatedOutfit;
   final String? errorMessage;
+  final String? successMessage;
   final bool isFavoriting;
   final bool isLoggingWorn;
 
@@ -28,6 +29,7 @@ class OutfitGeneratorState {
     this.selectedEvent,
     this.generatedOutfit,
     this.errorMessage,
+    this.successMessage,
     this.isFavoriting = false,
     this.isLoggingWorn = false,
   });
@@ -38,12 +40,14 @@ class OutfitGeneratorState {
     String? selectedEvent,
     Outfit? generatedOutfit,
     String? errorMessage,
+    String? successMessage,
     bool? isFavoriting,
     bool? isLoggingWorn,
     bool clearMood = false,
     bool clearEvent = false,
     bool clearOutfit = false,
     bool clearError = false,
+    bool clearSuccess = false,
   }) {
     return OutfitGeneratorState(
       step: step ?? this.step,
@@ -52,6 +56,7 @@ class OutfitGeneratorState {
       generatedOutfit:
           clearOutfit ? null : (generatedOutfit ?? this.generatedOutfit),
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      successMessage: clearSuccess ? null : (successMessage ?? this.successMessage),
       isFavoriting: isFavoriting ?? this.isFavoriting,
       isLoggingWorn: isLoggingWorn ?? this.isLoggingWorn,
     );
@@ -117,8 +122,6 @@ class OutfitGeneratorNotifier extends StateNotifier<OutfitGeneratorState> {
   }
 
   Future<void> swapGarment(String garmentId) async {
-    // Trigger re-generation with the same mood/event; the backend
-    // can handle garment exclusions via an optional parameter.
     if (!state.canGenerate) return;
     state = state.copyWith(
       step: OutfitGeneratorStep.generating,
@@ -128,6 +131,7 @@ class OutfitGeneratorNotifier extends StateNotifier<OutfitGeneratorState> {
       final outfit = await _repository.generateOutfit(
         mood: state.selectedMood!,
         event: state.selectedEvent!,
+        excludeIds: [garmentId],
       );
       state = state.copyWith(
         step: OutfitGeneratorStep.result,
@@ -144,12 +148,14 @@ class OutfitGeneratorNotifier extends StateNotifier<OutfitGeneratorState> {
   Future<void> favoriteOutfit() async {
     final outfit = state.generatedOutfit;
     if (outfit == null || state.isFavoriting) return;
-    state = state.copyWith(isFavoriting: true);
+    final wasFavorite = outfit.isFavorite;
+    state = state.copyWith(isFavoriting: true, clearSuccess: true);
     try {
-      final updated = await _repository.toggleFavorite(outfit.id);
+      await _repository.toggleFavorite(outfit.id);
       state = state.copyWith(
-        generatedOutfit: updated,
+        generatedOutfit: state.generatedOutfit?.copyWith(isFavorite: !wasFavorite),
         isFavoriting: false,
+        successMessage: wasFavorite ? 'Eliminado de favoritos' : 'Guardado en favoritos',
       );
     } catch (e) {
       state = state.copyWith(
@@ -162,12 +168,12 @@ class OutfitGeneratorNotifier extends StateNotifier<OutfitGeneratorState> {
   Future<void> logAsWorn() async {
     final outfit = state.generatedOutfit;
     if (outfit == null || state.isLoggingWorn) return;
-    state = state.copyWith(isLoggingWorn: true);
+    state = state.copyWith(isLoggingWorn: true, clearSuccess: true);
     try {
-      final updated = await _repository.logWorn(outfit.id);
+      await _repository.logWorn(outfit.id);
       state = state.copyWith(
-        generatedOutfit: updated,
         isLoggingWorn: false,
+        successMessage: 'Registrado para hoy',
       );
     } catch (e) {
       state = state.copyWith(

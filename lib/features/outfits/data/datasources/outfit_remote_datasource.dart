@@ -11,10 +11,12 @@ class OutfitRemoteDataSource {
   Future<Outfit> generateOutfit({
     required String mood,
     required String event,
+    List<String>? excludeIds,
   }) async {
     final response = await _dio.post(Endpoints.generateOutfit, data: {
       'occasion': event,
       'mood': mood,
+      if (excludeIds != null && excludeIds.isNotEmpty) 'excludeIds': excludeIds,
     });
     final data = BackendCompat.extractMap(response.data);
     return _normalizeOutfit(data);
@@ -72,14 +74,14 @@ class OutfitRemoteDataSource {
     return _normalizeOutfit(BackendCompat.extractMap(response.data));
   }
 
-  Future<Outfit> toggleFavorite(String id) async {
-    final response = await _dio.post(Endpoints.toggleFavorite(id));
-    return _normalizeOutfit(BackendCompat.extractMap(response.data));
+  Future<void> toggleFavorite(String id) async {
+    // POST /outfits/:id/favorite returns 204 no body — ignore response
+    await _dio.post(Endpoints.toggleFavorite(id));
   }
 
-  Future<Outfit> logWorn(String id) async {
-    final response = await _dio.post(Endpoints.logWorn(id));
-    return _normalizeOutfit(BackendCompat.extractMap(response.data));
+  Future<void> logWorn(String id) async {
+    // POST /outfits/:id/worn returns WornEntry, not Outfit — ignore body
+    await _dio.post(Endpoints.logWorn(id));
   }
 
   Future<List<Outfit>> getFavorites() async {

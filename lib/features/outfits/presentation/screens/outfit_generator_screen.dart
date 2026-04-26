@@ -49,13 +49,20 @@ class OutfitGeneratorScreen extends ConsumerWidget {
     final state = ref.watch(outfitGeneratorProvider);
     final notifier = ref.read(outfitGeneratorProvider.notifier);
 
-    ref.listen<OutfitGeneratorState>(outfitGeneratorProvider, (_, next) {
-      if (next.step == OutfitGeneratorStep.error &&
-          next.errorMessage != null) {
+    ref.listen<OutfitGeneratorState>(outfitGeneratorProvider, (prev, next) {
+      if (next.step == OutfitGeneratorStep.error && next.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.errorMessage!),
             backgroundColor: AppColors.error,
+          ),
+        );
+      }
+      if (next.successMessage != null && next.successMessage != prev?.successMessage) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.successMessage!),
+            backgroundColor: AppColors.success,
           ),
         );
       }
