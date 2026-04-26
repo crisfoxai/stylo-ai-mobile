@@ -44,10 +44,13 @@ class ErrorInterceptor extends Interceptor {
     ));
   }
 
-  // NestJS may return message as String or List<String> — handle both.
+  // NestJS may return message as String, List<String>, or nested Map — handle all.
   String _extractMessage(Map<dynamic, dynamic> data) {
-    final raw = data['error']?['message'] ?? data['message'] ?? 'Error desconocido';
-    if (raw is List) return raw.join(', ');
+    // 'error' may be a String ("Conflict") or a Map with 'message'.
+    final errorField = data['error'];
+    final nestedMsg = errorField is Map ? errorField['message'] : null;
+    final raw = nestedMsg ?? data['message'] ?? 'Error desconocido';
+    if (raw is List) return (raw as List).join(', ');
     return raw.toString();
   }
 }

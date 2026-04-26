@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter/foundation.dart';
@@ -24,23 +23,7 @@ class AuthRemoteDataSource {
     final idToken = await credential.user!.getIdToken();
     debugPrint('[AUTH] idToken length=${idToken?.length ?? 0}');
 
-    debugPrint('[AUTH] POST auth starting (try session → firebase)');
-    try {
-      final result = await _postAuthWithFirebaseToken(idToken!);
-      return _parseAuthResponse(result, idToken: idToken);
-    } on DioException catch (e) {
-      debugPrint(
-        '[AUTH] DioException type=${e.type} '
-        'status=${e.response?.statusCode} msg=${e.message} error=${e.error}',
-      );
-      rethrow;
-    } on TimeoutException catch (e) {
-      debugPrint('[AUTH] TimeoutException: ${e.message}');
-      rethrow;
-    } catch (e, s) {
-      debugPrint('[AUTH] Unexpected in login: $e\n$s');
-      rethrow;
-    }
+    return _syncWithBackend(idToken!, isNewUser: false);
   }
 
   Future<AuthResult> register(String email, String password, String firstName, String lastName) async {
@@ -56,61 +39,57 @@ class AuthRemoteDataSource {
     final idToken = await credential.user!.getIdToken();
     debugPrint('[AUTH] idToken length=${idToken?.length ?? 0}');
 
-    debugPrint('[AUTH] POST auth/register starting');
+    return _syncWithBackend(idToken!, isNewUser: true);
+  }
+
+  /// POST /auth/session to sync user in DB; Firebase ID token is the sole auth mechanism.
+  Future<AuthResult> _syncWithBackend(String idToken, {required bool isNewUser}) async {
+    debugPrint('[AUTH] POST ${Endpoints.authSession}');
     try {
-      final result = await _postAuthWithFirebaseToken(idToken!);
-      return _parseAuthResponse(result, idToken: idToken, isNewUser: true);
+      final response = await _dio
+          .post(
+            Endpoints.authSession,
+            options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+            data: {'idToken': idToken},
+          )
+          .timeout(const Duration(seconds: 20));
+      debugPrint('[AUTH] session sync status=${response.statusCode}');
+      final body = response.data as Map<String, dynamic>;
+      final data = body['data'] as Map<String, dynamic>? ?? body;
+      return _parseAuthResponse(data, idToken: idToken, isNewUser: isNewUser);
     } on DioException catch (e) {
-      debugPrint(
-        '[AUTH] DioException type=${e.type} '
-        'status=${e.response?.statusCode} msg=${e.message} error=${e.error}',
-      );
-      rethrow;
-    } on TimeoutException catch (e) {
-      debugPrint('[AUTH] TimeoutException: ${e.message}');
-      rethrow;
-    } catch (e, s) {
-      debugPrint('[AUTH] Unexpected in register: $e\n$s');
+      debugPrint('[AUTH] session sync error=${e.response?.statusCode} msg=${e.message}');
+      // If backend is unavailable, build user from Firebase profile
+      if (e.response?.statusCode == null || e.response!.statusCode! >= 500) {
+        return _fallbackFromFirebase(idToken, isNewUser: isNewUser);
+      }
       rethrow;
     }
   }
 
-  /// Tries /auth/session (Railway) first, falls back to /auth/firebase (local Docker).
-  Future<Map<String, dynamic>> _postAuthWithFirebaseToken(String idToken) async {
-    const candidates = [Endpoints.authSession, Endpoints.authFirebase];
-    Object? lastError;
-    for (final url in candidates) {
-      debugPrint('[AUTH] Trying POST $url');
-      try {
-        final response = await _dio
-            .post(
-              url,
-              options: Options(headers: {'Authorization': 'Bearer $idToken'}),
-              data: {'idToken': idToken},
-            )
-            .timeout(const Duration(seconds: 20), onTimeout: () {
-          debugPrint('[AUTH] MANUAL TIMEOUT 20s on $url');
-          throw TimeoutException('Backend $url no respondió en 20s');
-        });
-        debugPrint('[AUTH] POST $url status=${response.statusCode}');
-        final body = response.data as Map<String, dynamic>;
-        return body['data'] as Map<String, dynamic>? ?? body;
-      } on DioException catch (e) {
-        if (e.response?.statusCode == 404) {
-          debugPrint('[AUTH] $url → 404, trying next candidate');
-          lastError = e;
-          continue;
-        }
-        rethrow;
-      }
-    }
-    throw lastError ?? Exception('No auth endpoint available');
+  /// Build an AuthResult from the Firebase user when backend is unreachable.
+  AuthResult _fallbackFromFirebase(String idToken, {required bool isNewUser}) {
+    final fbUser = _firebaseAuth.currentUser!;
+    final displayName = fbUser.displayName ?? '';
+    final parts = displayName.trim().split(RegExp(r'\s+'));
+    return AuthResult(
+      user: User(
+        id: fbUser.uid,
+        email: fbUser.email ?? '',
+        firstName: parts.isNotEmpty ? parts.first : '',
+        lastName: parts.length > 1 ? parts.sublist(1).join(' ') : '',
+        hasStyleProfile: false,
+        createdAt: DateTime.now(),
+      ),
+      accessToken: idToken,
+      refreshToken: '',
+      expiresIn: 3600,
+      isNewUser: isNewUser,
+    );
   }
 
   Future<AuthResult> googleSignIn(String idToken) async {
-    final response = await _dio.post(Endpoints.googleAuth, data: {
-      'idToken': idToken,
-    });
+    final response = await _dio.post(Endpoints.googleAuth, data: {'idToken': idToken});
     final body = response.data as Map<String, dynamic>;
     final googleData = body['data'] as Map<String, dynamic>? ?? body;
     return _parseAuthResponse(
@@ -120,7 +99,12 @@ class AuthRemoteDataSource {
     );
   }
 
-  Future<AuthResult> appleSignIn(String identityToken, String authorizationCode, String? firstName, String? lastName) async {
+  Future<AuthResult> appleSignIn(
+    String identityToken,
+    String authorizationCode,
+    String? firstName,
+    String? lastName,
+  ) async {
     final response = await _dio.post(Endpoints.appleAuth, data: {
       'identityToken': identityToken,
       'authorizationCode': authorizationCode,
@@ -136,21 +120,11 @@ class AuthRemoteDataSource {
     );
   }
 
-  Future<Map<String, String>> refreshToken(String token) async {
-    final response = await _dio.post(Endpoints.refreshToken, data: {
-      'refreshToken': token,
-    });
-    final data = response.data['data'];
-    return {
-      'accessToken': data['accessToken'] as String,
-      'refreshToken': data['refreshToken'] as String,
-    };
-  }
-
   Future<void> logout(String refreshToken) async {
-    await _dio.post(Endpoints.logout, data: {
-      'refreshToken': refreshToken,
-    });
+    // Firebase sign-out is sufficient; backend logout is best-effort.
+    try {
+      await _dio.post(Endpoints.logout, data: {'refreshToken': refreshToken});
+    } catch (_) {}
     await _firebaseAuth.signOut();
   }
 
@@ -158,7 +132,6 @@ class AuthRemoteDataSource {
     await _firebaseAuth.sendPasswordResetEmail(email: email);
   }
 
-  /// Get current Firebase user's ID token (JWT) for backend auth
   Future<String?> getIdToken() async {
     return await _firebaseAuth.currentUser?.getIdToken();
   }
@@ -168,14 +141,14 @@ class AuthRemoteDataSource {
     bool isNewUser = false,
     String? idToken,
   }) {
-    final rawUser = data['user'] as Map<String, dynamic>;
+    final rawUser = data['user'] as Map<String, dynamic>? ?? data;
     final displayName = (rawUser['displayName'] as String?) ?? '';
     final parts = displayName.trim().split(RegExp(r'\s+'));
     final firstName = parts.isNotEmpty ? parts.first : '';
     final lastName = parts.length > 1 ? parts.sublist(1).join(' ') : '';
 
     final userJson = <String, dynamic>{
-      'id': ((rawUser['_id'] ?? rawUser['id']) as Object).toString(),
+      'id': ((rawUser['_id'] ?? rawUser['id']) as Object?)?.toString() ?? '',
       'email': (rawUser['email'] as String?) ?? '',
       'firstName': firstName,
       'lastName': lastName,
@@ -186,22 +159,12 @@ class AuthRemoteDataSource {
 
     final user = User.fromJson(userJson);
 
-    final tokens = data['tokens'] as Map<String, dynamic>?;
-    final accessToken = tokens?['accessToken'] as String? ?? idToken ?? '';
-    final refreshToken = tokens?['refreshToken'] as String? ?? '';
-    final tokensExpiresIn = tokens?['expiresIn'] as int?;
-
-    final expiresAtStr = data['expiresAt'] as String?;
-    final expiresIn = tokensExpiresIn ??
-        (expiresAtStr != null
-            ? DateTime.parse(expiresAtStr).difference(DateTime.now()).inSeconds.clamp(0, 7200)
-            : 3600);
-
+    // Railway: no backend tokens — Firebase ID token is the sole credential.
     return AuthResult(
       user: user,
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      expiresIn: expiresIn,
+      accessToken: idToken ?? '',
+      refreshToken: '',
+      expiresIn: 3600,
       isNewUser: isNewUser,
     );
   }

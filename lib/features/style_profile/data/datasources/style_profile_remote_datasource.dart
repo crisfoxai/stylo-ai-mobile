@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../core/network/backend_compat.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../domain/entities/style_profile.dart';
@@ -15,14 +16,18 @@ class StyleProfileRemoteDataSource {
   }
 
   Future<StyleProfile> submitQuiz(Map<String, dynamic> answers) async {
+    debugPrint('[STYLE] POST ${Endpoints.styleProfile}');
     try {
       final response = await _dio.post(Endpoints.styleProfile, data: answers);
+      debugPrint('[STYLE] POST status=${response.statusCode}');
       final raw = BackendCompat.extractMap(response.data);
       return StyleProfile.fromJson(_normalize(raw));
     } on DioException catch (e) {
+      debugPrint('[STYLE] DioException status=${e.response?.statusCode} err=${e.error}');
       // 409 Conflict: profile already exists — update instead
       if (e.response?.statusCode == 409) {
         final response = await _dio.patch(Endpoints.styleProfile, data: answers);
+        debugPrint('[STYLE] PATCH status=${response.statusCode}');
         final raw = BackendCompat.extractMap(response.data);
         return StyleProfile.fromJson(_normalize(raw));
       }

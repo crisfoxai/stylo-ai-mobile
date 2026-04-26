@@ -96,10 +96,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<AuthResult?> refreshToken() async {
-    final token = await _localDataSource.getRefreshToken();
-    if (token == null) return null;
-    final newTokens = await _remoteDataSource.refreshToken(token);
-    await _localDataSource.saveTokens(newTokens['accessToken']!, newTokens['refreshToken']!);
+    // Firebase ID tokens are refreshed by the AuthInterceptor via getIdToken(true).
+    // No backend token exchange is needed.
     return null;
   }
 

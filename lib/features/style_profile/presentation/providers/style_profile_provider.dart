@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
 import '../../data/datasources/style_profile_remote_datasource.dart';
@@ -94,6 +95,7 @@ class StyleQuizNotifier extends StateNotifier<StyleQuizState> {
   };
 
   Future<void> submitQuiz() async {
+    debugPrint('[QUIZ] submitQuiz start');
     state = state.copyWith(isSubmitting: true, error: null);
     try {
       final answers = state.answers;
@@ -118,11 +120,13 @@ class StyleQuizNotifier extends StateNotifier<StyleQuizState> {
         'occasions': occasions,
         'adventureLevel': adventureLevel,
         'priorities': answers[4] ?? [],
-        'quizCompleted': true,
       };
+      debugPrint('[QUIZ] sending quizData=$quizData');
       final profile = await _repository.submitQuiz(quizData);
+      debugPrint('[QUIZ] submitQuiz success, badge=${profile.styleBadge}');
       state = state.copyWith(isSubmitting: false, isComplete: true, result: profile);
-    } catch (e) {
+    } catch (e, s) {
+      debugPrint('[QUIZ] submitQuiz ERROR: $e\n$s');
       state = state.copyWith(isSubmitting: false, error: e.toString());
     }
   }
