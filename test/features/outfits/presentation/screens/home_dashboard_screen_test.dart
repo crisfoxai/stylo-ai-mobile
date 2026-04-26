@@ -10,6 +10,7 @@ import 'package:stylo_ai/features/outfits/domain/repositories/outfit_repository.
 import 'package:stylo_ai/features/outfits/presentation/providers/outfit_generator_provider.dart';
 import 'package:stylo_ai/features/outfits/presentation/providers/outfit_history_provider.dart';
 import 'package:stylo_ai/features/outfits/presentation/screens/home_dashboard_screen.dart';
+import 'package:stylo_ai/features/subscription/presentation/providers/subscription_provider.dart';
 
 // ── Fake Repository ──────────────────────────────────────────────────────────
 
@@ -134,6 +135,7 @@ Widget _buildWidget({
     overrides: [
       currentUserProvider.overrideWithValue(user),
       outfitRepositoryProvider.overrideWithValue(fakeRepo),
+      hasChatProvider.overrideWithValue(false),
     ],
     child: MaterialApp.router(
       theme: AppTheme.light,

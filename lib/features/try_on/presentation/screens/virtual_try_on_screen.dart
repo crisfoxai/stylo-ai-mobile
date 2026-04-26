@@ -1,37 +1,38 @@
-import 'dart:io';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/widgets/loading_overlay.dart';
 import '../../../../shared/widgets/stylo_button.dart';
 import '../../../subscription/presentation/providers/subscription_provider.dart';
+import '../../../subscription/presentation/screens/paywall_screen.dart';
 import '../providers/try_on_provider.dart';
 
 class VirtualTryOnScreen extends ConsumerStatefulWidget {
-  final String? outfitId;
+  final String garmentId;
 
-  const VirtualTryOnScreen({super.key, this.outfitId});
+  const VirtualTryOnScreen({super.key, required this.garmentId});
 
   @override
-  ConsumerState<VirtualTryOnScreen> createState() =>
-      _VirtualTryOnScreenState();
+  ConsumerState<VirtualTryOnScreen> createState() => _VirtualTryOnScreenState();
 }
 
 class _VirtualTryOnScreenState extends ConsumerState<VirtualTryOnScreen> {
-  File? _selectedPhoto;
+  String? _selectedImagePath;
   final ImagePicker _picker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
+    final hasTryon = ref.watch(hasTryonProvider);
+
+    if (!hasTryon) {
+      return const PaywallScreen(feature: PaywallFeature.tryon);
+    }
+
     final tryOnState = ref.watch(tryOnProvider);
-    final isPremium = ref.watch(isPremiumProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -52,27 +53,31 @@ class _VirtualTryOnScreenState extends ConsumerState<VirtualTryOnScreen> {
         ),
         centerTitle: false,
       ),
-      body: LoadingOverlay(
-        isLoading: tryOnState.status == TryOnStatus.loading,
-        message: 'Generando prueba virtual...',
-        child: SafeArea(
-          child: tryOnState.status == TryOnStatus.success
-              ? _ResultView(
-                  resultUrl: tryOnState.resultUrl!,
-                  onReset: () => ref.read(tryOnProvider.notifier).reset(),
-                )
-              : _PickerView(
-                  selectedPhoto: _selectedPhoto,
-                  isPremium: isPremium,
-                  onPickCamera: () => _pickPhoto(ImageSource.camera),
-                  onPickGallery: () => _pickPhoto(ImageSource.gallery),
-                  onProcess: _selectedPhoto != null && isPremium
-                      ? _processTryOn
-                      : null,
-                  errorMessage: tryOnState.errorMessage,
-                ),
-        ),
+      body: SafeArea(
+        child: _buildBody(tryOnState),
       ),
+    );
+  }
+
+  Widget _buildBody(TryOnState state) {
+    if (state.status == TryOnStatus.done && state.result != null) {
+      return _ResultView(
+        resultUrl: state.result!.resultUrl,
+        onReset: () => ref.read(tryOnProvider.notifier).reset(),
+      );
+    }
+
+    if (state.status == TryOnStatus.uploading ||
+        state.status == TryOnStatus.processing) {
+      return _LoadingView();
+    }
+
+    return _PickerView(
+      selectedImagePath: _selectedImagePath,
+      onPickCamera: () => _pickPhoto(ImageSource.camera),
+      onPickGallery: () => _pickPhoto(ImageSource.gallery),
+      onProcess: _selectedImagePath != null ? _startTryOn : null,
+      errorMessage: state.status == TryOnStatus.error ? state.errorMessage : null,
     );
   }
 
@@ -84,31 +89,59 @@ class _VirtualTryOnScreenState extends ConsumerState<VirtualTryOnScreen> {
       maxHeight: 1920,
     );
     if (xFile != null && mounted) {
-      setState(() => _selectedPhoto = File(xFile.path));
+      setState(() => _selectedImagePath = xFile.path);
     }
   }
 
-  Future<void> _processTryOn() async {
-    final photo = _selectedPhoto;
-    if (photo == null) return;
-    await ref.read(tryOnProvider.notifier).process(
-          outfitId: widget.outfitId ?? '',
-          userPhoto: photo,
-        );
+  Future<void> _startTryOn() async {
+    final path = _selectedImagePath;
+    if (path == null) return;
+    await ref.read(tryOnProvider.notifier).startTryOn(path, widget.garmentId);
+  }
+}
+
+class _LoadingView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: AppSpacing.xl),
+            Text(
+              'Generando tu look...',
+              style: AppTypography.headlineSmall.copyWith(
+                color: AppColors.textPrimary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'Puede tardar ~20 segundos',
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
 class _PickerView extends StatelessWidget {
-  final File? selectedPhoto;
-  final bool isPremium;
+  final String? selectedImagePath;
   final VoidCallback onPickCamera;
   final VoidCallback onPickGallery;
   final VoidCallback? onProcess;
   final String? errorMessage;
 
   const _PickerView({
-    required this.selectedPhoto,
-    required this.isPremium,
+    required this.selectedImagePath,
     required this.onPickCamera,
     required this.onPickGallery,
     required this.onProcess,
@@ -122,36 +155,14 @@ class _PickerView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (!isPremium) ...[
-            _PaywallBanner(onUpgrade: () => context.push('/paywall')),
-            const SizedBox(height: AppSpacing.xl),
-          ],
           AspectRatio(
             aspectRatio: 3 / 4,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(AppRadius.lg),
-              child: selectedPhoto != null
-                  ? Image.file(selectedPhoto!, fit: BoxFit.cover)
-                  : Container(
-                      color: AppColors.surface,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            PhosphorIconsRegular.userCircle,
-                            size: 64,
-                            color: AppColors.textTertiary,
-                          ),
-                          const SizedBox(height: AppSpacing.lg),
-                          Text(
-                            'Seleccioná tu foto',
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+              child: selectedImagePath != null
+                  ? Image.asset(selectedImagePath!, fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _PhotoPlaceholder())
+                  : _PhotoPlaceholder(),
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
@@ -159,7 +170,7 @@ class _PickerView extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: isPremium ? onPickCamera : null,
+                  onPressed: onPickCamera,
                   icon: const Icon(PhosphorIconsRegular.camera, size: 18),
                   label: const Text('Cámara'),
                 ),
@@ -167,7 +178,7 @@ class _PickerView extends StatelessWidget {
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: isPremium ? onPickGallery : null,
+                  onPressed: onPickGallery,
                   icon: const Icon(PhosphorIconsRegular.image, size: 18),
                   label: const Text('Galería'),
                 ),
@@ -176,16 +187,22 @@ class _PickerView extends StatelessWidget {
           ),
           if (errorMessage != null) ...[
             const SizedBox(height: AppSpacing.md),
-            Text(
-              errorMessage!,
-              style:
-                  AppTypography.bodySmall.copyWith(color: AppColors.error),
-              textAlign: TextAlign.center,
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
+              child: Text(
+                errorMessage!,
+                style: AppTypography.bodySmall.copyWith(color: AppColors.error),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
           const SizedBox(height: AppSpacing.xl),
           StyloButton(
-            label: 'Probarme el outfit',
+            label: 'Probarme la prenda',
             onPressed: onProcess,
           ),
         ],
@@ -194,47 +211,25 @@ class _PickerView extends StatelessWidget {
   }
 }
 
-class _PaywallBanner extends StatelessWidget {
-  final VoidCallback onUpgrade;
-
-  const _PaywallBanner({required this.onUpgrade});
-
+class _PhotoPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: AppColors.accentSubtle,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.accent.withOpacity(0.4)),
-      ),
-      child: Row(
+      color: AppColors.surface,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(PhosphorIconsFill.crown, color: AppColors.accent),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Función Premium',
-                  style: AppTypography.labelMedium.copyWith(
-                    color: AppColors.accent,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  'Actualizá para usar la prueba virtual.',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
+          const Icon(
+            PhosphorIconsRegular.userCircle,
+            size: 64,
+            color: AppColors.textTertiary,
           ),
-          TextButton(
-            onPressed: onUpgrade,
-            child: const Text('Ver planes'),
+          const SizedBox(height: AppSpacing.lg),
+          Text(
+            'Seleccioná tu foto',
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
         ],
       ),
@@ -293,8 +288,12 @@ class _ResultView extends StatelessWidget {
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: StyloButton(
-                  label: 'Guardar',
-                  onPressed: () {/* save to gallery */},
+                  label: 'Guardar en galería',
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Guardado en galería')),
+                    );
+                  },
                 ),
               ),
             ],

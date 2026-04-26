@@ -20,13 +20,13 @@ class _FakeTryOnDataSource extends TryOnRemoteDataSource {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-Widget buildTestWidget() {
+Widget buildTestWidget({bool hasTryon = false}) {
   final router = GoRouter(
     initialLocation: '/try-on',
     routes: [
       GoRoute(
         path: '/try-on',
-        builder: (_, __) => const VirtualTryOnScreen(),
+        builder: (_, __) => const VirtualTryOnScreen(garmentId: 'garment-1'),
       ),
       GoRoute(
         path: '/paywall',
@@ -38,7 +38,7 @@ Widget buildTestWidget() {
   return ProviderScope(
     overrides: [
       firebaseAuthProvider.overrideWithValue(_MockFirebaseAuth()),
-      isPremiumProvider.overrideWithValue(false),
+      hasTryonProvider.overrideWithValue(hasTryon),
       tryOnProvider.overrideWith((ref) => TryOnNotifier(_FakeTryOnDataSource())),
     ],
     child: MaterialApp.router(
@@ -48,11 +48,11 @@ Widget buildTestWidget() {
   );
 }
 
-Future<void> pumpScreen(WidgetTester tester) async {
+Future<void> pumpScreen(WidgetTester tester, {bool hasTryon = true}) async {
   await tester.binding.setSurfaceSize(const Size(600, 1000));
   addTearDown(() => tester.binding.setSurfaceSize(null));
 
-  await tester.pumpWidget(buildTestWidget());
+  await tester.pumpWidget(buildTestWidget(hasTryon: hasTryon));
   await tester.pump();
 }
 
@@ -60,30 +60,32 @@ Future<void> pumpScreen(WidgetTester tester) async {
 
 void main() {
   group('VirtualTryOnScreen', () {
-    testWidgets('renders app bar with title', (tester) async {
-      await pumpScreen(tester);
+    testWidgets('renders app bar with title when hasTryon', (tester) async {
+      await pumpScreen(tester, hasTryon: true);
       expect(find.text('Prueba Virtual'), findsOneWidget);
     });
 
-    testWidgets('renders photo placeholder text', (tester) async {
-      await pumpScreen(tester);
+    testWidgets('renders photo placeholder text when hasTryon', (tester) async {
+      await pumpScreen(tester, hasTryon: true);
       expect(find.text('Seleccioná tu foto'), findsOneWidget);
     });
 
-    testWidgets('renders camera and gallery buttons', (tester) async {
-      await pumpScreen(tester);
+    testWidgets('renders camera and gallery buttons when hasTryon', (tester) async {
+      await pumpScreen(tester, hasTryon: true);
       expect(find.text('Cámara'), findsOneWidget);
       expect(find.text('Galería'), findsOneWidget);
     });
 
-    testWidgets('renders process button', (tester) async {
-      await pumpScreen(tester);
-      expect(find.text('Probarme el outfit'), findsOneWidget);
+    testWidgets('renders process button when hasTryon', (tester) async {
+      await pumpScreen(tester, hasTryon: true);
+      expect(find.text('Probarme la prenda'), findsOneWidget);
     });
 
-    testWidgets('renders premium paywall banner when not premium', (tester) async {
-      await pumpScreen(tester);
-      expect(find.text('Función Premium'), findsOneWidget);
+    testWidgets('shows paywall screen when user does not have tryon access', (tester) async {
+      await pumpScreen(tester, hasTryon: false);
+      await tester.pump(const Duration(milliseconds: 100));
+      // PaywallScreen is shown instead of VirtualTryOnScreen content
+      expect(find.text('Prueba Virtual'), findsNothing);
     });
   });
 }

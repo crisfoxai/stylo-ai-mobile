@@ -7,7 +7,39 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/stylo_button.dart';
 import '../../application/iap_service.dart';
+import '../../domain/entities/subscription.dart';
 import '../providers/subscription_provider.dart';
+
+enum PaywallFeature { tryon, chat, moreOutfits, unlimitedWardrobe }
+
+extension _PaywallFeatureX on PaywallFeature {
+  String get headline {
+    return switch (this) {
+      PaywallFeature.tryon => 'Probate la ropa antes de comprarla',
+      PaywallFeature.chat => 'Tu estilista personal, disponible 24/7',
+      PaywallFeature.moreOutfits => 'Outfits ilimitados para cada ocasión',
+      PaywallFeature.unlimitedWardrobe => 'Guardarropa sin límites',
+    };
+  }
+
+  String get subtitle {
+    return switch (this) {
+      PaywallFeature.tryon => 'El try-on virtual está disponible en los planes Pro y Pro Unlimited.',
+      PaywallFeature.chat => 'El chat con el estilista AI está disponible en Stylist, Pro y Pro Unlimited.',
+      PaywallFeature.moreOutfits => 'Outfits ilimitados con Stylist, Pro y Pro Unlimited.',
+      PaywallFeature.unlimitedWardrobe => 'Guardá prendas ilimitadas con Stylist, Pro y Pro Unlimited.',
+    };
+  }
+
+  SubscriptionPlan get minimumPlan {
+    return switch (this) {
+      PaywallFeature.tryon => SubscriptionPlan.pro,
+      PaywallFeature.chat => SubscriptionPlan.stylist,
+      PaywallFeature.moreOutfits => SubscriptionPlan.stylist,
+      PaywallFeature.unlimitedWardrobe => SubscriptionPlan.stylist,
+    };
+  }
+}
 
 final _productsProvider = FutureProvider<List<ProductDetails>>((ref) async {
   final service = ref.read(iapServiceProvider);
@@ -17,7 +49,9 @@ final _productsProvider = FutureProvider<List<ProductDetails>>((ref) async {
 });
 
 class PaywallScreen extends ConsumerStatefulWidget {
-  const PaywallScreen({super.key});
+  final PaywallFeature? feature;
+
+  const PaywallScreen({super.key, this.feature});
 
   @override
   ConsumerState<PaywallScreen> createState() => _PaywallScreenState();
@@ -84,6 +118,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   Widget build(BuildContext context) {
     final subscriptionState = ref.watch(subscriptionNotifierProvider);
     final productsAsync = ref.watch(_productsProvider);
+    final feature = widget.feature;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -134,7 +169,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                     ),
                     const SizedBox(height: AppSpacing.xl),
                     Text(
-                      'Desbloquea todo con\nStylo Premium',
+                      feature?.headline ?? 'Desbloquea todo con\nStylo Premium',
                       style: AppTypography.headlineLarge.copyWith(
                         color: AppColors.textPrimary,
                       ),
@@ -142,16 +177,16 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      'Tu asistente de moda personal, impulsado por IA',
+                      feature?.subtitle ??
+                          'Tu asistente de moda personal, impulsado por IA',
                       style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.textSecondary,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.xxxl),
-                    const _ComparisonTable(),
+                    _TierComparisonTable(minimumPlan: feature?.minimumPlan),
                     const SizedBox(height: AppSpacing.xxxl),
-                    // Product selector
                     productsAsync.when(
                       data: (products) => _ProductSelector(
                         products: products,
@@ -159,6 +194,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                             (products.isNotEmpty ? products.first.id : null),
                         onSelected: (id) =>
                             setState(() => _selectedProductId = id),
+                        minimumPlan: feature?.minimumPlan,
                       ),
                       loading: () => const CircularProgressIndicator(),
                       error: (_, __) => const _StaticPriceCard(),
@@ -214,16 +250,207 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   }
 }
 
+class _TierComparisonTable extends StatelessWidget {
+  final SubscriptionPlan? minimumPlan;
+
+  const _TierComparisonTable({this.minimumPlan});
+
+  static const _features = [
+    (label: 'Guardarropa digital', stylist: true, pro: true, proUnlimited: true),
+    (label: 'Outfits ilimitados', stylist: true, pro: true, proUnlimited: true),
+    (label: 'Chat estilista AI (30/mes)', stylist: true, pro: false, proUnlimited: false),
+    (label: 'Chat estilista AI (ilimitado)', stylist: false, pro: true, proUnlimited: true),
+    (label: 'Prueba virtual Try-On (20/mes)', stylist: false, pro: true, proUnlimited: false),
+    (label: 'Prueba virtual Try-On (80/mes)', stylist: false, pro: false, proUnlimited: true),
+  ];
+
+  bool _isHighlighted(SubscriptionPlan plan) {
+    if (minimumPlan == null) return plan == SubscriptionPlan.pro;
+    return switch (minimumPlan!) {
+      SubscriptionPlan.stylist => plan == SubscriptionPlan.stylist,
+      SubscriptionPlan.pro => plan == SubscriptionPlan.pro,
+      SubscriptionPlan.proUnlimited => plan == SubscriptionPlan.proUnlimited,
+      SubscriptionPlan.free => false,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
+            child: Row(
+              children: [
+                const Expanded(child: SizedBox()),
+                _PlanHeader(label: 'Stylist', highlighted: _isHighlighted(SubscriptionPlan.stylist), price: '\$5.99'),
+                _PlanHeader(label: 'Pro', highlighted: _isHighlighted(SubscriptionPlan.pro), price: '\$11.99'),
+                _PlanHeader(label: 'Pro ∞', highlighted: _isHighlighted(SubscriptionPlan.proUnlimited), price: '\$19.99'),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.border),
+          ..._features.asMap().entries.map((entry) {
+            final isLast = entry.key == _features.length - 1;
+            final f = entry.value;
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.sm,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          f.label,
+                          style: AppTypography.bodySmall
+                              .copyWith(color: AppColors.textPrimary),
+                        ),
+                      ),
+                      _CheckCell(value: f.stylist, highlighted: _isHighlighted(SubscriptionPlan.stylist)),
+                      _CheckCell(value: f.pro, highlighted: _isHighlighted(SubscriptionPlan.pro)),
+                      _CheckCell(value: f.proUnlimited, highlighted: _isHighlighted(SubscriptionPlan.proUnlimited)),
+                    ],
+                  ),
+                ),
+                if (!isLast) const Divider(height: 1, color: AppColors.border),
+              ],
+            );
+          }),
+          // Pricing row
+          const Divider(height: 1, color: AppColors.border),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Plan mensual',
+                    style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondary),
+                  ),
+                ),
+                _PriceCell(price: '\$5.99', highlighted: _isHighlighted(SubscriptionPlan.stylist)),
+                _PriceCell(price: '\$11.99', highlighted: _isHighlighted(SubscriptionPlan.pro)),
+                _PriceCell(price: '\$19.99', highlighted: _isHighlighted(SubscriptionPlan.proUnlimited)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlanHeader extends StatelessWidget {
+  final String label;
+  final String price;
+  final bool highlighted;
+
+  const _PlanHeader({required this.label, required this.highlighted, required this.price});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 60,
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: AppTypography.labelSmall.copyWith(
+              color: highlighted ? AppColors.accent : AppColors.textSecondary,
+              fontWeight: highlighted ? FontWeight.w700 : FontWeight.normal,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          if (highlighted)
+            Container(
+              margin: const EdgeInsets.only(top: 2),
+              height: 2,
+              color: AppColors.accent,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CheckCell extends StatelessWidget {
+  final bool value;
+  final bool highlighted;
+
+  const _CheckCell({required this.value, required this.highlighted});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 60,
+      child: Center(
+        child: Icon(
+          value ? PhosphorIconsFill.checkCircle : PhosphorIconsRegular.xCircle,
+          size: 18,
+          color: value
+              ? (highlighted ? AppColors.accent : AppColors.success)
+              : AppColors.border,
+        ),
+      ),
+    );
+  }
+}
+
+class _PriceCell extends StatelessWidget {
+  final String price;
+  final bool highlighted;
+
+  const _PriceCell({required this.price, required this.highlighted});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 60,
+      child: Text(
+        price,
+        style: AppTypography.labelSmall.copyWith(
+          color: highlighted ? AppColors.accent : AppColors.textSecondary,
+          fontWeight: highlighted ? FontWeight.w700 : FontWeight.normal,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
 class _ProductSelector extends StatelessWidget {
   final List<ProductDetails> products;
   final String? selectedId;
   final void Function(String) onSelected;
+  final SubscriptionPlan? minimumPlan;
 
   const _ProductSelector({
     required this.products,
     required this.selectedId,
     required this.onSelected,
+    this.minimumPlan,
   });
+
+  bool _isRecommended(ProductDetails product) {
+    final plan = kProductTierMap[product.id];
+    if (plan == null) return false;
+    return plan == (minimumPlan ?? SubscriptionPlan.pro);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -254,12 +481,36 @@ class _ProductSelector extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            p.title,
-                            style: AppTypography.labelMedium.copyWith(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                p.title,
+                                style: AppTypography.labelMedium.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (_isRecommended(p)) ...[
+                                const SizedBox(width: AppSpacing.xs),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.xs,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accent,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    'RECOMENDADO',
+                                    style: AppTypography.labelSmall.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                           Text(
                             p.description,
@@ -297,7 +548,7 @@ class _StaticPriceCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.accent.withOpacity(0.12),
+            AppColors.accent.withValues(alpha: 0.12),
             AppColors.accentSubtle,
           ],
           begin: Alignment.topLeft,
@@ -305,7 +556,7 @@ class _StaticPriceCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
-          color: AppColors.accent.withOpacity(0.3),
+          color: AppColors.accent.withValues(alpha: 0.3),
           width: 1.5,
         ),
       ),
@@ -327,7 +578,7 @@ class _StaticPriceCard extends StatelessWidget {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
-                      '\$7.99',
+                      '\$11.99',
                       style: AppTypography.displayMedium.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w700,
@@ -367,134 +618,4 @@ class _StaticPriceCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ComparisonTable extends StatelessWidget {
-  static const _features = [
-    _FeatureRow(label: 'Guardarropa digital', free: true, premium: true),
-    _FeatureRow(label: 'Escaneo de prendas', free: true, premium: true),
-    _FeatureRow(label: 'Generación de outfits', free: false, premium: true),
-    _FeatureRow(label: 'Outfits ilimitados', free: false, premium: true),
-    _FeatureRow(label: 'Sugerencias por clima', free: false, premium: true),
-    _FeatureRow(
-      label: 'Prueba virtual (Try-On)',
-      free: false,
-      premium: true,
-    ),
-    _FeatureRow(label: 'Análisis de estilo IA', free: false, premium: true),
-  ];
-
-  const _ComparisonTable();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
-              vertical: AppSpacing.md,
-            ),
-            child: Row(
-              children: [
-                const Expanded(child: SizedBox()),
-                SizedBox(
-                  width: 64,
-                  child: Text(
-                    'Free',
-                    style: AppTypography.labelMedium
-                        .copyWith(color: AppColors.textSecondary),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(
-                  width: 64,
-                  child: Text(
-                    'Premium',
-                    style: AppTypography.labelMedium.copyWith(
-                      color: AppColors.accent,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1, color: AppColors.border),
-          ..._features.asMap().entries.map((entry) {
-            final isLast = entry.key == _features.length - 1;
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                    vertical: AppSpacing.md,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          entry.value.label,
-                          style: AppTypography.bodySmall
-                              .copyWith(color: AppColors.textPrimary),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 64,
-                        child: Center(
-                          child: Icon(
-                            entry.value.free
-                                ? PhosphorIconsFill.checkCircle
-                                : PhosphorIconsRegular.xCircle,
-                            size: 20,
-                            color: entry.value.free
-                                ? AppColors.success
-                                : AppColors.border,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 64,
-                        child: Center(
-                          child: Icon(
-                            entry.value.premium
-                                ? PhosphorIconsFill.checkCircle
-                                : PhosphorIconsRegular.xCircle,
-                            size: 20,
-                            color: entry.value.premium
-                                ? AppColors.accent
-                                : AppColors.border,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (!isLast) const Divider(height: 1, color: AppColors.border),
-              ],
-            );
-          }),
-        ],
-      ),
-    );
-  }
-}
-
-class _FeatureRow {
-  final String label;
-  final bool free;
-  final bool premium;
-
-  const _FeatureRow({
-    required this.label,
-    required this.free,
-    required this.premium,
-  });
 }

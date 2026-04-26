@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../subscription/presentation/providers/subscription_provider.dart';
 import '../providers/outfit_generator_provider.dart';
 import '../providers/outfit_history_provider.dart';
 import '../../domain/entities/outfit.dart';
@@ -147,6 +148,14 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                     onNewOutfit: () => context.push('/outfits'),
                     onWardrobe: () => context.push('/wardrobe'),
                     onFavorites: () => context.push('/outfits/favorites'),
+                  ),
+
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // AI Stylist Chat card
+                  _StylistChatCard(
+                    hasChat: ref.watch(hasChatProvider),
+                    onTap: () => context.push('/chat'),
                   ),
 
                   const SizedBox(height: AppSpacing.xxl),
@@ -624,6 +633,73 @@ class _RecommendedOutfitTile extends StatelessWidget {
             const Icon(Icons.chevron_right,
                 color: AppColors.textTertiary, size: 20),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StylistChatCard extends StatelessWidget {
+  final bool hasChat;
+  final VoidCallback onTap;
+
+  const _StylistChatCard({required this.hasChat, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.accent.withValues(alpha: 0.15),
+                AppColors.accentSubtle,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            border: Border.all(
+              color: AppColors.accent.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(
+            children: [
+              const Text('✨', style: TextStyle(fontSize: 32)),
+              const SizedBox(width: AppSpacing.lg),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Mi Estilista',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      hasChat
+                          ? 'Preguntale qué ponerte hoy'
+                          : 'Disponible en Stylist, Pro y Pro Unlimited',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                hasChat ? Icons.chevron_right : Icons.lock_outline,
+                color: AppColors.textTertiary,
+              ),
+            ],
+          ),
         ),
       ),
     );

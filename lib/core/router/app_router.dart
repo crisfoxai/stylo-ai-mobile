@@ -22,6 +22,7 @@ import '../../shared/widgets/main_shell.dart';
 import '../../features/subscription/presentation/screens/paywall_screen.dart';
 import '../../features/subscription/presentation/screens/subscription_manage_screen.dart';
 import '../../features/try_on/presentation/screens/virtual_try_on_screen.dart';
+import '../../features/chat/presentation/screens/chat_screen.dart';
 import '../router/route_names.dart';
 import '../../features/outfits/presentation/screens/home_dashboard_screen.dart';
 
@@ -98,7 +99,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/try-on',
         name: RouteNames.tryOn,
-        builder: (_, __) => const VirtualTryOnScreen(),
+        builder: (context, state) {
+          final garmentId = state.uri.queryParameters['garmentId'] ?? '';
+          return VirtualTryOnScreen(garmentId: garmentId);
+        },
+      ),
+      GoRoute(
+        path: '/chat',
+        builder: (_, __) => const ChatScreen(),
       ),
       GoRoute(
         path: '/paywall',

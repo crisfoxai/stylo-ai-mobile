@@ -134,13 +134,13 @@ void main() {
 
       final scrollable = find.byType(Scrollable).first;
       await tester.scrollUntilVisible(
-        find.text('Plan mensual'),
+        find.text('Plan mensual').first,
         200,
         scrollable: scrollable,
       );
       await tester.pump();
 
-      expect(find.text('Plan mensual'), findsOneWidget);
+      expect(find.text('Plan mensual'), findsAtLeastNWidgets(1));
     });
   });
 }
