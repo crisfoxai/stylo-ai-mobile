@@ -25,6 +25,7 @@ class WardrobeRemoteDataSource {
 
     final items = BackendCompat.extractList(raw)
         .cast<Map<String, dynamic>>()
+        .map(BackendCompat.normalizeMongoId)
         .map(Garment.fromJson)
         .toList();
 
@@ -62,7 +63,7 @@ class WardrobeRemoteDataSource {
         rethrow;
       }
     }
-    return Garment.fromJson(BackendCompat.extractMap(response.data));
+    return Garment.fromJson(BackendCompat.normalizeMongoId(BackendCompat.extractMap(response.data)));
   }
 
   Future<ScanJobResult> scanGarment(String imagePath) async {
@@ -112,7 +113,10 @@ class WardrobeRemoteDataSource {
 
     Garment? garment;
     if (data['garment'] != null) {
-      garment = Garment.fromJson(data['garment'] as Map<String, dynamic>);
+      garment = Garment.fromJson(BackendCompat.normalizeMongoId(data['garment'] as Map<String, dynamic>));
+    } else if (data['garmentId'] != null) {
+      final garmentId = data['garmentId'] as String;
+      garment = await getGarment(garmentId);
     }
 
     return ScanJobStatus(
@@ -134,7 +138,7 @@ class WardrobeRemoteDataSource {
         rethrow;
       }
     }
-    return Garment.fromJson(BackendCompat.extractMap(response.data));
+    return Garment.fromJson(BackendCompat.normalizeMongoId(BackendCompat.extractMap(response.data)));
   }
 
   Future<void> deleteGarment(String id) async {
@@ -153,6 +157,7 @@ class WardrobeRemoteDataSource {
     final response = await _fetchGarments({'search': query, 'limit': 50});
     return BackendCompat.extractList(response.data)
         .cast<Map<String, dynamic>>()
+        .map(BackendCompat.normalizeMongoId)
         .map(Garment.fromJson)
         .toList();
   }

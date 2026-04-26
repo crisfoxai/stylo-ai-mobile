@@ -9,7 +9,7 @@ enum ItemStatus { processing, ready, failed }
 class Garment with _$Garment {
   const factory Garment({
     required String id,
-    required String name,
+    @Default('') String name,
     required String imageUrl,
     String? thumbnailUrl,
     required String type,

@@ -45,6 +45,17 @@ class BackendCompat {
     return [];
   }
 
+  /// Normalizes MongoDB `_id` → `id` so Garment.fromJson always finds `id`.
+  static Map<String, dynamic> normalizeMongoId(Map<String, dynamic> map) {
+    if (!map.containsKey('id') || map['id'] == null) {
+      final mongoId = map['_id'];
+      if (mongoId != null) {
+        return {...map, 'id': mongoId};
+      }
+    }
+    return map;
+  }
+
   /// Returns the total count for paginated responses.
   static int extractTotal(dynamic responseData, int fallback) {
     if (responseData is Map<String, dynamic>) {
