@@ -79,6 +79,8 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
 
   WardrobeNotifier(this._repository) : super(const WardrobeState());
 
+  static const _typeValues = {'top', 'bottom', 'shoes', 'accessory', 'outerwear'};
+
   Map<String, dynamic>? get _activeFilters {
     final filter = state.activeFilter;
     final colorFilter = state.activeColorFilter;
@@ -86,7 +88,8 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
       return null;
     }
     return {
-      if (filter != null && filter.isNotEmpty) 'category': filter,
+      if (filter != null && filter.isNotEmpty)
+        (_typeValues.contains(filter) ? 'type' : 'category'): filter,
       if (colorFilter != null && colorFilter.isNotEmpty) 'color': colorFilter,
     };
   }
