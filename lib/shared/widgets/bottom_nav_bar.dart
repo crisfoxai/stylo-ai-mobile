@@ -15,11 +15,11 @@ class StyloBottomNavBar extends StatelessWidget {
   });
 
   static final List<_NavItem> _items = [
-    _NavItem(label: 'Home', icon: PhosphorIconsRegular.house, activeIcon: PhosphorIconsFill.house),
-    _NavItem(label: 'Guardarropa', icon: PhosphorIconsRegular.tShirt, activeIcon: PhosphorIconsFill.tShirt),
-    _NavItem(label: 'Escanear', icon: PhosphorIconsRegular.scan, activeIcon: PhosphorIconsFill.scan, isFab: true),
-    _NavItem(label: 'Outfits', icon: PhosphorIconsRegular.sparkle, activeIcon: PhosphorIconsFill.sparkle),
-    _NavItem(label: 'Perfil', icon: PhosphorIconsRegular.user, activeIcon: PhosphorIconsFill.user),
+    _NavItem(label: 'Home', icon: PhosphorIconsRegular.house, activeIcon: PhosphorIconsFill.house, keyName: 'tab_home'),
+    _NavItem(label: 'Guardarropa', icon: PhosphorIconsRegular.tShirt, activeIcon: PhosphorIconsFill.tShirt, keyName: 'tab_wardrobe'),
+    _NavItem(label: 'Escanear', icon: PhosphorIconsRegular.scan, activeIcon: PhosphorIconsFill.scan, isFab: true, keyName: 'tab_scan'),
+    _NavItem(label: 'Outfits', icon: PhosphorIconsRegular.sparkle, activeIcon: PhosphorIconsFill.sparkle, keyName: 'tab_outfits'),
+    _NavItem(label: 'Perfil', icon: PhosphorIconsRegular.user, activeIcon: PhosphorIconsFill.user, keyName: 'tab_profile'),
   ];
 
   @override
@@ -51,6 +51,7 @@ class StyloBottomNavBar extends StatelessWidget {
     final isSelected = selectedIndex == index;
     return Expanded(
       child: GestureDetector(
+        key: Key(item.keyName),
         behavior: HitTestBehavior.opaque,
         onTap: () => onTabSelected(index),
         child: Column(
@@ -79,6 +80,7 @@ class StyloBottomNavBar extends StatelessWidget {
     final isSelected = selectedIndex == index;
     return Expanded(
       child: GestureDetector(
+        key: Key(item.keyName),
         behavior: HitTestBehavior.opaque,
         onTap: () => onTabSelected(index),
         child: Column(
@@ -116,11 +118,13 @@ class _NavItem {
   final IconData icon;
   final IconData activeIcon;
   final bool isFab;
+  final String keyName;
 
   const _NavItem({
     required this.label,
     required this.icon,
     required this.activeIcon,
+    required this.keyName,
     this.isFab = false,
   });
 }

@@ -24,23 +24,10 @@ class AuthRemoteDataSource {
     final idToken = await credential.user!.getIdToken();
     debugPrint('[AUTH] idToken length=${idToken?.length ?? 0}');
 
-    const url = '/auth/firebase';
-    debugPrint('[AUTH] POST ${_dio.options.baseUrl}$url starting');
+    debugPrint('[AUTH] POST auth starting (try session → firebase)');
     try {
-      final response = await _dio
-          .post(
-            url,
-            options: Options(headers: {'Authorization': 'Bearer $idToken'}),
-            data: {'idToken': idToken!},
-          )
-          .timeout(const Duration(seconds: 20), onTimeout: () {
-        debugPrint('[AUTH] MANUAL TIMEOUT 20s on $url');
-        throw TimeoutException('Backend /auth/firebase no respondió en 20s');
-      });
-      debugPrint('[AUTH] POST $url status=${response.statusCode}');
-      final body = response.data as Map<String, dynamic>;
-      final loginData = body['data'] as Map<String, dynamic>? ?? body;
-      return _parseAuthResponse(loginData, idToken: idToken);
+      final result = await _postAuthWithFirebaseToken(idToken!);
+      return _parseAuthResponse(result, idToken: idToken);
     } on DioException catch (e) {
       debugPrint(
         '[AUTH] DioException type=${e.type} '
@@ -69,23 +56,10 @@ class AuthRemoteDataSource {
     final idToken = await credential.user!.getIdToken();
     debugPrint('[AUTH] idToken length=${idToken?.length ?? 0}');
 
-    const url = '/auth/firebase';
-    debugPrint('[AUTH] POST ${_dio.options.baseUrl}$url starting');
+    debugPrint('[AUTH] POST auth/register starting');
     try {
-      final response = await _dio
-          .post(
-            url,
-            options: Options(headers: {'Authorization': 'Bearer $idToken'}),
-            data: {'idToken': idToken!},
-          )
-          .timeout(const Duration(seconds: 20), onTimeout: () {
-        debugPrint('[AUTH] MANUAL TIMEOUT 20s on $url');
-        throw TimeoutException('Backend /auth/firebase no respondió en 20s');
-      });
-      debugPrint('[AUTH] POST $url status=${response.statusCode}');
-      final body = response.data as Map<String, dynamic>;
-      final registerData = body['data'] as Map<String, dynamic>? ?? body;
-      return _parseAuthResponse(registerData, idToken: idToken, isNewUser: true);
+      final result = await _postAuthWithFirebaseToken(idToken!);
+      return _parseAuthResponse(result, idToken: idToken, isNewUser: true);
     } on DioException catch (e) {
       debugPrint(
         '[AUTH] DioException type=${e.type} '
@@ -99,6 +73,38 @@ class AuthRemoteDataSource {
       debugPrint('[AUTH] Unexpected in register: $e\n$s');
       rethrow;
     }
+  }
+
+  /// Tries /auth/session (Railway) first, falls back to /auth/firebase (local Docker).
+  Future<Map<String, dynamic>> _postAuthWithFirebaseToken(String idToken) async {
+    const candidates = [Endpoints.authSession, Endpoints.authFirebase];
+    Object? lastError;
+    for (final url in candidates) {
+      debugPrint('[AUTH] Trying POST $url');
+      try {
+        final response = await _dio
+            .post(
+              url,
+              options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+              data: {'idToken': idToken},
+            )
+            .timeout(const Duration(seconds: 20), onTimeout: () {
+          debugPrint('[AUTH] MANUAL TIMEOUT 20s on $url');
+          throw TimeoutException('Backend $url no respondió en 20s');
+        });
+        debugPrint('[AUTH] POST $url status=${response.statusCode}');
+        final body = response.data as Map<String, dynamic>;
+        return body['data'] as Map<String, dynamic>? ?? body;
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 404) {
+          debugPrint('[AUTH] $url → 404, trying next candidate');
+          lastError = e;
+          continue;
+        }
+        rethrow;
+      }
+    }
+    throw lastError ?? Exception('No auth endpoint available');
   }
 
   Future<AuthResult> googleSignIn(String idToken) async {
@@ -179,15 +185,22 @@ class AuthRemoteDataSource {
     };
 
     final user = User.fromJson(userJson);
+
+    final tokens = data['tokens'] as Map<String, dynamic>?;
+    final accessToken = tokens?['accessToken'] as String? ?? idToken ?? '';
+    final refreshToken = tokens?['refreshToken'] as String? ?? '';
+    final tokensExpiresIn = tokens?['expiresIn'] as int?;
+
     final expiresAtStr = data['expiresAt'] as String?;
-    final expiresIn = expiresAtStr != null
-        ? DateTime.parse(expiresAtStr).difference(DateTime.now()).inSeconds.clamp(0, 7200)
-        : 3600;
+    final expiresIn = tokensExpiresIn ??
+        (expiresAtStr != null
+            ? DateTime.parse(expiresAtStr).difference(DateTime.now()).inSeconds.clamp(0, 7200)
+            : 3600);
 
     return AuthResult(
       user: user,
-      accessToken: idToken ?? '',
-      refreshToken: '',
+      accessToken: accessToken,
+      refreshToken: refreshToken,
       expiresIn: expiresIn,
       isNewUser: isNewUser,
     );

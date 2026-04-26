@@ -62,6 +62,7 @@ class OutfitGeneratorScreen extends ConsumerWidget {
     });
 
     return Scaffold(
+      key: const Key('outfit_generator_screen'),
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
@@ -214,6 +215,7 @@ class _SelectorView extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
+              key: const Key('generate_outfit_btn'),
               onPressed: canGenerate ? onGenerate : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.accent,
@@ -513,7 +515,10 @@ class _ResultView extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
-              IconButton(
+              Semantics(
+                identifier: 'favorite_outfit_btn',
+                child: IconButton(
+                key: const Key('favorite_outfit_btn'),
                 onPressed: isFavoriting ? null : onFavorite,
                 style: IconButton.styleFrom(
                   backgroundColor: AppColors.surface,
@@ -539,6 +544,7 @@ class _ResultView extends StatelessWidget {
                             : AppColors.textSecondary,
                         size: 22,
                       ),
+              ),
               ),
             ],
           ),

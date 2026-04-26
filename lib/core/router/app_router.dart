@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/auth/domain/entities/user.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/auth/presentation/screens/auth_screen.dart';
 import '../../features/onboarding/presentation/providers/onboarding_provider.dart';
@@ -24,31 +25,48 @@ import '../../features/try_on/presentation/screens/virtual_try_on_screen.dart';
 import '../router/route_names.dart';
 import '../../features/outfits/presentation/screens/home_dashboard_screen.dart';
 
-final _publicRoutes = ['/splash', '/onboarding', '/auth'];
-final _quizRoutes = ['/style-quiz', '/style-quiz/result'];
+const _publicRoutes = ['/splash', '/onboarding', '/auth'];
+const _quizRoutes = ['/style-quiz', '/style-quiz/result'];
+
+class _RouterNotifier extends ChangeNotifier {
+  final Ref _ref;
+  late final ProviderSubscription<AsyncValue<User?>> _authSub;
+  late final ProviderSubscription<bool> _onboardingSub;
+
+  _RouterNotifier(this._ref) {
+    _authSub = _ref.listen(authStateProvider, (_, __) => notifyListeners());
+    _onboardingSub = _ref.listen(onboardingCompleteProvider, (_, __) => notifyListeners());
+  }
+
+  String? redirect(String location) {
+    final authState = _ref.read(authStateProvider);
+    final isAuthenticated = authState.valueOrNull != null;
+    final isOnboarded = _ref.read(onboardingCompleteProvider);
+
+    if (_publicRoutes.contains(location)) return null;
+    if (!isAuthenticated) return '/auth';
+    if (isAuthenticated && !isOnboarded && !_quizRoutes.contains(location)) {
+      return '/style-quiz';
+    }
+    return null;
+  }
+
+  @override
+  void dispose() {
+    _authSub.close();
+    _onboardingSub.close();
+    super.dispose();
+  }
+}
 
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
-  final onboardingComplete = ref.watch(onboardingCompleteProvider);
+  final notifier = _RouterNotifier(ref);
 
-  return GoRouter(
+  final router = GoRouter(
     initialLocation: '/splash',
     debugLogDiagnostics: true,
-    redirect: (context, state) {
-      final isAuthenticated = authState.valueOrNull != null;
-      final isOnboarded = onboardingComplete;
-      final loc = state.matchedLocation;
-
-      if (_publicRoutes.contains(loc)) return null;
-
-      if (!isAuthenticated) return '/auth';
-
-      if (isAuthenticated && !isOnboarded && !_quizRoutes.contains(loc)) {
-        return '/style-quiz';
-      }
-
-      return null;
-    },
+    refreshListenable: notifier,
+    redirect: (context, state) => notifier.redirect(state.matchedLocation),
     routes: [
       GoRoute(
         path: '/splash',
@@ -161,4 +179,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
+
+  ref.onDispose(() {
+    notifier.dispose();
+    router.dispose();
+  });
+
+  return router;
 });

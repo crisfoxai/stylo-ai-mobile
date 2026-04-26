@@ -1,7 +1,9 @@
 class Endpoints {
   Endpoints._();
 
-  // Auth
+  // Auth — Railway uses /auth/session, local uses /auth/firebase
+  static const String authSession = '/auth/session';
+  static const String authFirebase = '/auth/firebase';
   static const String register = '/auth/register';
   static const String login = '/auth/login';
   static const String googleAuth = '/auth/google';
@@ -15,11 +17,15 @@ class Endpoints {
   static const String avatar = '/users/me/avatar';
   static const String stats = '/users/me/stats';
 
-  // Wardrobe
-  static const String garments = '/wardrobe';
-  static String garment(String id) => '/wardrobe/$id';
-  static const String scanUpload = '/wardrobe';
-  static String garmentJob(String jobId) => '/wardrobe/jobs/$jobId';
+  // Wardrobe — Railway uses /garments, local uses /wardrobe
+  static const String garments = '/garments';
+  static const String wardrobeGarments = '/wardrobe';
+  static String garment(String id) => '/garments/$id';
+  static String wardrobeGarment(String id) => '/wardrobe/$id';
+  static const String scanUpload = '/garments';
+  static const String wardrobeScanUpload = '/wardrobe';
+  static String garmentJob(String jobId) => '/garments/jobs/$jobId';
+  static String wardrobeGarmentJob(String jobId) => '/wardrobe/jobs/$jobId';
 
   // Outfits
   static const String outfits = '/outfits';

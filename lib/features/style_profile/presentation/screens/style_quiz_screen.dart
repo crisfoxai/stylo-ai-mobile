@@ -42,7 +42,9 @@ class StyleQuizScreen extends ConsumerWidget {
 
     ref.listen<StyleQuizState>(styleQuizNotifierProvider, (_, state) {
       if (state.isComplete) {
-        ref.read(onboardingDataSourceProvider).setStyleQuizComplete();
+        ref.read(onboardingDataSourceProvider).setStyleQuizComplete().then((_) {
+          ref.invalidate(onboardingCompleteProvider);
+        });
         context.go('/style-quiz/result');
       }
     });
@@ -60,8 +62,6 @@ class StyleQuizScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () async {
-              // Await before navigating — router guard reads onboardingComplete
-              // synchronously and would redirect back if write hasn't landed yet.
               await ref.read(onboardingDataSourceProvider).setStyleQuizComplete();
               if (context.mounted) context.go('/home');
             },

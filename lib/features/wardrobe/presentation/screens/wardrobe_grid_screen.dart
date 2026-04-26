@@ -66,6 +66,7 @@ class _WardrobeGridScreenState extends ConsumerState<WardrobeGridScreen> {
     final garments = ref.watch(filteredWardrobeProvider);
 
     return Scaffold(
+      key: const Key('wardrobe_screen'),
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
@@ -181,12 +182,16 @@ class _WardrobeGridScreenState extends ConsumerState<WardrobeGridScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.pushNamed('scan'),
-        backgroundColor: AppColors.accent,
-        foregroundColor: Colors.white,
-        elevation: 4,
-        child: const Icon(Icons.camera_alt_outlined),
+      floatingActionButton: Semantics(
+        identifier: 'upload_garment_fab',
+        child: FloatingActionButton(
+          key: const Key('upload_garment_fab'),
+          onPressed: () => context.pushNamed('scan'),
+          backgroundColor: AppColors.accent,
+          foregroundColor: Colors.white,
+          elevation: 4,
+          child: const Icon(Icons.camera_alt_outlined),
+        ),
       ),
     );
   }
@@ -208,6 +213,7 @@ class _WardrobeGridScreenState extends ConsumerState<WardrobeGridScreen> {
       onRefresh: _onRefresh,
       color: AppColors.accent,
       child: GridView.builder(
+        key: const Key('garment_grid'),
         controller: _scrollController,
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.lg,

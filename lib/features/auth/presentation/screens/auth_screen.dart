@@ -95,6 +95,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     });
 
     return Scaffold(
+      key: const Key('auth_screen'),
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -222,6 +223,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   textField: true,
                   label: 'Campo de email',
                   child: StyloTextField(
+                    key: const Key('login_email_field'),
                     controller: _emailController,
                     label: 'Email',
                     keyboardType: TextInputType.emailAddress,
@@ -236,6 +238,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   textField: true,
                   label: 'Campo de contraseña',
                   child: StyloTextField(
+                    key: const Key('login_password_field'),
                     controller: _passwordController,
                     label: 'Contraseña',
                     obscureText: _obscurePassword,
@@ -261,6 +264,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   button: true,
                   label: _isLogin ? 'Iniciar sesión con email' : 'Crear cuenta nueva',
                   child: StyloButton(
+                    key: const Key('login_submit_btn'),
                     label: _isLogin ? 'Iniciar sesión' : 'Crear cuenta',
                     onPressed: _submit,
                     isLoading: authState.status == AuthStatus.loading,
