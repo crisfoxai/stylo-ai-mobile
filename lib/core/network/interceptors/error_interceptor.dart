@@ -19,7 +19,7 @@ class ErrorInterceptor extends Interceptor {
     } else if (err.response != null) {
       final statusCode = err.response!.statusCode ?? 500;
       final data = err.response!.data;
-      final message = data is Map ? _extractMessage(data as Map) : 'Error desconocido';
+      final message = data is Map ? _extractMessage(data) : 'Error desconocido';
 
       exception = switch (statusCode) {
         400 => ValidationException(message: message),
@@ -39,6 +39,7 @@ class ErrorInterceptor extends Interceptor {
     handler.next(DioException(
       requestOptions: err.requestOptions,
       error: exception,
+      message: exception.message,
       response: err.response,
       type: err.type,
     ));
@@ -50,7 +51,7 @@ class ErrorInterceptor extends Interceptor {
     final errorField = data['error'];
     final nestedMsg = errorField is Map ? errorField['message'] : null;
     final raw = nestedMsg ?? data['message'] ?? 'Error desconocido';
-    if (raw is List) return (raw as List).join(', ');
+    if (raw is List) return raw.join(', ');
     return raw.toString();
   }
 }

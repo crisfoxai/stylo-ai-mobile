@@ -1,3 +1,4 @@
+import '../../../../core/errors/app_exception.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
 import '../../data/datasources/outfit_remote_datasource.dart';
@@ -108,7 +109,7 @@ class OutfitGeneratorNotifier extends StateNotifier<OutfitGeneratorState> {
     } catch (e) {
       state = state.copyWith(
         step: OutfitGeneratorStep.error,
-        errorMessage: e.toString(),
+        errorMessage: AppException.extractMessage(e),
       );
     }
   }
@@ -140,7 +141,7 @@ class OutfitGeneratorNotifier extends StateNotifier<OutfitGeneratorState> {
     } catch (e) {
       state = state.copyWith(
         step: OutfitGeneratorStep.error,
-        errorMessage: e.toString(),
+        errorMessage: AppException.extractMessage(e),
       );
     }
   }
@@ -151,7 +152,7 @@ class OutfitGeneratorNotifier extends StateNotifier<OutfitGeneratorState> {
     final wasFavorite = outfit.isFavorite;
     state = state.copyWith(isFavoriting: true, clearSuccess: true);
     try {
-      await _repository.toggleFavorite(outfit.id);
+      await _repository.toggleFavorite(outfit.id, wasFavorite: wasFavorite);
       state = state.copyWith(
         generatedOutfit: state.generatedOutfit?.copyWith(isFavorite: !wasFavorite),
         isFavoriting: false,
@@ -160,7 +161,7 @@ class OutfitGeneratorNotifier extends StateNotifier<OutfitGeneratorState> {
     } catch (e) {
       state = state.copyWith(
         isFavoriting: false,
-        errorMessage: e.toString(),
+        errorMessage: AppException.extractMessage(e),
       );
     }
   }
@@ -178,7 +179,7 @@ class OutfitGeneratorNotifier extends StateNotifier<OutfitGeneratorState> {
     } catch (e) {
       state = state.copyWith(
         isLoggingWorn: false,
-        errorMessage: e.toString(),
+        errorMessage: AppException.extractMessage(e),
       );
     }
   }

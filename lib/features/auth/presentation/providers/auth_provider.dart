@@ -1,3 +1,4 @@
+import '../../../../core/errors/app_exception.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -66,7 +67,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final result = await _repository.signInWithEmail(email, password);
       state = AuthState(status: AuthStatus.authenticated, user: result.user);
     } catch (e) {
-      state = AuthState(status: AuthStatus.error, errorMessage: e.toString());
+      state = AuthState(status: AuthStatus.error, errorMessage: AppException.extractMessage(e));
     }
   }
 
@@ -76,7 +77,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final result = await _repository.signUpWithEmail(email, password, firstName, lastName);
       state = AuthState(status: AuthStatus.authenticated, user: result.user);
     } catch (e) {
-      state = AuthState(status: AuthStatus.error, errorMessage: e.toString());
+      state = AuthState(status: AuthStatus.error, errorMessage: AppException.extractMessage(e));
     }
   }
 
@@ -86,7 +87,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final result = await _repository.signInWithGoogle();
       state = AuthState(status: AuthStatus.authenticated, user: result.user);
     } catch (e) {
-      state = AuthState(status: AuthStatus.error, errorMessage: e.toString());
+      state = AuthState(status: AuthStatus.error, errorMessage: AppException.extractMessage(e));
     }
   }
 
@@ -96,7 +97,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final result = await _repository.signInWithApple();
       state = AuthState(status: AuthStatus.authenticated, user: result.user);
     } catch (e) {
-      state = AuthState(status: AuthStatus.error, errorMessage: e.toString());
+      state = AuthState(status: AuthStatus.error, errorMessage: AppException.extractMessage(e));
     }
   }
 

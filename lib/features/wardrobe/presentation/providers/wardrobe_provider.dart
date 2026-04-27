@@ -1,3 +1,4 @@
+import '../../../../core/errors/app_exception.dart';
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
@@ -121,7 +122,7 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: AppException.extractMessage(e),
       );
     }
   }
@@ -149,7 +150,7 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
     } catch (e) {
       state = state.copyWith(
         isLoadingMore: false,
-        errorMessage: e.toString(),
+        errorMessage: AppException.extractMessage(e),
       );
     }
   }
@@ -191,7 +192,7 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
         total: results.length,
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.toString());
+      state = state.copyWith(isLoading: false, errorMessage: AppException.extractMessage(e));
     }
   }
 
@@ -272,7 +273,7 @@ class GarmentScanNotifier extends StateNotifier<ScanState> {
     } catch (e) {
       state = state.copyWith(
         step: ScanStep.error,
-        errorMessage: e.toString(),
+        errorMessage: AppException.extractMessage(e),
       );
     }
   }
@@ -311,7 +312,7 @@ class GarmentScanNotifier extends StateNotifier<ScanState> {
       if (!mounted) return;
       state = state.copyWith(
         step: ScanStep.error,
-        errorMessage: e.toString(),
+        errorMessage: AppException.extractMessage(e),
       );
     }
   }

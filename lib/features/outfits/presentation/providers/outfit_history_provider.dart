@@ -1,3 +1,4 @@
+import '../../../../core/errors/app_exception.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/outfit.dart';
 import '../../domain/repositories/outfit_repository.dart';
@@ -53,7 +54,7 @@ class OutfitHistoryNotifier extends StateNotifier<OutfitHistoryState> {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final outfits =
-          await _repository.getHistory(page: 1, limit: _pageSize);
+          await _repository.getOutfits(page: 1, limit: _pageSize);
       state = state.copyWith(
         outfits: outfits,
         isLoading: false,
@@ -63,7 +64,7 @@ class OutfitHistoryNotifier extends StateNotifier<OutfitHistoryState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: AppException.extractMessage(e),
       );
     }
   }
@@ -74,7 +75,7 @@ class OutfitHistoryNotifier extends StateNotifier<OutfitHistoryState> {
     try {
       final nextPage = state.currentPage + 1;
       final outfits =
-          await _repository.getHistory(page: nextPage, limit: _pageSize);
+          await _repository.getOutfits(page: nextPage, limit: _pageSize);
       state = state.copyWith(
         outfits: [...state.outfits, ...outfits],
         isLoadingMore: false,
@@ -84,7 +85,7 @@ class OutfitHistoryNotifier extends StateNotifier<OutfitHistoryState> {
     } catch (e) {
       state = state.copyWith(
         isLoadingMore: false,
-        errorMessage: e.toString(),
+        errorMessage: AppException.extractMessage(e),
       );
     }
   }
@@ -141,21 +142,21 @@ class FavoritesNotifier extends StateNotifier<FavoritesState> {
       state = state.copyWith(outfits: outfits, isLoading: false);
     } catch (e) {
       state =
-          state.copyWith(isLoading: false, errorMessage: e.toString());
+          state.copyWith(isLoading: false, errorMessage: AppException.extractMessage(e));
     }
   }
 
   Future<void> toggleFavorite(String id) async {
+    final wasFavorite = state.outfits.any((o) => o.id == id && o.isFavorite);
     try {
-      await _repository.toggleFavorite(id);
-      // Toggle locally — 204 no body from backend
+      await _repository.toggleFavorite(id, wasFavorite: wasFavorite);
       final newList = state.outfits.map((o) {
         return o.id == id ? o.copyWith(isFavorite: !o.isFavorite) : o;
       }).toList();
       final filtered = newList.where((o) => o.isFavorite).toList();
       state = state.copyWith(outfits: filtered);
     } catch (e) {
-      state = state.copyWith(errorMessage: e.toString());
+      state = state.copyWith(errorMessage: AppException.extractMessage(e));
     }
   }
 

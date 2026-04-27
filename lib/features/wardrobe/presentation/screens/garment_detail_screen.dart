@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -22,7 +23,7 @@ class GarmentDetailScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       body: garmentAsync.when(
         loading: () => const _LoadingDetailView(),
-        error: (e, __) => _ErrorDetailView(message: e.toString()),
+        error: (e, __) => _ErrorDetailView(message: AppException.extractMessage(e)),
         data: (garment) => _GarmentDetailView(garment: garment, ref: ref),
       ),
     );
@@ -493,7 +494,7 @@ class _GarmentDetailView extends StatelessWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error al eliminar: ${e.toString()}'),
+              content: Text('Error al eliminar: ${AppException.extractMessage(e)}'),
               backgroundColor: AppColors.error,
             ),
           );

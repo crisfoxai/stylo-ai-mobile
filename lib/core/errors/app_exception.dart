@@ -10,7 +10,21 @@ class AppException implements Exception {
   });
 
   @override
-  String toString() => 'AppException($statusCode): $message';
+  String toString() => message;
+
+  /// Extracts a user-friendly message from any caught exception.
+  /// Handles AppException, DioException (which wraps AppException after
+  /// ErrorInterceptor sets message = exception.message), and generic errors.
+  static String extractMessage(dynamic e) {
+    if (e is AppException) return e.message;
+    // DioException.message is set to AppException.message by ErrorInterceptor.
+    // Access via dynamic to avoid importing package:dio here.
+    try {
+      final msg = (e as dynamic).message as String?;
+      if (msg != null && msg.isNotEmpty) return msg;
+    } catch (_) {}
+    return e.toString();
+  }
 }
 
 class NetworkException extends AppException {

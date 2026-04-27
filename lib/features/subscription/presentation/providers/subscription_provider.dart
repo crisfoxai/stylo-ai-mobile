@@ -1,3 +1,4 @@
+import '../../../../core/errors/app_exception.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import '../../../../core/network/api_client.dart';
@@ -53,7 +54,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
     } catch (e, st) {
       // ignore: avoid_print
       print('[SubscriptionNotifier] fetchStatus error: $e\n$st');
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: AppException.extractMessage(e));
     }
   }
 
@@ -72,7 +73,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
       state = state.copyWith(subscription: subscription, isLoading: false);
       _ref.invalidate(subscriptionNotifierProvider);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: AppException.extractMessage(e));
     }
   }
 

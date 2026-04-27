@@ -1,3 +1,4 @@
+import '../../../../core/errors/app_exception.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
@@ -127,7 +128,7 @@ class StyleQuizNotifier extends StateNotifier<StyleQuizState> {
       state = state.copyWith(isSubmitting: false, isComplete: true, result: profile);
     } catch (e, s) {
       debugPrint('[QUIZ] submitQuiz ERROR: $e\n$s');
-      state = state.copyWith(isSubmitting: false, error: e.toString());
+      state = state.copyWith(isSubmitting: false, error: AppException.extractMessage(e));
     }
   }
 }
