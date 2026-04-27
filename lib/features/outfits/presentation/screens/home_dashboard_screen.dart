@@ -270,13 +270,17 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                   if (recentOutfits.isEmpty && recommendedOutfits.isEmpty)
                     Padding(
                       padding: const EdgeInsets.all(AppSpacing.xxl),
-                      child: Column(
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           const Icon(Icons.checkroom_outlined,
                               size: 64, color: AppColors.textTertiary),
                           const SizedBox(height: AppSpacing.lg),
                           Text(
                             'Aún no tenés outfits',
+                            textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -285,12 +289,14 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                           const SizedBox(height: AppSpacing.sm),
                           Text(
                             'Generá tu primer outfit con IA',
+                            textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
                                 ?.copyWith(color: AppColors.textTertiary),
                           ),
                         ],
+                        ),
                       ),
                     ),
                 ],
