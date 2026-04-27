@@ -310,7 +310,7 @@ class _DebugUpgradeButtonState extends ConsumerState<_DebugUpgradeButton> {
         '/subscriptions/dev-upgrade',
         data: {'plan': 'pro_unlimited'},
       );
-      ref.invalidate(subscriptionProvider);
+      await ref.read(subscriptionProvider.notifier).fetchStatus();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Plan actualizado a Pro Unlimited')),
