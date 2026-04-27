@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:stylo_ai/core/services/calendar_service.dart';
+import 'package:stylo_ai/core/services/weather_service.dart';
 import 'package:stylo_ai/core/theme/app_theme.dart';
 import 'package:stylo_ai/features/outfits/domain/entities/outfit.dart';
+import 'package:stylo_ai/features/outfits/domain/entities/share_card_result.dart';
 import 'package:stylo_ai/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:stylo_ai/features/outfits/presentation/providers/outfit_generator_provider.dart';
+import 'package:stylo_ai/features/outfits/presentation/providers/outfits_list_provider.dart';
 import 'package:stylo_ai/features/outfits/presentation/screens/outfit_history_screen.dart';
 
 // ── Fake Repository ──────────────────────────────────────────────────────────
@@ -31,6 +35,8 @@ class FakeOutfitRepository implements OutfitRepository {
     required String mood,
     required String event,
     List<String>? excludeIds,
+    WeatherContext? weatherContext,
+    List<CalendarEventContext>? calendarEvents,
   }) =>
       throw UnimplementedError();
 
@@ -39,12 +45,26 @@ class FakeOutfitRepository implements OutfitRepository {
       historyOutfits;
 
   @override
-  Future<Outfit> toggleFavorite(String id) async =>
-      historyOutfits.firstWhere((o) => o.id == id);
+  Future<OutfitsPage> getAllPaged(OutfitsListFilter filter) async =>
+      const OutfitsPage(data: [], total: 0, page: 1, totalPages: 1);
 
   @override
-  Future<Outfit> logWorn(String id) async =>
-      historyOutfits.firstWhere((o) => o.id == id);
+  Future<void> toggleFavorite(String id, {bool wasFavorite = false}) async {}
+
+  @override
+  Future<void> logWorn(String id) async {}
+
+  @override
+  Future<ShareCardResult> generateShareCard(String outfitId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Map<String, dynamic>> uploadLookPhoto(
+          String outfitId, String filePath) async =>
+      {};
+
+  @override
+  Future<void> deleteLookPhoto(String outfitId) async {}
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────

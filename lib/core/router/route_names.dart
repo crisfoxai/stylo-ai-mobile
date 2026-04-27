@@ -18,6 +18,7 @@ class RouteNames {
   static const String outfitHistory = 'outfit-history';
   static const String profile = 'profile';
   static const String tryOn = 'try-on';
+  static const String tryOnBuilder = 'try-on-builder';
   static const String paywall = 'paywall';
   static const String subscriptionManage = 'subscription-manage';
   static const String referrals = 'referrals';

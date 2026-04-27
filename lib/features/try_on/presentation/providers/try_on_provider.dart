@@ -99,3 +99,16 @@ final tryOnProvider =
     StateNotifierProvider.autoDispose<TryOnNotifier, TryOnState>((ref) {
   return TryOnNotifier(ref.watch(tryOnDataSourceProvider));
 });
+
+/// Lightweight repository-style provider for outfit multi-garment tryon.
+class TryonRepository {
+  final TryOnRemoteDataSource _ds;
+  TryonRepository(this._ds);
+
+  Future<String> tryOnOutfit(List<Map<String, String>> garments) =>
+      _ds.tryOnOutfit(garments);
+}
+
+final tryonRepositoryProvider = Provider<TryonRepository>((ref) {
+  return TryonRepository(ref.watch(tryOnDataSourceProvider));
+});

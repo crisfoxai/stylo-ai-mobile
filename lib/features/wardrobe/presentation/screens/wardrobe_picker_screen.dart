@@ -14,7 +14,7 @@ class WardrobePickerScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final wardrobeAsync = ref.watch(wardrobeNotifierProvider);
+    final state = ref.watch(wardrobeNotifierProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -34,63 +34,68 @@ class WardrobePickerScreen extends ConsumerWidget {
         ),
         centerTitle: false,
       ),
-      body: wardrobeAsync.when(
-        loading: () =>
-            const Center(child: CircularProgressIndicator(color: AppColors.accent)),
-        error: (e, _) => Center(
-          child: Text(
-            AppException.extractMessage(e),
-            style: const TextStyle(color: AppColors.textSecondary),
+      body: _buildBody(context, state),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, WardrobeState state) {
+    if (state.isLoading) {
+      return const Center(
+          child: CircularProgressIndicator(color: AppColors.accent));
+    }
+
+    if (state.errorMessage != null) {
+      return Center(
+        child: Text(
+          state.errorMessage!,
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+      );
+    }
+
+    final items = categoryFilter == null
+        ? state.garments
+        : state.garments
+            .where((g) =>
+                g.category?.toLowerCase() == categoryFilter!.toLowerCase())
+            .toList();
+
+    if (items.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.checkroom_outlined,
+                  size: 60, color: AppColors.textTertiary),
+              const SizedBox(height: AppSpacing.lg),
+              Text(
+                categoryFilter != null
+                    ? 'No tenés prendas de tipo ${_categoryLabel(categoryFilter!)} en tu guardarropa.'
+                    : 'Tu guardarropa está vacío.',
+                style: const TextStyle(
+                    color: AppColors.textSecondary, fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
-        data: (state) {
-          final items = categoryFilter == null
-              ? state.garments
-              : state.garments
-                  .where((g) =>
-                      g.category?.toLowerCase() ==
-                      categoryFilter!.toLowerCase())
-                  .toList();
+      );
+    }
 
-          if (items.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.checkroom_outlined,
-                        size: 60, color: AppColors.textTertiary),
-                    const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      categoryFilter != null
-                          ? 'No tenés prendas de tipo ${_categoryLabel(categoryFilter!)} en tu guardarropa.'
-                          : 'Tu guardarropa está vacío.',
-                      style: const TextStyle(
-                          color: AppColors.textSecondary, fontSize: 14),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          return GridView.builder(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: AppSpacing.sm,
-              crossAxisSpacing: AppSpacing.sm,
-              childAspectRatio: 0.8,
-            ),
-            itemCount: items.length,
-            itemBuilder: (_, i) => _GarmentTile(
-              garment: items[i],
-              onTap: () => Navigator.of(context).pop(items[i]),
-            ),
-          );
-        },
+    return GridView.builder(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        mainAxisSpacing: AppSpacing.sm,
+        crossAxisSpacing: AppSpacing.sm,
+        childAspectRatio: 0.8,
+      ),
+      itemCount: items.length,
+      itemBuilder: (_, i) => _GarmentTile(
+        garment: items[i],
+        onTap: () => Navigator.of(context).pop(items[i]),
       ),
     );
   }

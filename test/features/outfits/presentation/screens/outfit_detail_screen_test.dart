@@ -3,10 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:stylo_ai/core/services/calendar_service.dart';
+import 'package:stylo_ai/core/services/weather_service.dart';
 import 'package:stylo_ai/core/theme/app_theme.dart';
 import 'package:stylo_ai/features/outfits/domain/entities/outfit.dart';
+import 'package:stylo_ai/features/outfits/domain/entities/share_card_result.dart';
 import 'package:stylo_ai/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:stylo_ai/features/outfits/presentation/providers/outfit_generator_provider.dart';
+import 'package:stylo_ai/features/outfits/presentation/providers/outfits_list_provider.dart';
 import 'package:stylo_ai/features/outfits/presentation/screens/outfit_detail_screen.dart';
 
 // ── Fake Repository ──────────────────────────────────────────────────────────
@@ -37,6 +41,8 @@ class FakeOutfitRepository implements OutfitRepository {
     required String mood,
     required String event,
     List<String>? excludeIds,
+    WeatherContext? weatherContext,
+    List<CalendarEventContext>? calendarEvents,
   }) =>
       throw UnimplementedError();
 
@@ -45,7 +51,11 @@ class FakeOutfitRepository implements OutfitRepository {
       throw UnimplementedError();
 
   @override
-  Future<Outfit> toggleFavorite(String id) async => outfitToReturn!;
+  Future<OutfitsPage> getAllPaged(OutfitsListFilter filter) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> toggleFavorite(String id, {bool wasFavorite = false}) async {}
 
   @override
   Future<void> logWorn(String id) async {}
@@ -56,6 +66,18 @@ class FakeOutfitRepository implements OutfitRepository {
   @override
   Future<List<Outfit>> getHistory({int page = 1, int limit = 20}) =>
       throw UnimplementedError();
+
+  @override
+  Future<ShareCardResult> generateShareCard(String outfitId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Map<String, dynamic>> uploadLookPhoto(
+          String outfitId, String filePath) async =>
+      {};
+
+  @override
+  Future<void> deleteLookPhoto(String outfitId) async {}
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────

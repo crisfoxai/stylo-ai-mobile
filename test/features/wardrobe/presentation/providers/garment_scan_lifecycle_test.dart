@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stylo_ai/features/wardrobe/domain/entities/garment.dart';
+import 'package:stylo_ai/features/wardrobe/domain/entities/detection_result.dart';
 import 'package:stylo_ai/features/wardrobe/domain/repositories/wardrobe_repository.dart';
+import 'package:stylo_ai/features/outfits/domain/entities/wardrobe_count.dart';
 import 'package:stylo_ai/features/wardrobe/presentation/providers/wardrobe_provider.dart';
 
 class _FakeWardrobeRepository implements WardrobeRepository {
@@ -49,6 +51,19 @@ class _FakeWardrobeRepository implements WardrobeRepository {
   @override
   Future<Garment> updateGarment(String id, Map<String, dynamic> data) async =>
       throw UnimplementedError();
+
+  @override
+  Future<WardrobeCount> getCount() async =>
+      const WardrobeCount(count: 0, threshold: 5, state: 'empty');
+
+  @override
+  Future<DetectionResult> detectFromPhoto(String filePath) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<List<String>> confirmDetection(
+          String photoKey, List<DetectedGarmentEdit> garments) async =>
+      [];
 }
 
 void main() {

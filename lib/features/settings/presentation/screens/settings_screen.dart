@@ -10,7 +10,9 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
 import '../../../../features/referrals/presentation/providers/referral_provider.dart';
 import '../../../../features/subscription/presentation/providers/subscription_provider.dart';
+import '../../../../features/try_on/presentation/providers/tryon_credits_provider.dart';
 import '../../../../shared/widgets/stylo_button.dart';
+import 'package:intl/intl.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -126,6 +128,9 @@ class SettingsScreen extends ConsumerWidget {
             label: 'Historial de compras',
             onTap: () {},
           ),
+
+          const SizedBox(height: AppSpacing.lg),
+          _TryonProgressBar(),
 
           const SizedBox(height: AppSpacing.xxl),
 
@@ -453,6 +458,61 @@ class _SettingsTile extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
+      ),
+    );
+  }
+}
+
+class _TryonProgressBar extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final credits = ref.watch(tryonCreditsProvider);
+    if (credits.isUnlimited) return const SizedBox.shrink();
+
+    final progressColor =
+        credits.isLow ? Colors.orange : AppColors.primary;
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Try-ons este mes',
+              style: AppTypography.labelMedium
+                  .copyWith(color: AppColors.textPrimary)),
+          const SizedBox(height: AppSpacing.sm),
+          LinearProgressIndicator(
+            value: credits.limit != null && credits.limit! > 0
+                ? credits.used / credits.limit!
+                : 0,
+            backgroundColor: AppColors.border,
+            color: progressColor,
+            borderRadius: BorderRadius.circular(AppRadius.full),
+            minHeight: 6,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${credits.used} de ${credits.limit ?? 0} usados',
+                style: AppTypography.bodySmall
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+              if (credits.resetAt != null)
+                Text(
+                  'Reinicio: ${DateFormat("d \'de\' MMMM", 'es').format(credits.resetAt!)}',
+                  style: AppTypography.bodySmall
+                      .copyWith(color: AppColors.textTertiary),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }

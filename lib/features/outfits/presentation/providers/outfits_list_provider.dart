@@ -1,9 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/outfit.dart';
-import '../../data/repositories/outfit_repository_impl.dart';
-import '../../../../core/network/api_client.dart';
-import '../../data/datasources/outfit_remote_datasource.dart';
+import 'outfit_generator_provider.dart' show outfitRepositoryProvider;
 
 part 'outfits_list_provider.freezed.dart';
 
@@ -20,12 +18,6 @@ class OutfitsListFilter with _$OutfitsListFilter {
 
 final outfitsListFilterProvider =
     StateProvider<OutfitsListFilter>((_) => const OutfitsListFilter());
-
-final outfitRepositoryProvider = Provider((ref) {
-  return OutfitRepositoryImpl(
-    OutfitRemoteDataSource(ref.watch(apiClientProvider)),
-  );
-});
 
 final outfitsListProvider =
     FutureProvider.family<OutfitsPage, OutfitsListFilter>((ref, filter) async {

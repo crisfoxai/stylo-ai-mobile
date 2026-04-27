@@ -10,6 +10,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../domain/entities/garment.dart';
 import '../providers/wardrobe_provider.dart';
 import 'garment_edit_screen.dart';
+import '../../../try_on/presentation/widgets/tryon_button.dart';
 
 class GarmentDetailScreen extends ConsumerWidget {
   final String id;
@@ -350,22 +351,9 @@ class _GarmentDetailView extends StatelessWidget {
 
               const SizedBox(height: AppSpacing.lg),
 
-              // Try-On button
-              ElevatedButton.icon(
-                key: const Key('try_on_btn'),
-                onPressed: () => context.push(
-                  '/try-on?garmentId=${garment.id}',
-                ),
-                icon: const Icon(Icons.face_retouching_natural),
-                label: const Text('Prueba Virtual'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accent,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 52),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                  ),
-                ),
+              // Try-On button (plan-aware)
+              TryOnButton(
+                onTap: () => context.push('/try-on?garmentId=${garment.id}'),
               ),
 
               const SizedBox(height: AppSpacing.md),

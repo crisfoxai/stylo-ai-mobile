@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -15,8 +16,10 @@ import '../providers/try_on_provider.dart';
 
 class VirtualTryOnScreen extends ConsumerStatefulWidget {
   final String garmentId;
+  /// When set, skip the picker flow and show the result directly.
+  final String? resultUrl;
 
-  const VirtualTryOnScreen({super.key, required this.garmentId});
+  const VirtualTryOnScreen({super.key, required this.garmentId, this.resultUrl});
 
   @override
   ConsumerState<VirtualTryOnScreen> createState() => _VirtualTryOnScreenState();
@@ -58,10 +61,29 @@ class _VirtualTryOnScreenState extends ConsumerState<VirtualTryOnScreen> {
       body: SafeArea(
         child: _buildBody(tryOnState),
       ),
+      floatingActionButton: widget.resultUrl == null &&
+              tryOnState.status == TryOnStatus.idle &&
+              widget.garmentId.isEmpty
+          ? FloatingActionButton.extended(
+              onPressed: () => context.push('/try-on/builder'),
+              backgroundColor: AppColors.accent,
+              foregroundColor: AppColors.textOnPrimary,
+              icon: const Text('👗', style: TextStyle(fontSize: 16)),
+              label: const Text('Armar outfit'),
+            )
+          : null,
     );
   }
 
   Widget _buildBody(TryOnState state) {
+    // Direct result from outfit builder
+    if (widget.resultUrl != null) {
+      return _ResultView(
+        resultUrl: widget.resultUrl!,
+        onReset: () => Navigator.of(context).pop(),
+      );
+    }
+
     if (state.status == TryOnStatus.done && state.result != null) {
       return _ResultView(
         resultUrl: state.result!.resultUrl,
