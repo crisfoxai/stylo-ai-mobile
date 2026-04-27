@@ -8,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
+import '../../../../features/referrals/presentation/providers/referral_provider.dart';
 import '../../../../features/subscription/presentation/providers/subscription_provider.dart';
 import '../../../../shared/widgets/stylo_button.dart';
 
@@ -75,6 +76,23 @@ class SettingsScreen extends ConsumerWidget {
             icon: PhosphorIconsRegular.tShirt,
             label: 'Guardarropa',
             onTap: () => context.go('/wardrobe'),
+          ),
+          Consumer(
+            builder: (context, ref, _) {
+              final statsAsync = ref.watch(referralStatsProvider);
+              final validated = statsAsync.valueOrNull?.validated ?? 0;
+              return _SettingsTile(
+                icon: PhosphorIconsRegular.usersThree,
+                label: 'Referidos',
+                onTap: () => context.push('/referrals'),
+                trailing: validated > 0
+                    ? Badge(
+                        label: Text('$validated'),
+                        child: const SizedBox(width: 16),
+                      )
+                    : null,
+              );
+            },
           ),
 
           const SizedBox(height: AppSpacing.xxl),
@@ -174,16 +192,32 @@ class SettingsScreen extends ConsumerWidget {
               final confirm = await showDialog<bool>(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  title: const Text('Cerrar sesión'),
-                  content: const Text('¿Estás seguro de que querés cerrar sesión?'),
+                  backgroundColor: AppColors.surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                  ),
+                  title: Text(
+                    'Cerrar sesión',
+                    style: AppTypography.headlineSmall.copyWith(color: AppColors.textPrimary),
+                  ),
+                  content: Text(
+                    '¿Estás seguro de que querés cerrar sesión?',
+                    style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(ctx).pop(false),
-                      child: const Text('Cancelar'),
+                      child: Text(
+                        'Cancelar',
+                        style: AppTypography.labelLarge.copyWith(color: AppColors.textSecondary),
+                      ),
                     ),
                     TextButton(
                       onPressed: () => Navigator.of(ctx).pop(true),
-                      child: const Text('Cerrar sesión'),
+                      child: Text(
+                        'Cerrar sesión',
+                        style: AppTypography.labelLarge.copyWith(color: AppColors.error),
+                      ),
                     ),
                   ],
                 ),

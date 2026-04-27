@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../features/referrals/presentation/providers/referral_provider.dart';
 import '../../../../shared/widgets/stylo_button.dart';
 import '../../application/iap_service.dart';
 import '../../domain/entities/subscription.dart';
@@ -85,7 +87,10 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               receiptData: iapService.receiptDataFor(details),
               platform: iapService.platform,
             );
-        if (mounted) Navigator.of(context).pop();
+        if (mounted) {
+          Navigator.of(context).pop();
+          _showReferralCta();
+        }
       case PurchaseStatus.error:
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -102,6 +107,75 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       case PurchaseStatus.canceled:
         break;
     }
+  }
+
+  void _showReferralCta() {
+    final stats = ref.read(referralStatsProvider).valueOrNull;
+    if (!mounted) return;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('🎉', style: TextStyle(fontSize: 48)),
+              const SizedBox(height: AppSpacing.md),
+              const Text(
+                '¡Conseguiste Stylo AI Pro!',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              const Text(
+                'Compartí tu código y ganás 30 días extra por cada amigo/a que se suscriba.',
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  key: const Key('post_purchase_share_btn'),
+                  onPressed: () {
+                    final code = stats?.referralCode ?? '';
+                    final link = stats?.referralLink ?? 'https://stylo.ai/join/$code';
+                    Share.share(
+                      '¡Unite a Stylo AI con mi código $code y conseguís 30 días premium gratis! $link',
+                    );
+                  },
+                  icon: const Icon(Icons.share),
+                  label: const Text('Compartir código'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accent,
+                    foregroundColor: AppColors.textOnPrimary,
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text(
+                  'Ahora no',
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _buySelected(List<ProductDetails> products) async {

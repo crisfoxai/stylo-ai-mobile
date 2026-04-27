@@ -78,6 +78,8 @@
 	<string>Queremos guardar fotos de tus outfits en tu galería.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Usamos tu ubicación para mostrarte el clima y recomendarte outfits acorde.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Stylo AI lee tus eventos para sugerirte el look correcto para cada ocasión.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

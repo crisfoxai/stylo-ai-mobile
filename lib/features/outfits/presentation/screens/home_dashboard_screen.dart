@@ -124,7 +124,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                       outfit: recentOutfits.isNotEmpty
                           ? recentOutfits.first
                           : null,
-                      onTap: () => context.push('/outfits'),
+                      onTap: () => context.push('/outfits/generate'),
                     ),
                   ),
 
@@ -145,7 +145,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen> {
                   const SizedBox(height: AppSpacing.md),
                   _QuickActionsRow(
                     onScan: () => context.push('/scan'),
-                    onNewOutfit: () => context.push('/outfits'),
+                    onNewOutfit: () => context.push('/outfits/generate'),
                     onWardrobe: () => context.push('/wardrobe'),
                     onFavorites: () => context.push('/outfits/favorites'),
                   ),

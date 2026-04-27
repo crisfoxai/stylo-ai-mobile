@@ -29,11 +29,33 @@ class Outfit with _$Outfit {
     String? weatherContext,
     double? score,
     String? rationale,
+    String? justification,
+    @Default([]) List<String> contextFactors,
     @Default(false) bool isFavorite,
     DateTime? wornAt,
     required DateTime createdAt,
+    // v4 fields
+    @Default('placeholder') String coverImageSource,
+    String? coverImageUrl,
+    String? tryonImageUrl,
+    String? lookPhotoUrl,
+    @Default(false) bool hasLookPhoto,
+    DateTime? usedAt,
   }) = _Outfit;
 
   factory Outfit.fromJson(Map<String, dynamic> json) =>
       _$OutfitFromJson(json);
+}
+
+@freezed
+class OutfitsPage with _$OutfitsPage {
+  const factory OutfitsPage({
+    required List<Outfit> data,
+    required int total,
+    required int page,
+    required int totalPages,
+  }) = _OutfitsPage;
+
+  factory OutfitsPage.fromJson(Map<String, dynamic> json) =>
+      _$OutfitsPageFromJson(json);
 }

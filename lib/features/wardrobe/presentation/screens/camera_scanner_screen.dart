@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../providers/wardrobe_provider.dart';
 
 class CameraScannerScreen extends ConsumerStatefulWidget {
   const CameraScannerScreen({super.key});
@@ -16,6 +18,7 @@ class CameraScannerScreen extends ConsumerStatefulWidget {
 class _CameraScannerScreenState extends ConsumerState<CameraScannerScreen> {
   final ImagePicker _picker = ImagePicker();
   bool _isPickingImage = false;
+  bool _isDetecting = false;
 
   Future<void> _captureFromCamera() async {
     if (_isPickingImage) return;
@@ -72,6 +75,39 @@ class _CameraScannerScreenState extends ConsumerState<CameraScannerScreen> {
       }
     } finally {
       if (mounted) setState(() => _isPickingImage = false);
+    }
+  }
+
+  Future<void> _detectOutfitPhoto(ImageSource source) async {
+    if (_isDetecting) return;
+    setState(() => _isDetecting = true);
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        imageQuality: 85,
+        maxWidth: 1920,
+        maxHeight: 1920,
+      );
+      if (image == null || !mounted) return;
+
+      final result = await ref
+          .read(wardrobeRepositoryProvider)
+          .detectFromPhoto(image.path);
+
+      if (mounted) {
+        context.pushNamed('garment-detection-confirm', extra: result);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppException.extractMessage(e)),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isDetecting = false);
     }
   }
 
@@ -198,7 +234,7 @@ class _CameraScannerScreenState extends ConsumerState<CameraScannerScreen> {
                     AppSpacing.xxxl,
                     AppSpacing.xl,
                     AppSpacing.xxxl,
-                    AppSpacing.xxl,
+                    AppSpacing.md,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -255,6 +291,48 @@ class _CameraScannerScreenState extends ConsumerState<CameraScannerScreen> {
                         iconSize: 22,
                       ),
                     ],
+                  ),
+                ),
+
+                // Detect outfit option
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+                  child: GestureDetector(
+                    key: const Key('detect_outfit_photo_btn'),
+                    onTap: _isDetecting
+                        ? null
+                        : () => _detectOutfitPhoto(ImageSource.gallery),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(AppRadius.full),
+                      ),
+                      child: _isDetecting
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.photo_camera_outlined,
+                                    color: Colors.white, size: 16),
+                                SizedBox(width: AppSpacing.xs),
+                                Text(
+                                  'Foto de mi outfit completo',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
                   ),
                 ),
               ],

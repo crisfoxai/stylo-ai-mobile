@@ -9,6 +9,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/entities/garment.dart';
 import '../providers/wardrobe_provider.dart';
+import 'garment_edit_screen.dart';
 
 class GarmentDetailScreen extends ConsumerWidget {
   final String id;
@@ -418,12 +419,20 @@ class _GarmentDetailView extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.lg),
               ListTile(
-                leading: const Icon(Icons.share_outlined, color: AppColors.textPrimary),
+                key: const Key('garment_edit_option'),
+                leading: const Icon(Icons.edit_outlined, color: AppColors.textPrimary),
                 title: Text(
-                  'Compartir',
+                  'Editar prenda',
                   style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimary),
                 ),
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => GarmentEditScreen(garment: garment),
+                    ),
+                  );
+                },
               ),
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: AppColors.error),

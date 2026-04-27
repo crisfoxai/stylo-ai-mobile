@@ -6,31 +6,48 @@ part of 'garment.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$GarmentImpl _$$GarmentImplFromJson(Map<String, dynamic> json) =>
-    _$GarmentImpl(
-      id: json['id'] as String,
-      name: json['name'] as String? ?? '',
-      imageUrl: json['imageUrl'] as String,
-      thumbnailUrl: json['thumbnailUrl'] as String?,
-      type: json['type'] as String,
-      category: json['category'] as String?,
-      color: json['color'] as String?,
-      style: json['style'] as String?,
-      material: json['material'] as String?,
-      season: json['season'] as String?,
-      tags:
-          (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-          const [],
-      userId: json['userId'] as String,
-      confidences: (json['confidences'] as Map<String, dynamic>?)?.map(
-        (k, e) => MapEntry(k, (e as num).toDouble()),
-      ),
-      status:
-          $enumDecodeNullable(_$ItemStatusEnumMap, json['status']) ??
-          ItemStatus.ready,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-    );
+_$GarmentImpl _$$GarmentImplFromJson(
+  Map<String, dynamic> json,
+) => _$GarmentImpl(
+  id: json['id'] as String,
+  name: json['name'] as String? ?? '',
+  imageUrl: json['imageUrl'] as String,
+  thumbnailUrl: json['thumbnailUrl'] as String?,
+  type: json['type'] as String,
+  category: json['category'] as String?,
+  color: json['color'] as String?,
+  style: json['style'] as String?,
+  material: json['material'] as String?,
+  season: json['season'] as String?,
+  tags:
+      (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  userId: json['userId'] as String,
+  confidences: (json['confidences'] as Map<String, dynamic>?)?.map(
+    (k, e) => MapEntry(k, (e as num).toDouble()),
+  ),
+  status:
+      $enumDecodeNullable(_$ItemStatusEnumMap, json['status']) ??
+      ItemStatus.ready,
+  createdAt: DateTime.parse(json['createdAt'] as String),
+  updatedAt: DateTime.parse(json['updatedAt'] as String),
+  brand: json['brand'] as String?,
+  colorSecondary: json['colorSecondary'] as String?,
+  materials:
+      (json['materials'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  fit: json['fit'] as String?,
+  seasons:
+      (json['seasons'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  occasions:
+      (json['occasions'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  condition: json['condition'] as String?,
+  purchasePrice: (json['purchasePrice'] as num?)?.toDouble(),
+  purchaseDate: json['purchaseDate'] as String?,
+  notes: json['notes'] as String?,
+);
 
 Map<String, dynamic> _$$GarmentImplToJson(_$GarmentImpl instance) =>
     <String, dynamic>{
@@ -50,6 +67,16 @@ Map<String, dynamic> _$$GarmentImplToJson(_$GarmentImpl instance) =>
       'status': _$ItemStatusEnumMap[instance.status]!,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
+      'brand': instance.brand,
+      'colorSecondary': instance.colorSecondary,
+      'materials': instance.materials,
+      'fit': instance.fit,
+      'seasons': instance.seasons,
+      'occasions': instance.occasions,
+      'condition': instance.condition,
+      'purchasePrice': instance.purchasePrice,
+      'purchaseDate': instance.purchaseDate,
+      'notes': instance.notes,
     };
 
 const _$ItemStatusEnumMap = {

@@ -1,13 +1,21 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../../core/network/backend_compat.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../domain/repositories/wardrobe_repository.dart';
 import '../../domain/entities/garment.dart';
+import '../../domain/entities/detection_result.dart';
+import '../../../outfits/domain/entities/wardrobe_count.dart';
 
 class WardrobeRemoteDataSource {
   final Dio _dio;
 
   WardrobeRemoteDataSource(this._dio);
+
+  Future<WardrobeCount> getCount() async {
+    final response = await _dio.get(Endpoints.garmentsCount);
+    return WardrobeCount.fromJson(BackendCompat.extractMap(response.data));
+  }
 
   Future<PaginatedGarments> getGarments({
     int page = 1,
@@ -160,5 +168,28 @@ class WardrobeRemoteDataSource {
         .map(BackendCompat.normalizeMongoId)
         .map(Garment.fromJson)
         .toList();
+  }
+
+  Future<DetectionResult> detectFromPhoto(File photoFile) async {
+    final formData = FormData.fromMap({
+      'photo': await MultipartFile.fromFile(photoFile.path),
+    });
+    final response = await _dio.post(
+      Endpoints.wardrobeDetectFromPhoto,
+      data: formData,
+    );
+    return DetectionResult.fromJson(BackendCompat.extractMap(response.data));
+  }
+
+  Future<List<String>> confirmDetection(
+    String photoKey,
+    List<DetectedGarmentEdit> garments,
+  ) async {
+    final response = await _dio.post(Endpoints.wardrobeDetectConfirm, data: {
+      'photoKey': photoKey,
+      'garments': garments.map((g) => g.toJson()).toList(),
+    });
+    final data = BackendCompat.extractMap(response.data);
+    return List<String>.from(data['garmentIds'] as List? ?? []);
   }
 }

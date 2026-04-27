@@ -1,6 +1,10 @@
 import '../entities/garment.dart';
+import '../entities/detection_result.dart';
+import '../../../outfits/domain/entities/wardrobe_count.dart';
 
 abstract class WardrobeRepository {
+  Future<WardrobeCount> getCount();
+
   Future<PaginatedGarments> getGarments({
     int page = 1,
     int limit = 20,
@@ -18,6 +22,13 @@ abstract class WardrobeRepository {
   Future<void> deleteGarment(String id);
 
   Future<List<Garment>> searchGarments(String query);
+
+  Future<DetectionResult> detectFromPhoto(String filePath);
+
+  Future<List<String>> confirmDetection(
+    String photoKey,
+    List<DetectedGarmentEdit> garments,
+  );
 }
 
 class PaginatedGarments {

@@ -24,6 +24,17 @@ class Garment with _$Garment {
     @Default(ItemStatus.ready) ItemStatus status,
     required DateTime createdAt,
     required DateTime updatedAt,
+    // v4 extended fields
+    String? brand,
+    String? colorSecondary,
+    @Default([]) List<String> materials,
+    String? fit,
+    @Default([]) List<String> seasons,
+    @Default([]) List<String> occasions,
+    String? condition,
+    double? purchasePrice,
+    String? purchaseDate,
+    String? notes,
   }) = _Garment;
 
   factory Garment.fromJson(Map<String, dynamic> json) =>

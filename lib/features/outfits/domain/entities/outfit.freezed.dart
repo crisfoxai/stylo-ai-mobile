@@ -276,9 +276,17 @@ mixin _$Outfit {
   String? get weatherContext => throw _privateConstructorUsedError;
   double? get score => throw _privateConstructorUsedError;
   String? get rationale => throw _privateConstructorUsedError;
+  String? get justification => throw _privateConstructorUsedError;
+  List<String> get contextFactors => throw _privateConstructorUsedError;
   bool get isFavorite => throw _privateConstructorUsedError;
   DateTime? get wornAt => throw _privateConstructorUsedError;
-  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get createdAt => throw _privateConstructorUsedError; // v4 fields
+  String get coverImageSource => throw _privateConstructorUsedError;
+  String? get coverImageUrl => throw _privateConstructorUsedError;
+  String? get tryonImageUrl => throw _privateConstructorUsedError;
+  String? get lookPhotoUrl => throw _privateConstructorUsedError;
+  bool get hasLookPhoto => throw _privateConstructorUsedError;
+  DateTime? get usedAt => throw _privateConstructorUsedError;
 
   /// Serializes this Outfit to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -304,9 +312,17 @@ abstract class $OutfitCopyWith<$Res> {
     String? weatherContext,
     double? score,
     String? rationale,
+    String? justification,
+    List<String> contextFactors,
     bool isFavorite,
     DateTime? wornAt,
     DateTime createdAt,
+    String coverImageSource,
+    String? coverImageUrl,
+    String? tryonImageUrl,
+    String? lookPhotoUrl,
+    bool hasLookPhoto,
+    DateTime? usedAt,
   });
 }
 
@@ -334,9 +350,17 @@ class _$OutfitCopyWithImpl<$Res, $Val extends Outfit>
     Object? weatherContext = freezed,
     Object? score = freezed,
     Object? rationale = freezed,
+    Object? justification = freezed,
+    Object? contextFactors = null,
     Object? isFavorite = null,
     Object? wornAt = freezed,
     Object? createdAt = null,
+    Object? coverImageSource = null,
+    Object? coverImageUrl = freezed,
+    Object? tryonImageUrl = freezed,
+    Object? lookPhotoUrl = freezed,
+    Object? hasLookPhoto = null,
+    Object? usedAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -376,6 +400,14 @@ class _$OutfitCopyWithImpl<$Res, $Val extends Outfit>
                 ? _value.rationale
                 : rationale // ignore: cast_nullable_to_non_nullable
                       as String?,
+            justification: freezed == justification
+                ? _value.justification
+                : justification // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            contextFactors: null == contextFactors
+                ? _value.contextFactors
+                : contextFactors // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
             isFavorite: null == isFavorite
                 ? _value.isFavorite
                 : isFavorite // ignore: cast_nullable_to_non_nullable
@@ -388,6 +420,30 @@ class _$OutfitCopyWithImpl<$Res, $Val extends Outfit>
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            coverImageSource: null == coverImageSource
+                ? _value.coverImageSource
+                : coverImageSource // ignore: cast_nullable_to_non_nullable
+                      as String,
+            coverImageUrl: freezed == coverImageUrl
+                ? _value.coverImageUrl
+                : coverImageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            tryonImageUrl: freezed == tryonImageUrl
+                ? _value.tryonImageUrl
+                : tryonImageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            lookPhotoUrl: freezed == lookPhotoUrl
+                ? _value.lookPhotoUrl
+                : lookPhotoUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            hasLookPhoto: null == hasLookPhoto
+                ? _value.hasLookPhoto
+                : hasLookPhoto // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            usedAt: freezed == usedAt
+                ? _value.usedAt
+                : usedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -412,9 +468,17 @@ abstract class _$$OutfitImplCopyWith<$Res> implements $OutfitCopyWith<$Res> {
     String? weatherContext,
     double? score,
     String? rationale,
+    String? justification,
+    List<String> contextFactors,
     bool isFavorite,
     DateTime? wornAt,
     DateTime createdAt,
+    String coverImageSource,
+    String? coverImageUrl,
+    String? tryonImageUrl,
+    String? lookPhotoUrl,
+    bool hasLookPhoto,
+    DateTime? usedAt,
   });
 }
 
@@ -441,9 +505,17 @@ class __$$OutfitImplCopyWithImpl<$Res>
     Object? weatherContext = freezed,
     Object? score = freezed,
     Object? rationale = freezed,
+    Object? justification = freezed,
+    Object? contextFactors = null,
     Object? isFavorite = null,
     Object? wornAt = freezed,
     Object? createdAt = null,
+    Object? coverImageSource = null,
+    Object? coverImageUrl = freezed,
+    Object? tryonImageUrl = freezed,
+    Object? lookPhotoUrl = freezed,
+    Object? hasLookPhoto = null,
+    Object? usedAt = freezed,
   }) {
     return _then(
       _$OutfitImpl(
@@ -483,6 +555,14 @@ class __$$OutfitImplCopyWithImpl<$Res>
             ? _value.rationale
             : rationale // ignore: cast_nullable_to_non_nullable
                   as String?,
+        justification: freezed == justification
+            ? _value.justification
+            : justification // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        contextFactors: null == contextFactors
+            ? _value._contextFactors
+            : contextFactors // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
         isFavorite: null == isFavorite
             ? _value.isFavorite
             : isFavorite // ignore: cast_nullable_to_non_nullable
@@ -495,6 +575,30 @@ class __$$OutfitImplCopyWithImpl<$Res>
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        coverImageSource: null == coverImageSource
+            ? _value.coverImageSource
+            : coverImageSource // ignore: cast_nullable_to_non_nullable
+                  as String,
+        coverImageUrl: freezed == coverImageUrl
+            ? _value.coverImageUrl
+            : coverImageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        tryonImageUrl: freezed == tryonImageUrl
+            ? _value.tryonImageUrl
+            : tryonImageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        lookPhotoUrl: freezed == lookPhotoUrl
+            ? _value.lookPhotoUrl
+            : lookPhotoUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        hasLookPhoto: null == hasLookPhoto
+            ? _value.hasLookPhoto
+            : hasLookPhoto // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        usedAt: freezed == usedAt
+            ? _value.usedAt
+            : usedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -513,10 +617,19 @@ class _$OutfitImpl implements _Outfit {
     this.weatherContext,
     this.score,
     this.rationale,
+    this.justification,
+    final List<String> contextFactors = const [],
     this.isFavorite = false,
     this.wornAt,
     required this.createdAt,
-  }) : _garments = garments;
+    this.coverImageSource = 'placeholder',
+    this.coverImageUrl,
+    this.tryonImageUrl,
+    this.lookPhotoUrl,
+    this.hasLookPhoto = false,
+    this.usedAt,
+  }) : _garments = garments,
+       _contextFactors = contextFactors;
 
   factory _$OutfitImpl.fromJson(Map<String, dynamic> json) =>
       _$$OutfitImplFromJson(json);
@@ -547,16 +660,42 @@ class _$OutfitImpl implements _Outfit {
   @override
   final String? rationale;
   @override
+  final String? justification;
+  final List<String> _contextFactors;
+  @override
+  @JsonKey()
+  List<String> get contextFactors {
+    if (_contextFactors is EqualUnmodifiableListView) return _contextFactors;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_contextFactors);
+  }
+
+  @override
   @JsonKey()
   final bool isFavorite;
   @override
   final DateTime? wornAt;
   @override
   final DateTime createdAt;
+  // v4 fields
+  @override
+  @JsonKey()
+  final String coverImageSource;
+  @override
+  final String? coverImageUrl;
+  @override
+  final String? tryonImageUrl;
+  @override
+  final String? lookPhotoUrl;
+  @override
+  @JsonKey()
+  final bool hasLookPhoto;
+  @override
+  final DateTime? usedAt;
 
   @override
   String toString() {
-    return 'Outfit(id: $id, name: $name, garments: $garments, mood: $mood, event: $event, occasion: $occasion, weatherContext: $weatherContext, score: $score, rationale: $rationale, isFavorite: $isFavorite, wornAt: $wornAt, createdAt: $createdAt)';
+    return 'Outfit(id: $id, name: $name, garments: $garments, mood: $mood, event: $event, occasion: $occasion, weatherContext: $weatherContext, score: $score, rationale: $rationale, justification: $justification, contextFactors: $contextFactors, isFavorite: $isFavorite, wornAt: $wornAt, createdAt: $createdAt, coverImageSource: $coverImageSource, coverImageUrl: $coverImageUrl, tryonImageUrl: $tryonImageUrl, lookPhotoUrl: $lookPhotoUrl, hasLookPhoto: $hasLookPhoto, usedAt: $usedAt)';
   }
 
   @override
@@ -576,16 +715,33 @@ class _$OutfitImpl implements _Outfit {
             (identical(other.score, score) || other.score == score) &&
             (identical(other.rationale, rationale) ||
                 other.rationale == rationale) &&
+            (identical(other.justification, justification) ||
+                other.justification == justification) &&
+            const DeepCollectionEquality().equals(
+              other._contextFactors,
+              _contextFactors,
+            ) &&
             (identical(other.isFavorite, isFavorite) ||
                 other.isFavorite == isFavorite) &&
             (identical(other.wornAt, wornAt) || other.wornAt == wornAt) &&
             (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt));
+                other.createdAt == createdAt) &&
+            (identical(other.coverImageSource, coverImageSource) ||
+                other.coverImageSource == coverImageSource) &&
+            (identical(other.coverImageUrl, coverImageUrl) ||
+                other.coverImageUrl == coverImageUrl) &&
+            (identical(other.tryonImageUrl, tryonImageUrl) ||
+                other.tryonImageUrl == tryonImageUrl) &&
+            (identical(other.lookPhotoUrl, lookPhotoUrl) ||
+                other.lookPhotoUrl == lookPhotoUrl) &&
+            (identical(other.hasLookPhoto, hasLookPhoto) ||
+                other.hasLookPhoto == hasLookPhoto) &&
+            (identical(other.usedAt, usedAt) || other.usedAt == usedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     name,
@@ -596,10 +752,18 @@ class _$OutfitImpl implements _Outfit {
     weatherContext,
     score,
     rationale,
+    justification,
+    const DeepCollectionEquality().hash(_contextFactors),
     isFavorite,
     wornAt,
     createdAt,
-  );
+    coverImageSource,
+    coverImageUrl,
+    tryonImageUrl,
+    lookPhotoUrl,
+    hasLookPhoto,
+    usedAt,
+  ]);
 
   /// Create a copy of Outfit
   /// with the given fields replaced by the non-null parameter values.
@@ -626,9 +790,17 @@ abstract class _Outfit implements Outfit {
     final String? weatherContext,
     final double? score,
     final String? rationale,
+    final String? justification,
+    final List<String> contextFactors,
     final bool isFavorite,
     final DateTime? wornAt,
     required final DateTime createdAt,
+    final String coverImageSource,
+    final String? coverImageUrl,
+    final String? tryonImageUrl,
+    final String? lookPhotoUrl,
+    final bool hasLookPhoto,
+    final DateTime? usedAt,
   }) = _$OutfitImpl;
 
   factory _Outfit.fromJson(Map<String, dynamic> json) = _$OutfitImpl.fromJson;
@@ -652,16 +824,258 @@ abstract class _Outfit implements Outfit {
   @override
   String? get rationale;
   @override
+  String? get justification;
+  @override
+  List<String> get contextFactors;
+  @override
   bool get isFavorite;
   @override
   DateTime? get wornAt;
   @override
-  DateTime get createdAt;
+  DateTime get createdAt; // v4 fields
+  @override
+  String get coverImageSource;
+  @override
+  String? get coverImageUrl;
+  @override
+  String? get tryonImageUrl;
+  @override
+  String? get lookPhotoUrl;
+  @override
+  bool get hasLookPhoto;
+  @override
+  DateTime? get usedAt;
 
   /// Create a copy of Outfit
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$OutfitImplCopyWith<_$OutfitImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+OutfitsPage _$OutfitsPageFromJson(Map<String, dynamic> json) {
+  return _OutfitsPage.fromJson(json);
+}
+
+/// @nodoc
+mixin _$OutfitsPage {
+  List<Outfit> get data => throw _privateConstructorUsedError;
+  int get total => throw _privateConstructorUsedError;
+  int get page => throw _privateConstructorUsedError;
+  int get totalPages => throw _privateConstructorUsedError;
+
+  /// Serializes this OutfitsPage to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of OutfitsPage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $OutfitsPageCopyWith<OutfitsPage> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $OutfitsPageCopyWith<$Res> {
+  factory $OutfitsPageCopyWith(
+    OutfitsPage value,
+    $Res Function(OutfitsPage) then,
+  ) = _$OutfitsPageCopyWithImpl<$Res, OutfitsPage>;
+  @useResult
+  $Res call({List<Outfit> data, int total, int page, int totalPages});
+}
+
+/// @nodoc
+class _$OutfitsPageCopyWithImpl<$Res, $Val extends OutfitsPage>
+    implements $OutfitsPageCopyWith<$Res> {
+  _$OutfitsPageCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of OutfitsPage
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? data = null,
+    Object? total = null,
+    Object? page = null,
+    Object? totalPages = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            data: null == data
+                ? _value.data
+                : data // ignore: cast_nullable_to_non_nullable
+                      as List<Outfit>,
+            total: null == total
+                ? _value.total
+                : total // ignore: cast_nullable_to_non_nullable
+                      as int,
+            page: null == page
+                ? _value.page
+                : page // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalPages: null == totalPages
+                ? _value.totalPages
+                : totalPages // ignore: cast_nullable_to_non_nullable
+                      as int,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$OutfitsPageImplCopyWith<$Res>
+    implements $OutfitsPageCopyWith<$Res> {
+  factory _$$OutfitsPageImplCopyWith(
+    _$OutfitsPageImpl value,
+    $Res Function(_$OutfitsPageImpl) then,
+  ) = __$$OutfitsPageImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({List<Outfit> data, int total, int page, int totalPages});
+}
+
+/// @nodoc
+class __$$OutfitsPageImplCopyWithImpl<$Res>
+    extends _$OutfitsPageCopyWithImpl<$Res, _$OutfitsPageImpl>
+    implements _$$OutfitsPageImplCopyWith<$Res> {
+  __$$OutfitsPageImplCopyWithImpl(
+    _$OutfitsPageImpl _value,
+    $Res Function(_$OutfitsPageImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of OutfitsPage
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? data = null,
+    Object? total = null,
+    Object? page = null,
+    Object? totalPages = null,
+  }) {
+    return _then(
+      _$OutfitsPageImpl(
+        data: null == data
+            ? _value._data
+            : data // ignore: cast_nullable_to_non_nullable
+                  as List<Outfit>,
+        total: null == total
+            ? _value.total
+            : total // ignore: cast_nullable_to_non_nullable
+                  as int,
+        page: null == page
+            ? _value.page
+            : page // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalPages: null == totalPages
+            ? _value.totalPages
+            : totalPages // ignore: cast_nullable_to_non_nullable
+                  as int,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$OutfitsPageImpl implements _OutfitsPage {
+  const _$OutfitsPageImpl({
+    required final List<Outfit> data,
+    required this.total,
+    required this.page,
+    required this.totalPages,
+  }) : _data = data;
+
+  factory _$OutfitsPageImpl.fromJson(Map<String, dynamic> json) =>
+      _$$OutfitsPageImplFromJson(json);
+
+  final List<Outfit> _data;
+  @override
+  List<Outfit> get data {
+    if (_data is EqualUnmodifiableListView) return _data;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_data);
+  }
+
+  @override
+  final int total;
+  @override
+  final int page;
+  @override
+  final int totalPages;
+
+  @override
+  String toString() {
+    return 'OutfitsPage(data: $data, total: $total, page: $page, totalPages: $totalPages)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$OutfitsPageImpl &&
+            const DeepCollectionEquality().equals(other._data, _data) &&
+            (identical(other.total, total) || other.total == total) &&
+            (identical(other.page, page) || other.page == page) &&
+            (identical(other.totalPages, totalPages) ||
+                other.totalPages == totalPages));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(_data),
+    total,
+    page,
+    totalPages,
+  );
+
+  /// Create a copy of OutfitsPage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$OutfitsPageImplCopyWith<_$OutfitsPageImpl> get copyWith =>
+      __$$OutfitsPageImplCopyWithImpl<_$OutfitsPageImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$OutfitsPageImplToJson(this);
+  }
+}
+
+abstract class _OutfitsPage implements OutfitsPage {
+  const factory _OutfitsPage({
+    required final List<Outfit> data,
+    required final int total,
+    required final int page,
+    required final int totalPages,
+  }) = _$OutfitsPageImpl;
+
+  factory _OutfitsPage.fromJson(Map<String, dynamic> json) =
+      _$OutfitsPageImpl.fromJson;
+
+  @override
+  List<Outfit> get data;
+  @override
+  int get total;
+  @override
+  int get page;
+  @override
+  int get totalPages;
+
+  /// Create a copy of OutfitsPage
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$OutfitsPageImplCopyWith<_$OutfitsPageImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

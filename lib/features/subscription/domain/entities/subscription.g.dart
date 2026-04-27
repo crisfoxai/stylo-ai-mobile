@@ -41,7 +41,7 @@ const _$SubscriptionPlanEnumMap = {
   SubscriptionPlan.free: 'free',
   SubscriptionPlan.stylist: 'stylist',
   SubscriptionPlan.pro: 'pro',
-  SubscriptionPlan.proUnlimited: 'proUnlimited',
+  SubscriptionPlan.proUnlimited: 'pro_unlimited',
 };
 
 const _$SubscriptionStatusEnumMap = {

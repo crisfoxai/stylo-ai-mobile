@@ -56,7 +56,11 @@ class AuthRepositoryImpl implements AuthRepository {
       final googleUser = await _googleSignIn.signIn();
       if (googleUser == null) throw Exception('Google sign in cancelled');
       final auth = await googleUser.authentication;
-      final result = await _remoteDataSource.googleSignIn(auth.idToken!);
+      if (auth.idToken == null) throw Exception('Google idToken unavailable');
+      final result = await _remoteDataSource.googleSignIn(
+        auth.idToken!,
+        accessToken: auth.accessToken,
+      );
       await _persistAuth(result);
       return result;
     } on Exception catch (e) {

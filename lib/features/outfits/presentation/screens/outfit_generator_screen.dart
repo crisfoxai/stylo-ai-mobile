@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/outfit.dart';
 import '../providers/outfit_generator_provider.dart';
+import '../../../wardrobe/presentation/providers/wardrobe_provider.dart';
 
 // Maps display labels (ES) to API values (EN) expected by the backend.
 const _moodApiValues = <String, String>{
@@ -91,36 +92,67 @@ class OutfitGeneratorScreen extends ConsumerWidget {
               )
             : null,
       ),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: state.step == OutfitGeneratorStep.generating
-            ? const _GeneratingView(key: ValueKey('generating'))
-            : state.step == OutfitGeneratorStep.result &&
-                    state.generatedOutfit != null
-                ? _ResultView(
-                    key: const ValueKey('result'),
-                    outfit: state.generatedOutfit!,
-                    isFavoriting: state.isFavoriting,
-                    isLoggingWorn: state.isLoggingWorn,
-                    onRegenerate: () => notifier.regenerateOutfit(),
-                    onFavorite: () => notifier.favoriteOutfit(),
-                    onLogWorn: () => notifier.logAsWorn(),
-                    onSwapGarment: (id) => notifier.swapGarment(id),
-                    onViewDetail: () => context
-                        .push('/outfits/${state.generatedOutfit!.id}'),
-                  )
-                : _SelectorView(
-                    key: const ValueKey('selector'),
-                    moods: _moods,
-                    events: _events,
-                    selectedMood: state.selectedMood,
-                    selectedEvent: state.selectedEvent,
-                    canGenerate: state.canGenerate,
-                    onMoodSelected: notifier.setMood,
-                    onEventSelected: notifier.setEvent,
-                    onGenerate: () => notifier.generateOutfit(),
-                  ),
+      body: _buildBody(context, ref, state, notifier),
+    );
+  }
+
+  Widget _buildGeneratorNormal(
+    BuildContext context,
+    OutfitGeneratorState state,
+    OutfitGeneratorNotifier notifier,
+  ) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: state.step == OutfitGeneratorStep.generating
+          ? const _GeneratingView(key: ValueKey('generating'))
+          : state.step == OutfitGeneratorStep.result &&
+                  state.generatedOutfit != null
+              ? _ResultView(
+                  key: const ValueKey('result'),
+                  outfit: state.generatedOutfit!,
+                  isFavoriting: state.isFavoriting,
+                  isLoggingWorn: state.isLoggingWorn,
+                  onRegenerate: () => notifier.regenerateOutfit(),
+                  onFavorite: () => notifier.favoriteOutfit(),
+                  onLogWorn: () => notifier.logAsWorn(),
+                  onSwapGarment: (id) => notifier.swapGarment(id),
+                  onViewDetail: () =>
+                      context.push('/outfits/${state.generatedOutfit!.id}'),
+                )
+              : _SelectorView(
+                  key: const ValueKey('selector'),
+                  moods: _moods,
+                  events: _events,
+                  selectedMood: state.selectedMood,
+                  selectedEvent: state.selectedEvent,
+                  canGenerate: state.canGenerate,
+                  onMoodSelected: notifier.setMood,
+                  onEventSelected: notifier.setEvent,
+                  onGenerate: () => notifier.generateOutfit(),
+                ),
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    WidgetRef ref,
+    OutfitGeneratorState state,
+    OutfitGeneratorNotifier notifier,
+  ) {
+    final countAsync = ref.watch(wardrobeCountProvider);
+    return countAsync.when(
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: AppColors.accent),
       ),
+      error: (_, __) => _buildGeneratorNormal(context, state, notifier),
+      data: (count) => switch (count.state) {
+        'empty' => const _WardrobeEmptyState(),
+        'warning' => Column(children: [
+            _WardrobeWarningBanner(count: count.count, ref: ref),
+            Expanded(child: _buildGeneratorNormal(context, state, notifier)),
+          ]),
+        _ => _buildGeneratorNormal(context, state, notifier),
+      },
     );
   }
 }
@@ -436,8 +468,8 @@ class _ResultView extends StatelessWidget {
             ],
           ),
 
-          // Rationale
-          if (outfit.rationale != null) ...[
+          // Rationale / justification
+          if (outfit.justification != null || outfit.rationale != null) ...[
             const SizedBox(height: AppSpacing.md),
             Container(
               padding: const EdgeInsets.all(AppSpacing.md),
@@ -453,7 +485,7 @@ class _ResultView extends StatelessWidget {
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      outfit.rationale!,
+                      (outfit.justification ?? outfit.rationale)!,
                       style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 13,
@@ -462,6 +494,32 @@ class _ResultView extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ],
+
+          // Context factors chips
+          if (outfit.contextFactors.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: outfit.contextFactors.map((factor) {
+                final (icon, label) = switch (factor) {
+                  'weather' => ('🌤', 'Clima'),
+                  'calendar' => ('📅', 'Eventos'),
+                  'mood' => ('✨', 'Ánimo'),
+                  'occasion' => ('🎯', 'Ocasión'),
+                  _ => ('•', factor),
+                };
+                return Chip(
+                  key: Key('ctx_$factor'),
+                  label: Text('$icon $label',
+                      style: const TextStyle(fontSize: 12)),
+                  backgroundColor: AppColors.surface,
+                  side: const BorderSide(color: AppColors.border),
+                  padding: EdgeInsets.zero,
+                );
+              }).toList(),
             ),
           ],
 
@@ -672,6 +730,122 @@ class _GarmentRow extends StatelessWidget {
                   horizontal: AppSpacing.sm),
             ),
             child: const Text('Cambiar', style: TextStyle(fontSize: 12)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Empty state guard widgets (Feature 1)
+// ---------------------------------------------------------------------------
+
+class _WardrobeEmptyState extends StatelessWidget {
+  const _WardrobeEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.checkroom_outlined,
+              size: 80,
+              color: AppColors.textTertiary,
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            const Text(
+              'Tu guardarropa está vacío',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            const Text(
+              'Agregá al menos una prenda para que Stylo AI pueda armar outfits para vos.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            ElevatedButton.icon(
+              key: const Key('add_first_garment_btn'),
+              onPressed: () => context.go('/wardrobe'),
+              icon: const Icon(Icons.add),
+              label: const Text('Agregar primera prenda'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accent,
+                foregroundColor: AppColors.textOnPrimary,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl, vertical: AppSpacing.lg),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextButton(
+              onPressed: () => context.go('/scan'),
+              child: const Text(
+                '¿Tenés muchas prendas? Usá la foto de cuerpo completo →',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.accent, fontSize: 13),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WardrobeWarningBanner extends StatefulWidget {
+  final int count;
+  final WidgetRef ref;
+
+  const _WardrobeWarningBanner({required this.count, required this.ref});
+
+  @override
+  State<_WardrobeWarningBanner> createState() => _WardrobeWarningBannerState();
+}
+
+class _WardrobeWarningBannerState extends State<_WardrobeWarningBanner> {
+  bool _dismissed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_dismissed) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(
+          AppSpacing.lg, AppSpacing.md, AppSpacing.lg, 0),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        children: [
+          const Text('⚠️', style: TextStyle(fontSize: 18)),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              'Tenés ${widget.count} prendas. Los outfits pueden ser limitados.',
+              style: const TextStyle(
+                  color: AppColors.textPrimary, fontSize: 13),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, size: 18,
+                color: AppColors.textSecondary),
+            onPressed: () => setState(() => _dismissed = true),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
           ),
         ],
       ),

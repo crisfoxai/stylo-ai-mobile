@@ -1,6 +1,9 @@
+import 'package:geolocator/geolocator.dart';
 import '../../../../core/errors/app_exception.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/services/calendar_service.dart';
+import '../../../../core/services/weather_service.dart';
 import '../../data/datasources/outfit_remote_datasource.dart';
 import '../../data/repositories/outfit_repository_impl.dart';
 import '../../domain/entities/outfit.dart';
@@ -98,9 +101,18 @@ class OutfitGeneratorNotifier extends StateNotifier<OutfitGeneratorState> {
       clearError: true,
     );
     try {
+      final contextResults = await Future.wait([
+        _fetchWeather(),
+        CalendarService().getTodayEvents(),
+      ]);
+      final weather = contextResults[0] as WeatherContext?;
+      final events = contextResults[1] as List<CalendarEventContext>;
+
       final outfit = await _repository.generateOutfit(
         mood: state.selectedMood!,
         event: state.selectedEvent!,
+        weatherContext: weather,
+        calendarEvents: events.isEmpty ? null : events,
       );
       state = state.copyWith(
         step: OutfitGeneratorStep.result,
@@ -111,6 +123,25 @@ class OutfitGeneratorNotifier extends StateNotifier<OutfitGeneratorState> {
         step: OutfitGeneratorStep.error,
         errorMessage: AppException.extractMessage(e),
       );
+    }
+  }
+
+  Future<WeatherContext?> _fetchWeather() async {
+    try {
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return null;
+      }
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.low,
+          timeLimit: Duration(seconds: 5),
+        ),
+      );
+      return WeatherService().getCurrentWeather(position);
+    } catch (_) {
+      return null;
     }
   }
 
@@ -129,10 +160,12 @@ class OutfitGeneratorNotifier extends StateNotifier<OutfitGeneratorState> {
       clearError: true,
     );
     try {
+      final weather = await _fetchWeather();
       final outfit = await _repository.generateOutfit(
         mood: state.selectedMood!,
         event: state.selectedEvent!,
         excludeIds: [garmentId],
+        weatherContext: weather,
       );
       state = state.copyWith(
         step: OutfitGeneratorStep.result,

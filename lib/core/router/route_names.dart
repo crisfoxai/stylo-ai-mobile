@@ -12,6 +12,7 @@ class RouteNames {
   static const String scan = 'scan';
   static const String scanPreview = 'scan-preview';
   static const String outfits = 'outfits';
+  static const String outfitGenerator = 'outfit-generator';
   static const String outfitDetail = 'outfit-detail';
   static const String favorites = 'favorites';
   static const String outfitHistory = 'outfit-history';
@@ -19,4 +20,6 @@ class RouteNames {
   static const String tryOn = 'try-on';
   static const String paywall = 'paywall';
   static const String subscriptionManage = 'subscription-manage';
+  static const String referrals = 'referrals';
+  static const String garmentDetectionConfirm = 'garment-detection-confirm';
 }

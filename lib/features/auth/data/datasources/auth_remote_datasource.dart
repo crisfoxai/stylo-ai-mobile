@@ -88,15 +88,20 @@ class AuthRemoteDataSource {
     );
   }
 
-  Future<AuthResult> googleSignIn(String idToken) async {
-    final response = await _dio.post(Endpoints.googleAuth, data: {'idToken': idToken});
-    final body = response.data as Map<String, dynamic>;
-    final googleData = body['data'] as Map<String, dynamic>? ?? body;
-    return _parseAuthResponse(
-      googleData,
-      isNewUser: (googleData['user'] as Map<String, dynamic>?)?['isNewUser'] as bool? ?? false,
-      idToken: idToken,
+  Future<AuthResult> googleSignIn(String googleIdToken, {String? accessToken}) async {
+    debugPrint('[AUTH] Google Firebase credential sign-in start');
+    final credential = fb.GoogleAuthProvider.credential(
+      idToken: googleIdToken,
+      accessToken: accessToken,
     );
+    final userCredential = await _firebaseAuth.signInWithCredential(credential);
+    debugPrint('[AUTH] Google Firebase sign-in ok, uid=${userCredential.user!.uid}');
+
+    final isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
+    final firebaseIdToken = await userCredential.user!.getIdToken();
+    debugPrint('[AUTH] Firebase idToken length=${firebaseIdToken?.length ?? 0}');
+
+    return _syncWithBackend(firebaseIdToken!, isNewUser: isNewUser);
   }
 
   Future<AuthResult> appleSignIn(

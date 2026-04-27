@@ -51,4 +51,19 @@ class Endpoints {
   static const String registerPushToken = '/notifications/register-token';
   // Try-On
   static const String tryOn = '/tryon';
+
+  // Share Card
+  static String shareCard(String outfitId) => '/outfits/$outfitId/share-card';
+
+  // Referrals
+  static const String referralApplyCode = '/referrals/apply-code';
+  static const String referralMyStats = '/referrals/my-stats';
+
+  // Wardrobe v4
+  static const String garmentsCount = '/garments/count';
+  static const String wardrobeDetectFromPhoto = '/garments/detect-from-photo';
+  static const String wardrobeDetectConfirm = '/garments/detect-from-photo/confirm';
+
+  // Outfits v4
+  static String outfitLookPhoto(String id) => '/outfits/$id/look-photo';
 }

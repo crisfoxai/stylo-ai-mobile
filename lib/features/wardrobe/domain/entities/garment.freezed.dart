@@ -36,7 +36,18 @@ mixin _$Garment {
   Map<String, double>? get confidences => throw _privateConstructorUsedError;
   ItemStatus get status => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt =>
+      throw _privateConstructorUsedError; // v4 extended fields
+  String? get brand => throw _privateConstructorUsedError;
+  String? get colorSecondary => throw _privateConstructorUsedError;
+  List<String> get materials => throw _privateConstructorUsedError;
+  String? get fit => throw _privateConstructorUsedError;
+  List<String> get seasons => throw _privateConstructorUsedError;
+  List<String> get occasions => throw _privateConstructorUsedError;
+  String? get condition => throw _privateConstructorUsedError;
+  double? get purchasePrice => throw _privateConstructorUsedError;
+  String? get purchaseDate => throw _privateConstructorUsedError;
+  String? get notes => throw _privateConstructorUsedError;
 
   /// Serializes this Garment to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -69,6 +80,16 @@ abstract class $GarmentCopyWith<$Res> {
     ItemStatus status,
     DateTime createdAt,
     DateTime updatedAt,
+    String? brand,
+    String? colorSecondary,
+    List<String> materials,
+    String? fit,
+    List<String> seasons,
+    List<String> occasions,
+    String? condition,
+    double? purchasePrice,
+    String? purchaseDate,
+    String? notes,
   });
 }
 
@@ -103,6 +124,16 @@ class _$GarmentCopyWithImpl<$Res, $Val extends Garment>
     Object? status = null,
     Object? createdAt = null,
     Object? updatedAt = null,
+    Object? brand = freezed,
+    Object? colorSecondary = freezed,
+    Object? materials = null,
+    Object? fit = freezed,
+    Object? seasons = null,
+    Object? occasions = null,
+    Object? condition = freezed,
+    Object? purchasePrice = freezed,
+    Object? purchaseDate = freezed,
+    Object? notes = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -170,6 +201,46 @@ class _$GarmentCopyWithImpl<$Res, $Val extends Garment>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            brand: freezed == brand
+                ? _value.brand
+                : brand // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            colorSecondary: freezed == colorSecondary
+                ? _value.colorSecondary
+                : colorSecondary // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            materials: null == materials
+                ? _value.materials
+                : materials // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            fit: freezed == fit
+                ? _value.fit
+                : fit // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            seasons: null == seasons
+                ? _value.seasons
+                : seasons // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            occasions: null == occasions
+                ? _value.occasions
+                : occasions // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            condition: freezed == condition
+                ? _value.condition
+                : condition // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            purchasePrice: freezed == purchasePrice
+                ? _value.purchasePrice
+                : purchasePrice // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            purchaseDate: freezed == purchaseDate
+                ? _value.purchaseDate
+                : purchaseDate // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            notes: freezed == notes
+                ? _value.notes
+                : notes // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -201,6 +272,16 @@ abstract class _$$GarmentImplCopyWith<$Res> implements $GarmentCopyWith<$Res> {
     ItemStatus status,
     DateTime createdAt,
     DateTime updatedAt,
+    String? brand,
+    String? colorSecondary,
+    List<String> materials,
+    String? fit,
+    List<String> seasons,
+    List<String> occasions,
+    String? condition,
+    double? purchasePrice,
+    String? purchaseDate,
+    String? notes,
   });
 }
 
@@ -234,6 +315,16 @@ class __$$GarmentImplCopyWithImpl<$Res>
     Object? status = null,
     Object? createdAt = null,
     Object? updatedAt = null,
+    Object? brand = freezed,
+    Object? colorSecondary = freezed,
+    Object? materials = null,
+    Object? fit = freezed,
+    Object? seasons = null,
+    Object? occasions = null,
+    Object? condition = freezed,
+    Object? purchasePrice = freezed,
+    Object? purchaseDate = freezed,
+    Object? notes = freezed,
   }) {
     return _then(
       _$GarmentImpl(
@@ -301,6 +392,46 @@ class __$$GarmentImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        brand: freezed == brand
+            ? _value.brand
+            : brand // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        colorSecondary: freezed == colorSecondary
+            ? _value.colorSecondary
+            : colorSecondary // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        materials: null == materials
+            ? _value._materials
+            : materials // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        fit: freezed == fit
+            ? _value.fit
+            : fit // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        seasons: null == seasons
+            ? _value._seasons
+            : seasons // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        occasions: null == occasions
+            ? _value._occasions
+            : occasions // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        condition: freezed == condition
+            ? _value.condition
+            : condition // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        purchasePrice: freezed == purchasePrice
+            ? _value.purchasePrice
+            : purchasePrice // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        purchaseDate: freezed == purchaseDate
+            ? _value.purchaseDate
+            : purchaseDate // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        notes: freezed == notes
+            ? _value.notes
+            : notes // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -326,8 +457,21 @@ class _$GarmentImpl implements _Garment {
     this.status = ItemStatus.ready,
     required this.createdAt,
     required this.updatedAt,
+    this.brand,
+    this.colorSecondary,
+    final List<String> materials = const [],
+    this.fit,
+    final List<String> seasons = const [],
+    final List<String> occasions = const [],
+    this.condition,
+    this.purchasePrice,
+    this.purchaseDate,
+    this.notes,
   }) : _tags = tags,
-       _confidences = confidences;
+       _confidences = confidences,
+       _materials = materials,
+       _seasons = seasons,
+       _occasions = occasions;
 
   factory _$GarmentImpl.fromJson(Map<String, dynamic> json) =>
       _$$GarmentImplFromJson(json);
@@ -381,10 +525,52 @@ class _$GarmentImpl implements _Garment {
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
+  // v4 extended fields
+  @override
+  final String? brand;
+  @override
+  final String? colorSecondary;
+  final List<String> _materials;
+  @override
+  @JsonKey()
+  List<String> get materials {
+    if (_materials is EqualUnmodifiableListView) return _materials;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_materials);
+  }
+
+  @override
+  final String? fit;
+  final List<String> _seasons;
+  @override
+  @JsonKey()
+  List<String> get seasons {
+    if (_seasons is EqualUnmodifiableListView) return _seasons;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_seasons);
+  }
+
+  final List<String> _occasions;
+  @override
+  @JsonKey()
+  List<String> get occasions {
+    if (_occasions is EqualUnmodifiableListView) return _occasions;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_occasions);
+  }
+
+  @override
+  final String? condition;
+  @override
+  final double? purchasePrice;
+  @override
+  final String? purchaseDate;
+  @override
+  final String? notes;
 
   @override
   String toString() {
-    return 'Garment(id: $id, name: $name, imageUrl: $imageUrl, thumbnailUrl: $thumbnailUrl, type: $type, category: $category, color: $color, style: $style, material: $material, season: $season, tags: $tags, userId: $userId, confidences: $confidences, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Garment(id: $id, name: $name, imageUrl: $imageUrl, thumbnailUrl: $thumbnailUrl, type: $type, category: $category, color: $color, style: $style, material: $material, season: $season, tags: $tags, userId: $userId, confidences: $confidences, status: $status, createdAt: $createdAt, updatedAt: $updatedAt, brand: $brand, colorSecondary: $colorSecondary, materials: $materials, fit: $fit, seasons: $seasons, occasions: $occasions, condition: $condition, purchasePrice: $purchasePrice, purchaseDate: $purchaseDate, notes: $notes)';
   }
 
   @override
@@ -416,12 +602,32 @@ class _$GarmentImpl implements _Garment {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.brand, brand) || other.brand == brand) &&
+            (identical(other.colorSecondary, colorSecondary) ||
+                other.colorSecondary == colorSecondary) &&
+            const DeepCollectionEquality().equals(
+              other._materials,
+              _materials,
+            ) &&
+            (identical(other.fit, fit) || other.fit == fit) &&
+            const DeepCollectionEquality().equals(other._seasons, _seasons) &&
+            const DeepCollectionEquality().equals(
+              other._occasions,
+              _occasions,
+            ) &&
+            (identical(other.condition, condition) ||
+                other.condition == condition) &&
+            (identical(other.purchasePrice, purchasePrice) ||
+                other.purchasePrice == purchasePrice) &&
+            (identical(other.purchaseDate, purchaseDate) ||
+                other.purchaseDate == purchaseDate) &&
+            (identical(other.notes, notes) || other.notes == notes));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     name,
@@ -439,7 +645,17 @@ class _$GarmentImpl implements _Garment {
     status,
     createdAt,
     updatedAt,
-  );
+    brand,
+    colorSecondary,
+    const DeepCollectionEquality().hash(_materials),
+    fit,
+    const DeepCollectionEquality().hash(_seasons),
+    const DeepCollectionEquality().hash(_occasions),
+    condition,
+    purchasePrice,
+    purchaseDate,
+    notes,
+  ]);
 
   /// Create a copy of Garment
   /// with the given fields replaced by the non-null parameter values.
@@ -473,6 +689,16 @@ abstract class _Garment implements Garment {
     final ItemStatus status,
     required final DateTime createdAt,
     required final DateTime updatedAt,
+    final String? brand,
+    final String? colorSecondary,
+    final List<String> materials,
+    final String? fit,
+    final List<String> seasons,
+    final List<String> occasions,
+    final String? condition,
+    final double? purchasePrice,
+    final String? purchaseDate,
+    final String? notes,
   }) = _$GarmentImpl;
 
   factory _Garment.fromJson(Map<String, dynamic> json) = _$GarmentImpl.fromJson;
@@ -508,7 +734,27 @@ abstract class _Garment implements Garment {
   @override
   DateTime get createdAt;
   @override
-  DateTime get updatedAt;
+  DateTime get updatedAt; // v4 extended fields
+  @override
+  String? get brand;
+  @override
+  String? get colorSecondary;
+  @override
+  List<String> get materials;
+  @override
+  String? get fit;
+  @override
+  List<String> get seasons;
+  @override
+  List<String> get occasions;
+  @override
+  String? get condition;
+  @override
+  double? get purchasePrice;
+  @override
+  String? get purchaseDate;
+  @override
+  String? get notes;
 
   /// Create a copy of Garment
   /// with the given fields replaced by the non-null parameter values.

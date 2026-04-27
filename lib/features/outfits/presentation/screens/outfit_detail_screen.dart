@@ -1,10 +1,17 @@
+import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/outfit.dart';
 import '../providers/outfit_generator_provider.dart';
+import '../providers/share_card_provider.dart';
+import '../widgets/look_photo_upload_sheet.dart';
 
 final _outfitDetailProvider =
     FutureProvider.family<Outfit, String>((ref, id) async {
@@ -24,6 +31,71 @@ class OutfitDetailScreen extends ConsumerStatefulWidget {
 class _OutfitDetailScreenState extends ConsumerState<OutfitDetailScreen> {
   bool _isFavoriting = false;
   bool _isLoggingWorn = false;
+  bool _isGeneratingShareCard = false;
+  bool _isDeletingLookPhoto = false;
+
+  Future<void> _openLookPhotoSheet(Outfit outfit) async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (_) => LookPhotoUploadSheet(
+        outfitId: outfit.id,
+        hasExistingPhoto: outfit.hasLookPhoto,
+      ),
+    );
+    if (result == true) {
+      ref.invalidate(_outfitDetailProvider(widget.id));
+    }
+  }
+
+  Future<void> _deleteLookPhoto(Outfit outfit) async {
+    if (_isDeletingLookPhoto) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.lg)),
+        title: const Text('¿Eliminar foto del look?',
+            style: TextStyle(
+                color: AppColors.textPrimary, fontWeight: FontWeight.w700)),
+        content: const Text('Esta acción no se puede deshacer.',
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar',
+                style: TextStyle(color: AppColors.textSecondary)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Eliminar',
+                style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    setState(() => _isDeletingLookPhoto = true);
+    try {
+      await ref.read(outfitRepositoryProvider).deleteLookPhoto(outfit.id);
+      ref.invalidate(_outfitDetailProvider(widget.id));
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(AppException.extractMessage(e)),
+              backgroundColor: AppColors.error),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isDeletingLookPhoto = false);
+    }
+  }
 
   Future<void> _toggleFavorite(Outfit outfit) async {
     if (_isFavoriting) return;
@@ -75,14 +147,43 @@ class _OutfitDetailScreenState extends ConsumerState<OutfitDetailScreen> {
     }
   }
 
-  void _share(Outfit outfit) {
+  Future<void> _share(Outfit outfit) async {
+    if (_isGeneratingShareCard) return;
     HapticFeedback.lightImpact();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Compartiendo "${outfit.name}"...'),
-        backgroundColor: AppColors.info,
-      ),
-    );
+    setState(() => _isGeneratingShareCard = true);
+    try {
+      final result =
+          await ref.read(shareCardProvider(outfit.id).future);
+
+      // Download the image to a temp file
+      final httpClient = HttpClient();
+      final request = await httpClient.getUrl(Uri.parse(result.url));
+      final response = await request.close();
+      final bytes = await response.fold<List<int>>([], (prev, chunk) {
+        prev.addAll(chunk);
+        return prev;
+      });
+
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/share_card_${outfit.id}.jpg');
+      await file.writeAsBytes(bytes);
+
+      await Share.shareXFiles(
+        [XFile(file.path, mimeType: 'image/jpeg')],
+        text: '¡Mirá mi outfit de hoy en Stylo AI! 🌟',
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppException.extractMessage(e)),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isGeneratingShareCard = false);
+    }
   }
 
   @override
@@ -119,9 +220,13 @@ class _OutfitDetailScreenState extends ConsumerState<OutfitDetailScreen> {
           outfit: outfit,
           isFavoriting: _isFavoriting,
           isLoggingWorn: _isLoggingWorn,
+          isGeneratingShareCard: _isGeneratingShareCard,
+          isDeletingLookPhoto: _isDeletingLookPhoto,
           onFavorite: () => _toggleFavorite(outfit),
           onLogWorn: () => _logWorn(outfit),
           onShare: () => _share(outfit),
+          onUploadLookPhoto: () => _openLookPhotoSheet(outfit),
+          onDeleteLookPhoto: () => _deleteLookPhoto(outfit),
         ),
       ),
     );
@@ -132,17 +237,25 @@ class _OutfitDetailContent extends StatelessWidget {
   final Outfit outfit;
   final bool isFavoriting;
   final bool isLoggingWorn;
+  final bool isGeneratingShareCard;
+  final bool isDeletingLookPhoto;
   final VoidCallback onFavorite;
   final VoidCallback onLogWorn;
   final VoidCallback onShare;
+  final VoidCallback onUploadLookPhoto;
+  final VoidCallback onDeleteLookPhoto;
 
   const _OutfitDetailContent({
     required this.outfit,
     required this.isFavoriting,
     required this.isLoggingWorn,
+    required this.isGeneratingShareCard,
+    required this.isDeletingLookPhoto,
     required this.onFavorite,
     required this.onLogWorn,
     required this.onShare,
+    required this.onUploadLookPhoto,
+    required this.onDeleteLookPhoto,
   });
 
   @override
@@ -153,14 +266,26 @@ class _OutfitDetailContent extends StatelessWidget {
           backgroundColor: AppColors.background,
           elevation: 0,
           pinned: true,
-          expandedHeight: 200,
+          expandedHeight: 320,
           iconTheme: const IconThemeData(color: AppColors.textPrimary),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.share_outlined,
-                  color: AppColors.textPrimary),
-              onPressed: onShare,
-            ),
+            isGeneratingShareCard
+                ? const Padding(
+                    padding: EdgeInsets.all(AppSpacing.md),
+                    child: SizedBox(
+                      key: Key('share_card_loading'),
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: AppColors.accent),
+                    ),
+                  )
+                : IconButton(
+                    key: const Key('share_outfit_btn'),
+                    icon: const Icon(Icons.share_outlined,
+                        color: AppColors.textPrimary),
+                    onPressed: onShare,
+                  ),
             isFavoriting
                 ? const Padding(
                     padding: EdgeInsets.all(AppSpacing.md),
@@ -184,15 +309,11 @@ class _OutfitDetailContent extends StatelessWidget {
                   ),
           ],
           flexibleSpace: FlexibleSpaceBar(
-            background: Container(
-              color: AppColors.accentSubtle,
-              child: const Center(
-                child: Icon(
-                  Icons.checkroom_outlined,
-                  color: AppColors.accent,
-                  size: 80,
-                ),
-              ),
+            background: _CoverHero(
+              outfit: outfit,
+              isDeletingLookPhoto: isDeletingLookPhoto,
+              onUploadLookPhoto: onUploadLookPhoto,
+              onDeleteLookPhoto: onDeleteLookPhoto,
             ),
           ),
         ),
@@ -384,6 +505,127 @@ class _OutfitDetailContent extends StatelessWidget {
       'jul', 'ago', 'sep', 'oct', 'nov', 'dic'
     ];
     return '${date.day} de ${months[date.month - 1]} de ${date.year}';
+  }
+}
+
+class _CoverHero extends StatelessWidget {
+  final Outfit outfit;
+  final bool isDeletingLookPhoto;
+  final VoidCallback onUploadLookPhoto;
+  final VoidCallback onDeleteLookPhoto;
+
+  const _CoverHero({
+    required this.outfit,
+    required this.isDeletingLookPhoto,
+    required this.onUploadLookPhoto,
+    required this.onDeleteLookPhoto,
+  });
+
+  String? get _imageUrl =>
+      outfit.lookPhotoUrl ?? outfit.tryonImageUrl ?? outfit.coverImageUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Cover image
+        _imageUrl != null && _imageUrl!.isNotEmpty
+            ? CachedNetworkImage(
+                imageUrl: _imageUrl!,
+                fit: BoxFit.cover,
+                placeholder: (_, __) =>
+                    ColoredBox(color: AppColors.accentSubtle),
+                errorWidget: (_, __, ___) => _placeholder(),
+              )
+            : _placeholder(),
+        // Gradient overlay at bottom
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            height: 100,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [AppColors.background, Colors.transparent],
+              ),
+            ),
+          ),
+        ),
+        // Look photo button at bottom
+        Positioned(
+          bottom: AppSpacing.md,
+          left: AppSpacing.lg,
+          child: GestureDetector(
+            key: const Key('upload_look_photo_btn'),
+            onTap: onUploadLookPhoto,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(AppRadius.full),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.camera_alt_outlined,
+                      color: Colors.white, size: 16),
+                  const SizedBox(width: AppSpacing.xs),
+                  Text(
+                    outfit.hasLookPhoto
+                        ? 'Cambiar foto del look'
+                        : 'Subir foto del look',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        // Delete look photo button
+        if (outfit.hasLookPhoto)
+          Positioned(
+            bottom: AppSpacing.md,
+            right: AppSpacing.lg,
+            child: GestureDetector(
+              key: const Key('delete_look_photo_btn'),
+              onTap: isDeletingLookPhoto ? null : onDeleteLookPhoto,
+              child: Container(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                ),
+                child: isDeletingLookPhoto
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.delete_outline,
+                        color: Colors.white, size: 16),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _placeholder() {
+    return ColoredBox(
+      color: AppColors.accentSubtle,
+      child: const Center(
+        child: Icon(Icons.checkroom_outlined, color: AppColors.accent, size: 80),
+      ),
+    );
   }
 }
 

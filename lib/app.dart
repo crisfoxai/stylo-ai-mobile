@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/router/app_router.dart';
+import 'core/services/deep_link_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/app_lifecycle_observer.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/notifications/presentation/providers/notifications_provider.dart';
+import 'features/referrals/presentation/providers/referral_provider.dart';
 import 'shared/providers/theme_provider.dart';
 
 class StyloApp extends ConsumerStatefulWidget {
@@ -16,6 +18,7 @@ class StyloApp extends ConsumerStatefulWidget {
 
 class _StyloAppState extends ConsumerState<StyloApp> {
   late final AppLifecycleObserver _lifecycleObserver;
+  final _deepLinkService = DeepLinkService();
   bool _notificationsInitialized = false;
 
   @override
@@ -23,11 +26,15 @@ class _StyloAppState extends ConsumerState<StyloApp> {
     super.initState();
     _lifecycleObserver = AppLifecycleObserver(ref);
     WidgetsBinding.instance.addObserver(_lifecycleObserver);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _deepLinkService.init(ref);
+    });
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(_lifecycleObserver);
+    _deepLinkService.dispose();
     super.dispose();
   }
 
@@ -36,16 +43,21 @@ class _StyloAppState extends ConsumerState<StyloApp> {
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(themeModeProvider);
 
-    // Initialize push notifications once the user is authenticated
+    // Initialize push notifications + apply pending referral code on auth
     ref.listen(authStateProvider, (_, next) {
       final user = next.valueOrNull;
       if (user != null && !_notificationsInitialized) {
         _notificationsInitialized = true;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            ref
-                .read(notificationsServiceProvider)
-                .init(context, router);
+            ref.read(notificationsServiceProvider).init(context, router);
+            // Apply pending referral code after registration
+            final pendingCode = ref.read(pendingReferralCodeProvider);
+            if (pendingCode != null && pendingCode.isNotEmpty) {
+              applyReferralCode(ref, pendingCode).then((_) {
+                ref.read(pendingReferralCodeProvider.notifier).state = null;
+              }).catchError((_) {});
+            }
           }
         });
       }

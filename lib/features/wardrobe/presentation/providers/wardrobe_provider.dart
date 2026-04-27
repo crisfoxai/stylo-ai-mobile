@@ -7,6 +7,7 @@ import '../../data/datasources/wardrobe_remote_datasource.dart';
 import '../../data/repositories/wardrobe_repository_impl.dart';
 import '../../domain/entities/garment.dart';
 import '../../domain/repositories/wardrobe_repository.dart';
+import '../../../outfits/domain/entities/wardrobe_count.dart';
 
 // ─── Repository Provider ────────────────────────────────────────────────────
 
@@ -352,4 +353,8 @@ final filteredWardrobeProvider = Provider<List<Garment>>((ref) {
 final garmentDetailProvider =
     FutureProvider.family<Garment, String>((ref, id) {
   return ref.watch(wardrobeRepositoryProvider).getGarment(id);
+});
+
+final wardrobeCountProvider = FutureProvider<WardrobeCount>((ref) {
+  return ref.watch(wardrobeRepositoryProvider).getCount();
 });

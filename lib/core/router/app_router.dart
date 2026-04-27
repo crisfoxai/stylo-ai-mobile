@@ -11,11 +11,14 @@ import '../../features/outfits/presentation/screens/favorites_screen.dart';
 import '../../features/outfits/presentation/screens/outfit_detail_screen.dart';
 import '../../features/outfits/presentation/screens/outfit_generator_screen.dart';
 import '../../features/outfits/presentation/screens/outfit_history_screen.dart';
+import '../../features/outfits/presentation/screens/outfits_list_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/style_profile/presentation/screens/style_quiz_result_screen.dart';
 import '../../features/style_profile/presentation/screens/style_quiz_screen.dart';
+import '../../features/wardrobe/domain/entities/detection_result.dart';
 import '../../features/wardrobe/presentation/screens/camera_scanner_screen.dart';
 import '../../features/wardrobe/presentation/screens/garment_detail_screen.dart';
+import '../../features/wardrobe/presentation/screens/garment_detection_confirm_screen.dart';
 import '../../features/wardrobe/presentation/screens/garment_preview_screen.dart';
 import '../../features/wardrobe/presentation/screens/wardrobe_grid_screen.dart';
 import '../../shared/widgets/main_shell.dart';
@@ -25,6 +28,7 @@ import '../../features/try_on/presentation/screens/virtual_try_on_screen.dart';
 import '../../features/chat/presentation/screens/chat_screen.dart';
 import '../router/route_names.dart';
 import '../../features/outfits/presentation/screens/home_dashboard_screen.dart';
+import '../../features/referrals/presentation/screens/referral_screen.dart';
 
 const _publicRoutes = ['/splash', '/onboarding', '/auth'];
 const _quizRoutes = ['/style-quiz', '/style-quiz/result'];
@@ -152,13 +156,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   imagePath: state.extra as String,
                 ),
               ),
+              GoRoute(
+                path: 'detect-confirm',
+                name: RouteNames.garmentDetectionConfirm,
+                builder: (_, state) => GarmentDetectionConfirmScreen(
+                  result: state.extra as DetectionResult,
+                ),
+              ),
             ],
           ),
           GoRoute(
             path: '/outfits',
             name: RouteNames.outfits,
-            builder: (_, __) => const OutfitGeneratorScreen(),
+            builder: (_, __) => const OutfitsListScreen(),
             routes: [
+              GoRoute(
+                path: 'generate',
+                name: RouteNames.outfitGenerator,
+                builder: (_, __) => const OutfitGeneratorScreen(),
+              ),
               GoRoute(
                 path: 'favorites',
                 name: RouteNames.favorites,
@@ -182,6 +198,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: '/profile',
             name: RouteNames.profile,
             builder: (_, __) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: '/referrals',
+            name: RouteNames.referrals,
+            builder: (_, __) => const ReferralScreen(),
           ),
         ],
       ),

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -160,7 +162,7 @@ class _PickerView extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(AppRadius.lg),
               child: selectedImagePath != null
-                  ? Image.asset(selectedImagePath!, fit: BoxFit.cover,
+                  ? Image.file(File(selectedImagePath!), fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => _PhotoPlaceholder())
                   : _PhotoPlaceholder(),
             ),

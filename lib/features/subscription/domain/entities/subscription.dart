@@ -3,7 +3,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'subscription.freezed.dart';
 part 'subscription.g.dart';
 
-enum SubscriptionPlan { free, stylist, pro, proUnlimited }
+@JsonEnum(valueField: 'jsonValue')
+enum SubscriptionPlan {
+  free(jsonValue: 'free'),
+  stylist(jsonValue: 'stylist'),
+  pro(jsonValue: 'pro'),
+  proUnlimited(jsonValue: 'pro_unlimited');
+
+  const SubscriptionPlan({required this.jsonValue});
+  final String jsonValue;
+}
 
 enum SubscriptionStatus { active, free, grace, expired, cancelled }
 
