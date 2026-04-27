@@ -41,8 +41,8 @@ class Endpoints {
   static const String styleQuiz = '/style-profile/quiz';
 
   // Subscription
-  static const String subscription = '/subscription';
-  static const String verifyPurchase = '/subscription/verify';
+  static const String subscription = '/subscriptions/me';
+  static const String verifyPurchase = '/subscriptions/verify-receipt';
 
   // Weather
   static const String weather = '/weather/current';

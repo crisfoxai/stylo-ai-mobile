@@ -346,7 +346,27 @@ class _GarmentDetailView extends StatelessWidget {
                 ),
               ],
 
-              const SizedBox(height: AppSpacing.xxxl),
+              const SizedBox(height: AppSpacing.lg),
+
+              // Try-On button
+              ElevatedButton.icon(
+                key: const Key('try_on_btn'),
+                onPressed: () => context.push(
+                  '/try-on?garmentId=${garment.id}',
+                ),
+                icon: const Icon(Icons.face_retouching_natural),
+                label: const Text('Prueba Virtual'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 52),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: AppSpacing.md),
 
               // Delete button
               OutlinedButton.icon(

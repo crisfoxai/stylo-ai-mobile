@@ -9,9 +9,7 @@ class SubscriptionRemoteDataSource {
 
   Future<Subscription> getStatus() async {
     final response = await _dio.get(Endpoints.subscription);
-    return Subscription.fromJson(
-      response.data['data'] as Map<String, dynamic>,
-    );
+    return Subscription.fromJson(_normalize(response.data as Map));
   }
 
   Future<Subscription> verifyPurchase({
@@ -27,8 +25,15 @@ class SubscriptionRemoteDataSource {
         'platform': platform,
       },
     );
-    return Subscription.fromJson(
-      response.data['data'] as Map<String, dynamic>,
-    );
+    return Subscription.fromJson(_normalize(response.data as Map));
+  }
+
+  static Map<String, dynamic> _normalize(Map raw) {
+    final data = Map<String, dynamic>.from(raw);
+    // Mongoose lean() returns _id; entity expects id
+    if (!data.containsKey('id') && data.containsKey('_id')) {
+      data['id'] = data['_id'].toString();
+    }
+    return data;
   }
 }

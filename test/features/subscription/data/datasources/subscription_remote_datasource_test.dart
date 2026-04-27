@@ -25,9 +25,7 @@ void main() {
     group('getStatus', () {
       test('returns free subscription from response', () async {
         when(() => mockDio.get(any())).thenAnswer(
-          (_) async => fakeOk({
-            'data': {'id': 'sub1', 'plan': 'free', 'status': 'active'},
-          }),
+          (_) async => fakeOk({'_id': 'sub1', 'plan': 'free', 'status': 'active'}),
         );
 
         final result = await dataSource.getStatus();
@@ -41,9 +39,7 @@ void main() {
     group('verifyPurchase', () {
       test('returns premium subscription after verification', () async {
         when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
-          (_) async => fakeOk({
-            'data': {'id': 'sub2', 'plan': 'pro', 'status': 'active'},
-          }),
+          (_) async => fakeOk({'_id': 'sub2', 'plan': 'pro', 'status': 'active'}),
         );
 
         final result = await dataSource.verifyPurchase(

@@ -655,56 +655,62 @@ class _StylistChatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.accent.withValues(alpha: 0.15),
-                AppColors.accentSubtle,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+      child: Semantics(
+        label: 'Mi Estilista',
+        button: true,
+        excludeSemantics: true,
+        child: GestureDetector(
+          key: const Key('stylist_chat_card'),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.accent.withValues(alpha: 0.15),
+                  AppColors.accentSubtle,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              border: Border.all(
+                color: AppColors.accent.withValues(alpha: 0.3),
+              ),
             ),
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(
-              color: AppColors.accent.withValues(alpha: 0.3),
-            ),
-          ),
-          child: Row(
-            children: [
-              const Text('✨', style: TextStyle(fontSize: 32)),
-              const SizedBox(width: AppSpacing.lg),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Mi Estilista',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      hasChat
-                          ? 'Preguntale qué ponerte hoy'
-                          : 'Disponible en Stylist, Pro y Pro Unlimited',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                    ),
-                  ],
+            child: Row(
+              children: [
+                const Text('✨', style: TextStyle(fontSize: 32)),
+                const SizedBox(width: AppSpacing.lg),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Mi Estilista',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        hasChat
+                            ? 'Preguntale qué ponerte hoy'
+                            : 'Disponible en Stylist, Pro y Pro Unlimited',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Icon(
-                hasChat ? Icons.chevron_right : Icons.lock_outline,
-                color: AppColors.textTertiary,
-              ),
-            ],
+                Icon(
+                  hasChat ? Icons.chevron_right : Icons.lock_outline,
+                  color: AppColors.textTertiary,
+                ),
+              ],
+            ),
           ),
         ),
       ),

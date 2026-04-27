@@ -50,7 +50,9 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
     try {
       final subscription = await _repository.getStatus();
       state = state.copyWith(subscription: subscription, isLoading: false);
-    } catch (e) {
+    } catch (e, st) {
+      // ignore: avoid_print
+      print('[SubscriptionNotifier] fetchStatus error: $e\n$st');
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
