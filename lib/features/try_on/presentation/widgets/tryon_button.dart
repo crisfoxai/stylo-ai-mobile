@@ -9,11 +9,26 @@ import '../providers/tryon_credits_provider.dart';
 
 class TryOnButton extends ConsumerWidget {
   final VoidCallback? onTap;
+  final String? garmentType;
 
-  const TryOnButton({super.key, this.onTap});
+  const TryOnButton({super.key, this.onTap, this.garmentType});
+
+  static const _unsupportedTypes = {
+    'shoes', 'zapatos', 'zapatillas', 'calzado', 'footwear',
+    'accessory', 'accessories', 'accesorio', 'accesorios',
+    'bag', 'bolso', 'cartera', 'hat', 'sombrero', 'belt', 'cinturón',
+  };
+
+  bool get _isUnsupported =>
+      garmentType != null &&
+      _unsupportedTypes.contains(garmentType!.toLowerCase());
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (_isUnsupported) {
+      return const _UnsupportedButton();
+    }
+
     final hasTryon = ref.watch(hasTryonProvider);
     final credits = ref.watch(tryonCreditsProvider);
 
@@ -27,6 +42,46 @@ class TryOnButton extends ConsumerWidget {
     return _ActiveButton(
       onTap: onTap,
       credits: credits,
+    );
+  }
+}
+
+class _UnsupportedButton extends StatelessWidget {
+  const _UnsupportedButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          identifier: 'tryon_unsupported_btn',
+          button: true,
+          label: 'Try-On no disponible para esta categoría',
+          child: OutlinedButton.icon(
+            key: const Key('tryon_unsupported_btn'),
+            onPressed: null,
+            icon: const Icon(Icons.block_outlined, size: 18),
+            label: const Text('Try-On Virtual'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.textTertiary,
+              side: BorderSide(
+                  color: AppColors.textTertiary.withOpacity(0.3)),
+              padding:
+                  const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.full)),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          'Try-on no disponible para esta categoría',
+          style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textTertiary),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }

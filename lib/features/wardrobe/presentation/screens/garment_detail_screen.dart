@@ -354,6 +354,7 @@ class _GarmentDetailView extends StatelessWidget {
 
               // Try-On button (plan-aware)
               TryOnButton(
+                garmentType: garment.type,
                 onTap: () => context.push('/try-on?garmentId=${garment.id}'),
               ),
 

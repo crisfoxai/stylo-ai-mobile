@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -21,6 +25,8 @@ class OutfitTryonBuilderScreen extends ConsumerStatefulWidget {
 
 class _OutfitTryonBuilderScreenState
     extends ConsumerState<OutfitTryonBuilderScreen> {
+  String? _selectedImagePath;
+  final ImagePicker _picker = ImagePicker();
   Garment? _top;
   Garment? _bottom;
   Garment? _outerwear;
@@ -28,6 +34,18 @@ class _OutfitTryonBuilderScreenState
 
   int get _selectedCount =>
       [_top, _bottom, _outerwear].where((g) => g != null).length;
+
+  Future<void> _pickPhoto(ImageSource source) async {
+    final xFile = await _picker.pickImage(
+      source: source,
+      imageQuality: 85,
+      maxWidth: 1920,
+      maxHeight: 1920,
+    );
+    if (xFile != null && mounted) {
+      setState(() => _selectedImagePath = xFile.path);
+    }
+  }
 
   Future<void> _pickGarment(String category) async {
     final picked = await Navigator.of(context).push<Garment>(
@@ -49,7 +67,7 @@ class _OutfitTryonBuilderScreenState
   }
 
   Future<void> _confirm() async {
-    if (_selectedCount == 0) return;
+    if (_selectedCount == 0 || _selectedImagePath == null) return;
 
     final credits = ref.read(tryonCreditsProvider);
     if (credits.isEmpty) {
@@ -79,10 +97,9 @@ class _OutfitTryonBuilderScreenState
 
       final result = await ref
           .read(tryonRepositoryProvider)
-          .tryOnOutfit(garments);
+          .tryOnOutfit(imagePath: _selectedImagePath!, garments: garments);
 
       if (mounted) {
-        // Navigate to result, invalidate credits
         ref.invalidate(tryonCreditsProvider);
         context.go('/try-on?resultUrl=${Uri.encodeComponent(result)}');
       }
@@ -156,9 +173,65 @@ class _OutfitTryonBuilderScreenState
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.md),
               children: [
-                const Text(
+                // Photo picker section
+                Text(
+                  'Tu foto',
+                  style: AppTypography.titleLarge.copyWith(color: AppColors.textPrimary),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Thumbnail
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      child: SizedBox(
+                        width: 80,
+                        height: 108,
+                        child: _selectedImagePath != null
+                            ? Image.file(File(_selectedImagePath!), fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => _PhotoPlaceholder())
+                            : const _PhotoPlaceholder(),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    // Pick buttons
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          OutlinedButton.icon(
+                            key: const Key('outfit_photo_camera_btn'),
+                            onPressed: () => _pickPhoto(ImageSource.camera),
+                            icon: const Icon(PhosphorIconsRegular.camera, size: 16),
+                            label: const Text('Cámara'),
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          OutlinedButton.icon(
+                            key: const Key('outfit_photo_gallery_btn'),
+                            onPressed: () => _pickPhoto(ImageSource.gallery),
+                            icon: const Icon(PhosphorIconsRegular.image, size: 16),
+                            label: const Text('Galería'),
+                          ),
+                          if (_selectedImagePath == null) ...[
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(
+                              'Requerida para el try-on',
+                              style: AppTypography.labelSmall.copyWith(
+                                  color: AppColors.textTertiary),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                const Divider(color: AppColors.divider, height: 1),
+                const SizedBox(height: AppSpacing.lg),
+                Text(
                   'Seleccioná las prendas que querés probar. Podés elegir una o más.',
-                  style: TextStyle(
+                  style: const TextStyle(
                       color: AppColors.textSecondary, fontSize: 13),
                 ),
                 const SizedBox(height: AppSpacing.lg),
@@ -202,7 +275,7 @@ class _OutfitTryonBuilderScreenState
                 width: double.infinity,
                 child: ElevatedButton(
                   key: const Key('tryon_outfit_confirm_btn'),
-                  onPressed: _isRunning || _selectedCount == 0 ? null : _confirm,
+                  onPressed: _isRunning || _selectedCount == 0 || _selectedImagePath == null ? null : _confirm,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.accent,
                     foregroundColor: AppColors.textOnPrimary,
@@ -221,9 +294,11 @@ class _OutfitTryonBuilderScreenState
                               color: AppColors.textOnPrimary),
                         )
                       : Text(
-                          _selectedCount == 0
-                              ? 'Seleccioná al menos una prenda'
-                              : 'Probarme este outfit ($_selectedCount prenda${_selectedCount != 1 ? 's' : ''})',
+                          _selectedImagePath == null
+                              ? 'Elegí tu foto primero'
+                              : _selectedCount == 0
+                                  ? 'Seleccioná al menos una prenda'
+                                  : 'Probarme este outfit ($_selectedCount prenda${_selectedCount != 1 ? 's' : ''})',
                           style: const TextStyle(
                               fontSize: 15, fontWeight: FontWeight.w700),
                         ),
@@ -362,6 +437,24 @@ class _GarmentSlotComingSoon extends StatelessWidget {
             style: TextStyle(color: AppColors.textTertiary, fontSize: 12)),
         trailing: const Icon(Icons.lock_outline,
             color: AppColors.textTertiary, size: 18),
+      ),
+    );
+  }
+}
+
+class _PhotoPlaceholder extends StatelessWidget {
+  const _PhotoPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppColors.surface,
+      child: const Center(
+        child: Icon(
+          PhosphorIconsRegular.userCircle,
+          size: 36,
+          color: AppColors.textTertiary,
+        ),
       ),
     );
   }

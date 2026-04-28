@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../domain/entities/try_on_result.dart';
 
@@ -21,10 +22,24 @@ class TryOnRemoteDataSource {
     return TryOnResult.fromJson(data);
   }
 
-  /// POST /tryon/outfit — sequential multi-garment tryon pipeline.
-  /// Returns the final result image URL.
-  Future<String> tryOnOutfit(List<Map<String, String>> garments) async {
-    final response = await _dio.post('/tryon/outfit', data: {'garments': garments});
+  /// POST /tryon/outfit — sequential multi-garment tryon pipeline (multipart).
+  /// Sends userPhoto as file, garments as JSON string.
+  /// Uses 180s timeout since N garments are processed sequentially (~30s each).
+  Future<String> tryOnOutfit({
+    required String imagePath,
+    required List<Map<String, String>> garments,
+    String? outfitId,
+  }) async {
+    final formData = FormData.fromMap({
+      'userPhoto': await MultipartFile.fromFile(imagePath, filename: 'photo.jpg'),
+      'garments': jsonEncode(garments),
+      if (outfitId != null) 'outfitId': outfitId,
+    });
+    final response = await _dio.post(
+      '/tryon/outfit',
+      data: formData,
+      options: Options(receiveTimeout: const Duration(seconds: 180)),
+    );
     final body = response.data is Map<String, dynamic>
         ? (response.data['data'] as Map<String, dynamic>? ?? response.data as Map<String, dynamic>)
         : response.data as Map<String, dynamic>;

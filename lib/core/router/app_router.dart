@@ -109,13 +109,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final resultUrl = state.uri.queryParameters['resultUrl'];
           return VirtualTryOnScreen(garmentId: garmentId, resultUrl: resultUrl);
         },
-        routes: [
-          GoRoute(
-            path: 'builder',
-            name: RouteNames.tryOnBuilder,
-            builder: (_, __) => const OutfitTryonBuilderScreen(),
-          ),
-        ],
+      ),
+      GoRoute(
+        path: '/try-on/builder',
+        name: RouteNames.tryOnBuilder,
+        builder: (_, __) => const OutfitTryonBuilderScreen(),
       ),
       GoRoute(
         path: '/chat',

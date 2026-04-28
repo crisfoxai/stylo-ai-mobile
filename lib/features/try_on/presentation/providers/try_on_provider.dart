@@ -110,8 +110,12 @@ class TryonRepository {
   final TryOnRemoteDataSource _ds;
   TryonRepository(this._ds);
 
-  Future<String> tryOnOutfit(List<Map<String, String>> garments) =>
-      _ds.tryOnOutfit(garments);
+  Future<String> tryOnOutfit({
+    required String imagePath,
+    required List<Map<String, String>> garments,
+    String? outfitId,
+  }) =>
+      _ds.tryOnOutfit(imagePath: imagePath, garments: garments, outfitId: outfitId);
 }
 
 final tryonRepositoryProvider = Provider<TryonRepository>((ref) {
