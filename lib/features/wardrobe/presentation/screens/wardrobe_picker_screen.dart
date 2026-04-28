@@ -56,8 +56,12 @@ class WardrobePickerScreen extends ConsumerWidget {
     final items = categoryFilter == null
         ? state.garments
         : state.garments
-            .where((g) =>
-                g.category?.toLowerCase() == categoryFilter!.toLowerCase())
+            .where((g) {
+              final filter = categoryFilter!.toLowerCase();
+              // Match by type (primary) or category (secondary)
+              return g.type.toLowerCase() == filter ||
+                  (g.category?.toLowerCase() == filter);
+            })
             .toList();
 
     if (items.isEmpty) {

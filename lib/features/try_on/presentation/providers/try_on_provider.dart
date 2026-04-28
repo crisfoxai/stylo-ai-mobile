@@ -85,6 +85,11 @@ class TryOnNotifier extends StateNotifier<TryOnState> {
         if (body['error'] == 'TRYON_UNAVAILABLE') {
           return 'El servicio de try-on no está disponible ahora. Intentá más tarde.';
         }
+        // Surface specific backend error details
+        final details = body['details'];
+        if (details is String && details.isNotEmpty) {
+          return details;
+        }
       }
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout) {

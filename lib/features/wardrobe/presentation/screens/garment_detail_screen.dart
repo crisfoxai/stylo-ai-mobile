@@ -11,6 +11,7 @@ import '../../domain/entities/garment.dart';
 import '../providers/wardrobe_provider.dart';
 import 'garment_edit_screen.dart';
 import '../../../try_on/presentation/widgets/tryon_button.dart';
+import '../../../subscription/presentation/providers/subscription_provider.dart';
 
 class GarmentDetailScreen extends ConsumerWidget {
   final String id;
@@ -355,6 +356,20 @@ class _GarmentDetailView extends StatelessWidget {
               TryOnButton(
                 onTap: () => context.push('/try-on?garmentId=${garment.id}'),
               ),
+
+              if (ref.watch(hasTryonProvider)) ...[
+                const SizedBox(height: AppSpacing.xs),
+                TextButton.icon(
+                  key: const Key('tryon_outfit_builder_btn'),
+                  onPressed: () => context.push('/try-on/builder'),
+                  icon: const Text('👗', style: TextStyle(fontSize: 14)),
+                  label: const Text('Armar outfit'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.accent,
+                    minimumSize: const Size(double.infinity, 36),
+                  ),
+                ),
+              ],
 
               const SizedBox(height: AppSpacing.md),
 
