@@ -97,9 +97,12 @@ class WardrobePickerScreen extends ConsumerWidget {
         childAspectRatio: 0.8,
       ),
       itemCount: items.length,
-      itemBuilder: (_, i) => _GarmentTile(
-        garment: items[i],
-        onTap: () => Navigator.of(context).pop(items[i]),
+      itemBuilder: (_, i) => Semantics(
+        identifier: 'garment_tile_$i',
+        child: _GarmentTile(
+          garment: items[i],
+          onTap: () => Navigator.of(context).pop(items[i]),
+        ),
       ),
     );
   }

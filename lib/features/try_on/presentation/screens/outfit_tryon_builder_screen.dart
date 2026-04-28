@@ -101,7 +101,7 @@ class _OutfitTryonBuilderScreenState
 
       if (mounted) {
         ref.invalidate(tryonCreditsProvider);
-        context.go('/try-on?resultUrl=${Uri.encodeComponent(result)}');
+        context.pop(result);
       }
     } catch (e) {
       if (mounted) {
@@ -235,32 +235,41 @@ class _OutfitTryonBuilderScreenState
                       color: AppColors.textSecondary, fontSize: 13),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                _GarmentSlot(
-                  key: const Key('slot_top'),
-                  label: 'Top / Remera',
-                  selected: _top,
-                  onTap: () => _pickGarment('top'),
-                  onClear: _top != null ? () => setState(() => _top = null) : null,
+                Semantics(
+                  identifier: 'slot_top',
+                  child: _GarmentSlot(
+                    key: const Key('slot_top'),
+                    label: 'Top / Remera',
+                    selected: _top,
+                    onTap: () => _pickGarment('top'),
+                    onClear: _top != null ? () => setState(() => _top = null) : null,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                _GarmentSlot(
-                  key: const Key('slot_bottom'),
-                  label: 'Pantalón / Falda',
-                  selected: _bottom,
-                  onTap: () => _pickGarment('bottom'),
-                  onClear:
-                      _bottom != null ? () => setState(() => _bottom = null) : null,
+                Semantics(
+                  identifier: 'slot_bottom',
+                  child: _GarmentSlot(
+                    key: const Key('slot_bottom'),
+                    label: 'Pantalón / Falda',
+                    selected: _bottom,
+                    onTap: () => _pickGarment('bottom'),
+                    onClear:
+                        _bottom != null ? () => setState(() => _bottom = null) : null,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                _GarmentSlot(
-                  key: const Key('slot_outerwear'),
-                  label: 'Campera / Abrigo',
-                  selected: _outerwear,
-                  onTap: () => _pickGarment('outerwear'),
-                  onClear: _outerwear != null
-                      ? () => setState(() => _outerwear = null)
-                      : null,
-                  optional: true,
+                Semantics(
+                  identifier: 'slot_outerwear',
+                  child: _GarmentSlot(
+                    key: const Key('slot_outerwear'),
+                    label: 'Campera / Abrigo',
+                    selected: _outerwear,
+                    onTap: () => _pickGarment('outerwear'),
+                    onClear: _outerwear != null
+                        ? () => setState(() => _outerwear = null)
+                        : null,
+                    optional: true,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 const _GarmentSlotComingSoon(label: 'Calzado'),
@@ -273,7 +282,10 @@ class _OutfitTryonBuilderScreenState
               padding: const EdgeInsets.all(AppSpacing.md),
               child: SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: Semantics(
+                  identifier: 'tryon_outfit_confirm_btn',
+                  button: true,
+                  child: ElevatedButton(
                   key: const Key('tryon_outfit_confirm_btn'),
                   onPressed: _isRunning || _selectedCount == 0 || _selectedImagePath == null ? null : _confirm,
                   style: ElevatedButton.styleFrom(
@@ -302,6 +314,7 @@ class _OutfitTryonBuilderScreenState
                           style: const TextStyle(
                               fontSize: 15, fontWeight: FontWeight.w700),
                         ),
+                  ),
                 ),
               ),
             ),

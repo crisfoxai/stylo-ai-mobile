@@ -65,7 +65,7 @@ class _VirtualTryOnScreenState extends ConsumerState<VirtualTryOnScreen> {
               tryOnState.status == TryOnStatus.idle &&
               widget.garmentId.isEmpty
           ? FloatingActionButton.extended(
-              onPressed: () => context.push('/try-on/builder'),
+              onPressed: () => context.push('/outfit-builder'),
               backgroundColor: AppColors.accent,
               foregroundColor: AppColors.textOnPrimary,
               icon: const Text('👗', style: TextStyle(fontSize: 16)),

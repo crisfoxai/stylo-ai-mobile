@@ -366,7 +366,12 @@ class _GarmentDetailView extends StatelessWidget {
                   label: 'Armar outfit',
                   child: TextButton.icon(
                     key: const Key('tryon_outfit_builder_btn'),
-                    onPressed: () => context.push('/try-on/builder'),
+                    onPressed: () async {
+                      final resultUrl = await context.push<String>('/outfit-builder');
+                      if (resultUrl != null && context.mounted) {
+                        context.go('/try-on?resultUrl=${Uri.encodeComponent(resultUrl)}');
+                      }
+                    },
                     icon: const Text('👗', style: TextStyle(fontSize: 14)),
                     label: const Text('Armar outfit'),
                     style: TextButton.styleFrom(

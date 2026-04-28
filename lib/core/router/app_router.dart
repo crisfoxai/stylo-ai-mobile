@@ -65,10 +65,13 @@ class _RouterNotifier extends ChangeNotifier {
   }
 }
 
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final notifier = _RouterNotifier(ref);
 
   final router = GoRouter(
+    navigatorKey: _rootNavigatorKey,
     initialLocation: '/splash',
     debugLogDiagnostics: true,
     refreshListenable: notifier,
@@ -77,21 +80,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/splash',
         name: RouteNames.splash,
+        parentNavigatorKey: _rootNavigatorKey,
         builder: (_, __) => const SplashScreen(),
       ),
       GoRoute(
         path: '/onboarding',
         name: RouteNames.onboarding,
+        parentNavigatorKey: _rootNavigatorKey,
         builder: (_, __) => const OnboardingScreen(),
       ),
       GoRoute(
         path: '/auth',
         name: RouteNames.auth,
+        parentNavigatorKey: _rootNavigatorKey,
         builder: (_, __) => const AuthScreen(),
       ),
       GoRoute(
         path: '/style-quiz',
         name: RouteNames.styleQuiz,
+        parentNavigatorKey: _rootNavigatorKey,
         builder: (_, __) => const StyleQuizScreen(),
         routes: [
           GoRoute(
@@ -104,6 +111,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/try-on',
         name: RouteNames.tryOn,
+        parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) {
           final garmentId = state.uri.queryParameters['garmentId'] ?? '';
           final resultUrl = state.uri.queryParameters['resultUrl'];
@@ -111,8 +119,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '/try-on/builder',
+        path: '/outfit-builder',
         name: RouteNames.tryOnBuilder,
+        parentNavigatorKey: _rootNavigatorKey,
         builder: (_, __) => const OutfitTryonBuilderScreen(),
       ),
       GoRoute(
