@@ -266,15 +266,21 @@ class _WardrobeGridScreenState extends ConsumerState<WardrobeGridScreen> {
             return _buildShimmerTile();
           }
           final garment = garments[index];
-          return GarmentTile(
-            imageUrl: garment.thumbnailUrl ?? garment.imageUrl,
-            category: garment.type,
-            garmentCategory: garment.category,
-            name: garment.name,
-            color: garment.color,
-            onTap: () => context.pushNamed(
-              'garment-detail',
-              pathParameters: {'id': garment.id},
+          return Semantics(
+            identifier: 'garment_tile_$index',
+            label: garment.name,
+            button: true,
+            child: GarmentTile(
+              key: Key('garment_tile_$index'),
+              imageUrl: garment.thumbnailUrl ?? garment.imageUrl,
+              category: garment.type,
+              garmentCategory: garment.category,
+              name: garment.name,
+              color: garment.color,
+              onTap: () => context.pushNamed(
+                'garment-detail',
+                pathParameters: {'id': garment.id},
+              ),
             ),
           );
         },

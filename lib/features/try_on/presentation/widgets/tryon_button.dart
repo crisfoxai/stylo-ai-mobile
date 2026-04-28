@@ -41,19 +41,24 @@ class _LockedButton extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        OutlinedButton.icon(
-          key: const Key('tryon_locked_btn'),
-          onPressed: onTap,
-          icon: const Icon(Icons.lock_outline, size: 18),
-          label: const Text('Try-On Virtual'),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.textSecondary,
-            side: BorderSide(
-                color: AppColors.textSecondary.withOpacity(0.4)),
-            padding:
-                const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.full)),
+        Semantics(
+          identifier: 'tryon_locked_btn',
+          button: true,
+          label: 'Try-On Virtual bloqueado',
+          child: OutlinedButton.icon(
+            key: const Key('tryon_locked_btn'),
+            onPressed: onTap,
+            icon: const Icon(Icons.lock_outline, size: 18),
+            label: const Text('Try-On Virtual'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+              side: BorderSide(
+                  color: AppColors.textSecondary.withOpacity(0.4)),
+              padding:
+                  const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.full)),
+            ),
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
@@ -82,19 +87,24 @@ class _ActiveButton extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ElevatedButton.icon(
-          key: const Key('tryon_active_btn'),
-          onPressed: onTap,
-          icon: const Text('👗', style: TextStyle(fontSize: 16)),
-          label: const Text('Try-On Virtual'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.accent,
-            foregroundColor: AppColors.textOnPrimary,
-            padding:
-                const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.full)),
-            elevation: 0,
+        Semantics(
+          identifier: 'tryon_active_btn',
+          button: true,
+          label: 'Try-On Virtual',
+          child: ElevatedButton.icon(
+            key: const Key('tryon_active_btn'),
+            onPressed: onTap,
+            icon: const Text('👗', style: TextStyle(fontSize: 16)),
+            label: const Text('Try-On Virtual'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accent,
+              foregroundColor: AppColors.textOnPrimary,
+              padding:
+                  const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.full)),
+              elevation: 0,
+            ),
           ),
         ),
         if (!credits.isUnlimited) ...[
