@@ -360,14 +360,19 @@ class _GarmentDetailView extends StatelessWidget {
 
               if (ref.watch(hasTryonProvider)) ...[
                 const SizedBox(height: AppSpacing.xs),
-                TextButton.icon(
-                  key: const Key('tryon_outfit_builder_btn'),
-                  onPressed: () => context.push('/try-on/builder'),
-                  icon: const Text('👗', style: TextStyle(fontSize: 14)),
-                  label: const Text('Armar outfit'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppColors.accent,
-                    minimumSize: const Size(double.infinity, 36),
+                Semantics(
+                  identifier: 'tryon_outfit_builder_btn',
+                  button: true,
+                  label: 'Armar outfit',
+                  child: TextButton.icon(
+                    key: const Key('tryon_outfit_builder_btn'),
+                    onPressed: () => context.push('/try-on/builder'),
+                    icon: const Text('👗', style: TextStyle(fontSize: 14)),
+                    label: const Text('Armar outfit'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.accent,
+                      minimumSize: const Size(double.infinity, 36),
+                    ),
                   ),
                 ),
               ],
